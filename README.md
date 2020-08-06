@@ -57,12 +57,9 @@ samples, guidance on mobile development, and a full API reference.
    mkdir data/
     ./minio.exe server data/
     ```
-8. You can access the MinIO Browser on http://127.0.0.1:9000.
-
-
-
-
-
+8. You can access the MinIO Browser on http://127.0.0.1:9000. The default credentials are:
+   * User: `minioadmin`
+   * Password: `minioadmin`
 
 
 TODO: 

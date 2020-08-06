@@ -31,7 +31,7 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
 
   _LocalLogFilesPageState() {
     this._monitoredDirectory =
-        //new Directory('C:\\Users\\phili\\Downloads\\ERT-0920');
+        //new Directory('C:\\Users\\phili\\Downloads\\ERT-0819\\log');
         new Directory(
             'C:\\Users\\phili\\workspace\\emotion\\directoryToMonitor');
     if (!this._monitoredDirectory.existsSync()) {
@@ -238,7 +238,7 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
       key: widget.globalKey,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          uploadFileSystemEntities(
+          await uploadFileSystemEntities(
               this._fileSystemEntities, this._monitoredDirectory);
           widget.globalKey.currentState.showSnackBar(SnackBar(
             content: Text('Completed File Upload'),

@@ -20,12 +20,12 @@ Minio _initializeClient() {
 }
 
 /// Uploads all files listed in [List<FileSystemEntity>] to Minio.
-/// 
+///
 /// Directories are not directly uploaded as Minio automatically creates folders
 /// whenever a file path contains forward slashes.
 /// The parameter [localBaseDirectory] is required to extract relative file paths.
-void uploadFileSystemEntities(
-    List<FileSystemEntity> fileSystemEntities, Directory localBaseDirectory) {
+Future<void> uploadFileSystemEntities(List<FileSystemEntity> fileSystemEntities,
+    Directory localBaseDirectory) async {
   try {
     final minio = _initializeClient();
     for (final fsEntity in fileSystemEntities) {
@@ -40,11 +40,11 @@ void uploadFileSystemEntities(
         Stream<List<int>> stream = fsEntity.openRead();
         final fileSizeInBytes = fsEntity.lengthSync();
         final fileName = _getCompatibleMinioPath(fsEntity, localBaseDirectory);
-        minio
+        await minio
             .putObject(_bucket, fileName, stream, fileSizeInBytes)
             .then((value) {})
             // TODO: error handling
-            .catchError(() {});
+            .catchError((error) {});
       }
     }
   } on Exception catch (e) {
@@ -58,14 +58,17 @@ void uploadFileSystemEntities(
 ///
 /// Removes the base path from the given [FileSystemEntity] so that it becomes a
 /// relative path, makes the path name POSIX conform (Windows backslashes
-/// become forward slashes), and removes the leading slash (required for Minio).
+/// become forward slashes), replaces characters except [a-zA-Z0-9-\._\/]
+/// by underscores, and removes the leading slash (required for Minio).
 ///
 /// Returns the relative path as a [String].
 String _getCompatibleMinioPath(
     FileSystemEntity fileSystemEntity, Directory localBaseDirectory) {
   final relativePath = path
       .relative(fileSystemEntity.path, from: localBaseDirectory.path)
-      .replaceAll('\\', '/');
+      .replaceAll('\\', '/')
+      // Prevent special characters in file names, e.g. Minio cannot handle the character '!'.
+      .replaceAll(new RegExp(r'[^a-zA-Z0-9-\._\/]'), '_');
 
   if (relativePath.startsWith('/')) {
     return relativePath.substring(1);

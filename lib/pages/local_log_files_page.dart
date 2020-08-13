@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:emotion/utils/minio_manager.dart';
 import 'package:emotion/widgets/app_drawer.dart';
+import 'package:emotion/widgets/upload_progress_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
@@ -23,6 +24,9 @@ class LocalLogFilesPage extends StatefulWidget {
 class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
   final _dateFormatter = new DateFormat('HH:mm:ss');
   final _scrollController = ScrollController();
+  StreamController<double> _progressStreamController;
+  double _progress = 0.0;
+  bool _uploadInProgress = false;
 
   List<FileSystemEntity> _fileSystemEntities = [];
   List<ExtendedFileSystemEvent> _fileSystemEvents = [];
@@ -48,6 +52,7 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
   @override
   void dispose() {
     _fileEventStreamSubscription.cancel();
+    this._progressStreamController.close();
     super.dispose();
   }
 
@@ -226,6 +231,48 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
     );
   }
 
+  /// A [FloatingActionButton] for triggering the upload of log files.
+  /// This button is automatically disabled when an upload is in progress.
+  Widget _uploadFAB() {
+    return FloatingActionButton.extended(
+      /// During upload, the FAB is disabled
+      onPressed: this._uploadInProgress
+          ? null
+          : () async {
+              setState(() {
+                this._progressStreamController = StreamController<double>();
+                _uploadInProgress = true;
+              });
+              final streamSubscription =
+                  this._progressStreamController.stream.listen((progress) {
+                setState(() {
+                  this._progress = progress;
+                });
+              });
+              await uploadFileSystemEntities(this._fileSystemEntities,
+                  this._monitoredDirectory, this._progressStreamController);
+
+              Future.delayed(Duration(seconds: 5), () {
+                setState(() {
+                  streamSubscription.cancel();
+                  this._progressStreamController.close();
+                  this._progressStreamController = null;
+                  this._uploadInProgress = false;
+                });
+              });
+            },
+      backgroundColor: this._uploadInProgress
+          ? Colors.grey.shade200
+          : Theme.of(context).accentColor,
+      disabledElevation: 2,
+      icon: Icon(Icons.cloud_upload),
+      label: Text(
+        'Upload',
+        style: TextStyle(fontSize: 20),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Future.delayed(Duration(milliseconds: 50), () {
@@ -236,52 +283,45 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
 
     return Scaffold(
       key: widget.globalKey,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          await uploadFileSystemEntities(
-              this._fileSystemEntities, this._monitoredDirectory);
-          widget.globalKey.currentState.showSnackBar(SnackBar(
-            content: Text('Completed File Upload'),
-          ));
-        },
-        backgroundColor: Theme.of(context).accentColor,
-        icon: Icon(Icons.cloud_upload),
-        label: Text(
-          'Upload',
-          style: TextStyle(fontSize: 20),
-        ),
-      ),
-      body: Column(
+      floatingActionButton: this._uploadFAB(),
+      body: Stack(
         children: <Widget>[
-          Expanded(
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                AppDrawer(2),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(15),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            _monitoredDirectoryWidget(),
-                            SizedBox(height: 20),
-                            _fileSystemEventsWidget(),
-                            SizedBox(height: 20),
-                            _listFilesWidget(),
-                          ],
+          Column(
+            children: [
+              Expanded(
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    AppDrawer(2),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(15),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                _monitoredDirectoryWidget(),
+                                SizedBox(height: 20),
+                                _fileSystemEventsWidget(),
+                                SizedBox(height: 20),
+                                _listFilesWidget(),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
+          this._progressStreamController != null
+              ? UploadProgressToast(this._progress)
+              : SizedBox(),
         ],
       ),
     );

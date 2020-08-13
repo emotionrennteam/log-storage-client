@@ -1,5 +1,6 @@
 library minio_manager;
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -24,11 +25,21 @@ Minio _initializeClient() {
 /// Directories are not directly uploaded as Minio automatically creates folders
 /// whenever a file path contains forward slashes.
 /// The parameter [localBaseDirectory] is required to extract relative file paths.
-Future<void> uploadFileSystemEntities(List<FileSystemEntity> fileSystemEntities,
-    Directory localBaseDirectory) async {
+/// Emits upload progress events through the [StreamController]. The values to
+/// depict the upload progress are within the range of 0 and 1.
+Future<void> uploadFileSystemEntities(
+    List<FileSystemEntity> fileSystemEntities,
+    Directory localBaseDirectory,
+    StreamController<double> progressController) async {
   try {
+    progressController.add(0.0);
+
     final minio = _initializeClient();
+    int iteration = 0;
+
     for (final fsEntity in fileSystemEntities) {
+      progressController.add(iteration / fileSystemEntities.length);
+      iteration++;
       // Only files must be synced to Minio. Minio does automatically create folders
       // when a file path contains forward slashes.
       if (fsEntity is File) {
@@ -47,6 +58,7 @@ Future<void> uploadFileSystemEntities(List<FileSystemEntity> fileSystemEntities,
             .catchError((error) {});
       }
     }
+    progressController.add(1.0);
   } on Exception catch (e) {
     // TODO: error handling
     debugPrint('Exception: ${e.toString()}');

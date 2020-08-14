@@ -16,6 +16,23 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.grey.shade800,
         accentColor: Colors.indigoAccent,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        textTheme: TextTheme(
+          headline1: TextStyle(
+            fontWeight: FontWeight.w300,
+          ),
+          headline2: TextStyle(
+            fontWeight: FontWeight.w300,
+          ),
+          headline3: TextStyle(
+            fontWeight: FontWeight.w300,
+          ),
+          headline4: TextStyle(
+            fontWeight: FontWeight.w300,
+          ),
+          headline5: TextStyle(
+            fontWeight: FontWeight.w300,
+          ),
+        ),
       ),
       home: HomePage(title: 'E-Motion Rennteam Aalen - Log Client'),
     );

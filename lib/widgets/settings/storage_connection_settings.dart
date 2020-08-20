@@ -75,7 +75,7 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
             child: Text(
               'Storage Connection',
               style: TextStyle(
-                color: Colors.grey.shade200,
+                color: Colors.grey.shade300,
                 fontWeight: FontWeight.w600,
                 fontSize: 23,
               ),
@@ -129,7 +129,6 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
               'Test Connection',
               style: Theme.of(context).textTheme.button,
             ),
-            color: Theme.of(context).accentColor,
             // TODO: show progress spinner
             onPressed: () async {
               int port = 0;
@@ -167,12 +166,13 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
                 ),
               ));
             },
-            padding: EdgeInsets.symmetric(
-              vertical: 15,
-              horizontal: 25,
-            ),
+            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 30),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18.0),
+              borderRadius: BorderRadius.circular(28.0),
+              side: BorderSide(
+                color: Color.fromRGBO(40, 40, 40, 1),
+                width: 2,
+              ),
             ),
           ),
         ),

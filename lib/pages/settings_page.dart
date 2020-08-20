@@ -1,5 +1,6 @@
 import 'package:emotion/utils/app_settings.dart';
 import 'package:emotion/widgets/app_drawer.dart';
+import 'package:emotion/widgets/settings/log_file_settings.dart';
 import 'package:emotion/widgets/settings/storage_connection_settings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,8 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  StorageConnectionSettings storageConnectionsWidget = StorageConnectionSettings();
+  StorageConnectionSettings storageConnectionsWidget =
+      StorageConnectionSettings();
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +76,10 @@ class _SettingsPageState extends State<SettingsPage> {
                               ),
                             ),
                             storageConnectionsWidget,
+                            SizedBox(
+                              height: 32,
+                            ),
+                            LogFileSettings(),
                           ],
                         ),
                       ),

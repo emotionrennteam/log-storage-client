@@ -1,5 +1,6 @@
 import 'package:emotion/pages/home_page.dart';
 import 'package:emotion/pages/local_log_files_page.dart';
+import 'package:emotion/pages/settings_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -10,63 +11,63 @@ class AppDrawer extends StatelessWidget {
     new AppDrawerItem('Drivers', HomePage()),
     new AppDrawerItem('Local Log Files', LocalLogFilesPage()),
     new AppDrawerItem('Remote Log Files', HomePage()),
-    new AppDrawerItem('Settings', HomePage()),
+    new AppDrawerItem('Settings', SettingsPage()),
   ];
 
   AppDrawer(this.activeListItemIndex);
-
-  Widget _buildImageAndTitleContainer(BuildContext context) {
-    return Container(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.all(20),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: CircleAvatar(
-                child: Text('John Doe'),
-                radius: 50,
-                foregroundColor: Colors.black,
-                backgroundImage: NetworkImage(
-                    'https://cdn4.vectorstock.com/i/1000x1000/46/73/person-gray-photo-placeholder-man-material-design-vector-23804673.jpg'),
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(20),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Telemetry Log Client',
-                style: Theme.of(context).textTheme.headline6,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   List<Widget> _buildAppDrawerItems(BuildContext context) {
     final appDrawerItems = List<Widget>();
     this.appDrawerItems.asMap().forEach((index, element) {
       appDrawerItems.add(
-        Ink(
-          color: activeListItemIndex == index
-              ? Colors.grey.shade300
-              : Colors.transparent,
-          child: ListTile(
-            title: Text(element.title),
-            onTap: () {
-              Navigator.of(context).push(
-                PageRouteBuilder(
-                  pageBuilder: (BuildContext context, _, __) {
-                    return element.destinationPage;
-                  },
+        Padding(
+          padding: EdgeInsets.only(
+            left: 5,
+            top: 5,
+          ),
+          child: Container(
+            height: 40,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                splashColor: Theme.of(context).primaryColor,
+                highlightColor: Colors.transparent,
+                onTap: () {
+                  Navigator.of(context).push(
+                    PageRouteBuilder(
+                      pageBuilder: (BuildContext context, _, __) {
+                        return element.destinationPage;
+                      },
+                    ),
+                  );
+                },
+                child: Row(
+                  children: [
+                    Container(
+                      width: 5.0,
+                      height: 25,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          left: BorderSide(
+                            color: this.activeListItemIndex == index
+                                ? Theme.of(context).accentColor
+                                : Colors.transparent,
+                            width: 3.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 30,
+                    ),
+                    Text(
+                      element.title,
+                      style: Theme.of(context).textTheme.headline6,
+                    ),
+                  ],
                 ),
-              );
-            },
+              ),
+            ),
           ),
         ),
       );
@@ -76,27 +77,17 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final childWidgets = <Widget>[
-      _buildImageAndTitleContainer(context),
-      Divider(
-        indent: 5,
-        endIndent: 5,
-      ),
-    ];
-    childWidgets.addAll(_buildAppDrawerItems(context));
-
     return Container(
       width: 300,
       decoration: BoxDecoration(
         border: Border(
           right: BorderSide(
-            color: Colors.grey.shade200,
-            width: 2.0,
+            color: Colors.transparent,
           ),
         ),
       ),
       child: ListView(
-        children: childWidgets,
+        children: _buildAppDrawerItems(context),
       ),
     );
   }

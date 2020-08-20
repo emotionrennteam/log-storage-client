@@ -53,6 +53,13 @@ class MyApp extends StatelessWidget {
             fontSize: 15,
           ),
         ),
+        snackBarTheme: SnackBarThemeData(
+          contentTextStyle: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w400
+          ),
+        )
       ),
       home: HomePage(title: 'E-Motion Rennteam Aalen - Log Client'),
     );

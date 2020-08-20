@@ -113,6 +113,23 @@ class _SettingsPageState extends State<SettingsPage> {
                                 style: Theme.of(context).textTheme.headline2,
                               ),
                             ),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                  bottom: 16,
+                                  top: 32,
+                                ),
+                                child: Text(
+                                  'Storage Connection',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade200,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 23,
+                                  ),
+                                ),
+                              ),
+                            ),
                             TextFieldSetting(
                               'Endpoint',
                               '10.11.0.18',
@@ -163,6 +180,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                   style: Theme.of(context).textTheme.button,
                                 ),
                                 color: Theme.of(context).accentColor,
+                                // TODO: show progress spinner
                                 onPressed: () async {
                                   int port = 0;
                                   try {
@@ -180,9 +198,26 @@ class _SettingsPageState extends State<SettingsPage> {
                                           this.secretKeyController.text);
                                   Scaffold.of(context).hideCurrentSnackBar();
                                   Scaffold.of(context).showSnackBar(SnackBar(
-                                    content: Text(connectionSucceeded
-                                        ? 'Successfully connected.'
-                                        : 'Failed to connect.'),
+                                    content: Row(
+                                      children: <Widget>[
+                                        Icon(
+                                          connectionSucceeded
+                                              ? Icons.check
+                                              : Icons.close,
+                                          color: connectionSucceeded
+                                              ? Theme.of(context).accentColor
+                                              : Colors.redAccent,
+                                        ),
+                                        SizedBox(
+                                          width: 8,
+                                        ),
+                                        Text(
+                                          connectionSucceeded
+                                              ? 'Successfully connected.'
+                                              : 'Failed to connect.',
+                                        ),
+                                      ],
+                                    ),
                                   ));
                                 },
                                 padding: EdgeInsets.symmetric(
@@ -248,6 +283,7 @@ class TextFieldSetting extends StatelessWidget {
           height: 13,
         ),
         TextField(
+          cursorColor: Colors.white,
           controller: this.controller,
           decoration: InputDecoration(
             focusedBorder: OutlineInputBorder(

@@ -11,14 +11,18 @@ import 'package:cross_local_storage/cross_local_storage.dart';
 LocalStorageInterface _localStorageInterface;
 
 Future<LocalStorageInterface> _getStorageReference() async {
-  if (_localStorageInterface == null) {
-    _localStorageInterface = await LocalStorage.getInstance();
+  try {
+    if (_localStorageInterface == null) {
+      _localStorageInterface = await LocalStorage.getInstance();
+    }
+  } catch (e) {
+    // TODO: handle exception when preferences.json is malformed
   }
   return _localStorageInterface;
 }
 
 /// Persists a setting of type [String].
-/// 
+///
 /// Returns true, if the settings was successfully persisted.
 Future<bool> setStringSetting(String key, String value) async {
   final storageReference = await _getStorageReference();
@@ -26,7 +30,7 @@ Future<bool> setStringSetting(String key, String value) async {
 }
 
 /// Retrieves a setting of type [String].
-/// 
+///
 /// Returns the settings value. The return value defaults to [null],
 /// if a setting with the given key doesn't exist.
 Future<String> getStringSetting(String key) async {
@@ -35,7 +39,7 @@ Future<String> getStringSetting(String key) async {
 }
 
 /// Persists a setting of type [bool].
-/// 
+///
 /// Returns true, if the settings was successfully persisted.
 Future<bool> setBoolSetting(String key, bool value) async {
   final storageReference = await _getStorageReference();
@@ -43,7 +47,7 @@ Future<bool> setBoolSetting(String key, bool value) async {
 }
 
 /// Retrieves a setting of type [bool].
-/// 
+///
 /// Returns the settings value. The return value defaults to [null],
 /// if a setting with the given key doesn't exist.
 Future<bool> getBoolSetting(String key) async {
@@ -52,7 +56,7 @@ Future<bool> getBoolSetting(String key) async {
 }
 
 /// Persists a setting of type [int].
-/// 
+///
 /// Returns true, if the settings was successfully persisted.
 Future<bool> setIntSetting(String key, int value) async {
   final storageReference = await _getStorageReference();
@@ -60,7 +64,7 @@ Future<bool> setIntSetting(String key, int value) async {
 }
 
 /// Retrieves a setting of type [int].
-/// 
+///
 /// Returns the settings value. The return value defaults to [null],
 /// if a setting with the given key doesn't exist.
 Future<int> getIntSetting(String key) async {

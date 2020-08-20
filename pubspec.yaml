@@ -26,6 +26,7 @@ dependencies:
   intl: ^0.16.1
   minio: ^0.1.8
   path: ^1.7.0
+  cross_local_storage: ^1.1.0
 
 dev_dependencies:
   flutter_test:

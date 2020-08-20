@@ -20,6 +20,26 @@ Minio _initializeClient() {
   );
 }
 
+/// Checks whether the given credentials allow to connect to the MinIO storage system.
+/// 
+/// Returns [true] if a successful connection was made. Otherwise, returns [false].
+Future<bool> validateConnection(String endpoint, int port, bool useSSL,
+    String accessKey, String secretKey) async {
+  try {
+    final minio = Minio(
+      endPoint: endpoint,
+      port: port,
+      useSSL: useSSL,
+      accessKey: accessKey,
+      secretKey: secretKey,
+    );
+    await minio.listBuckets();
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
 /// Uploads all files listed in [List<FileSystemEntity>] to Minio.
 ///
 /// Directories are not directly uploaded as Minio automatically creates folders

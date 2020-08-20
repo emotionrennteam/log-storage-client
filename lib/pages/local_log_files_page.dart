@@ -296,6 +296,7 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
                     AppDrawer(2),
                     Expanded(
                       child: SingleChildScrollView(
+                        physics: BouncingScrollPhysics(),
                         child: Center(
                           child: Padding(
                             padding: EdgeInsets.all(15),

@@ -27,7 +27,8 @@ Future<bool> setStringSetting(String key, String value) async {
 
 /// Retrieves a setting of type [String].
 /// 
-/// Returns the settings value.
+/// Returns the settings value. The return value defaults to [null],
+/// if a setting with the given key doesn't exist.
 Future<String> getStringSetting(String key) async {
   final storageReference = await _getStorageReference();
   return storageReference.getString(key);
@@ -43,7 +44,8 @@ Future<bool> setBoolSetting(String key, bool value) async {
 
 /// Retrieves a setting of type [bool].
 /// 
-/// Returns the settings value.
+/// Returns the settings value. The return value defaults to [null],
+/// if a setting with the given key doesn't exist.
 Future<bool> getBoolSetting(String key) async {
   final storageReference = await _getStorageReference();
   return storageReference.getBool(key);
@@ -59,7 +61,8 @@ Future<bool> setIntSetting(String key, int value) async {
 
 /// Retrieves a setting of type [int].
 /// 
-/// Returns the settings value.
+/// Returns the settings value. The return value defaults to [null],
+/// if a setting with the given key doesn't exist.
 Future<int> getIntSetting(String key) async {
   final storageReference = await _getStorageReference();
   return storageReference.getInt(key);

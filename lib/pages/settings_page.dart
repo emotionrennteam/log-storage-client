@@ -31,7 +31,7 @@ class _SettingsPageState extends State<SettingsPage> {
     );
     getMinioPort().then(
       (value) => setState(() {
-        this.portController.text = value.toString();
+        if (value != null) this.portController.text = value.toString();
       }),
     );
     getMinioAccessKey().then(
@@ -119,6 +119,7 @@ class _SettingsPageState extends State<SettingsPage> {
                               this.endpointController,
                             ),
                             Divider(color: Colors.transparent),
+                            // TODO: validate user input and ensure that it's a string
                             TextFieldSetting(
                               'Port',
                               '9000',

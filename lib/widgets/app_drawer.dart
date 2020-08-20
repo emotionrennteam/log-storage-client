@@ -8,7 +8,7 @@ class AppDrawer extends StatelessWidget {
   final int activeListItemIndex;
   final List<AppDrawerItem> appDrawerItems = [
     new AppDrawerItem('Home Page', HomePage()),
-    new AppDrawerItem('Drivers', HomePage()),
+    new AppDrawerItem('Profiles', HomePage()),
     new AppDrawerItem('Local Log Files', LocalLogFilesPage()),
     new AppDrawerItem('Remote Log Files', HomePage()),
     new AppDrawerItem('Settings', SettingsPage()),

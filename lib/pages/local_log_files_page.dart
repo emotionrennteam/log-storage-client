@@ -164,7 +164,12 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
   Widget _fileSystemEventWidget(ExtendedFileSystemEvent event) {
     return ListTile(
       leading: Text(_dateFormatter.format(event.timestamp)),
-      title: Text(event.fileSystemEvent.toString()),
+      title: Text(
+        event.fileSystemEvent.toString(),
+        style: TextStyle(
+          color: Theme.of(context).primaryColor,
+        ),
+      ),
       trailing: (event.fileSystemEvent.type == FileSystemEvent.create)
           ? Icon(Icons.add_circle_outline, color: Colors.teal)
           : (event.fileSystemEvent.type == FileSystemEvent.delete)
@@ -227,7 +232,12 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
     }
     return ListTile(
       leading: Icon(iconData, color: Theme.of(context).accentColor),
-      title: Text(fileSystemEntity.path.split('\\').last),
+      title: Text(
+        fileSystemEntity.path.split('\\').last,
+        style: TextStyle(
+          color: Theme.of(context).primaryColor,
+        ),
+      ),
     );
   }
 
@@ -265,10 +275,16 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
           ? Colors.grey.shade200
           : Theme.of(context).accentColor,
       disabledElevation: 2,
-      icon: Icon(Icons.cloud_upload),
+      icon: Icon(
+        Icons.cloud_upload,
+        color: Colors.white,
+      ),
       label: Text(
         'Upload',
-        style: TextStyle(fontSize: 20),
+        style: TextStyle(
+          fontSize: 20,
+          color: Colors.white,
+        ),
       ),
     );
   }
@@ -295,21 +311,24 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
                   children: <Widget>[
                     AppDrawer(2),
                     Expanded(
-                      child: SingleChildScrollView(
-                        physics: BouncingScrollPhysics(),
-                        child: Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(15),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                _monitoredDirectoryWidget(),
-                                SizedBox(height: 20),
-                                _fileSystemEventsWidget(),
-                                SizedBox(height: 20),
-                                _listFilesWidget(),
-                              ],
+                      child: Container(
+                        color: Color.fromRGBO(26, 26, 26, 1),
+                        child: SingleChildScrollView(
+                          physics: BouncingScrollPhysics(),
+                          child: Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(15),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  _monitoredDirectoryWidget(),
+                                  SizedBox(height: 20),
+                                  _fileSystemEventsWidget(),
+                                  SizedBox(height: 20),
+                                  _listFilesWidget(),
+                                ],
+                              ),
                             ),
                           ),
                         ),

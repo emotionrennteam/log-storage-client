@@ -24,7 +24,7 @@ Minio _initializeClient() {
 /// 
 /// Returns [true] if a successful connection was made. Otherwise, returns [false].
 Future<bool> validateConnection(String endpoint, int port, bool useSSL,
-    String accessKey, String secretKey) async {
+    String accessKey, String secretKey, String bucket) async {
   try {
     final minio = Minio(
       endPoint: endpoint,
@@ -33,7 +33,7 @@ Future<bool> validateConnection(String endpoint, int port, bool useSSL,
       accessKey: accessKey,
       secretKey: secretKey,
     );
-    await minio.listBuckets();
+    await minio.bucketExists(bucket);
     return true;
   } catch (_) {
     return false;

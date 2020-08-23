@@ -10,6 +10,7 @@ class StorageConnectionSettings extends StatefulWidget {
   final portController = TextEditingController();
   final accessKeyController = TextEditingController();
   final secretKeyController = TextEditingController();
+  final bucketController = TextEditingController();
 
   final _StorageConnectionSettingsState _state =
       new _StorageConnectionSettingsState();
@@ -57,6 +58,11 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
         if (value != null) {
           this.tlsEnabled = value;
         }
+      }),
+    );
+    getMinioBucket().then(
+      (value) => setState(() {
+        widget.bucketController.text = value;
       }),
     );
   }
@@ -107,6 +113,12 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           widget.secretKeyController,
         ),
         Divider(color: Colors.transparent),
+        TextFieldSetting(
+          'Bucket',
+          'logs',
+          widget.bucketController,
+        ),
+        Divider(color: Colors.transparent),
         SettingPanel('TLS'),
         SwitchListTile(
           value: this.tlsEnabled,
@@ -139,11 +151,13 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
                 return;
               }
               final connectionSucceeded = await validateConnection(
-                  widget.endpointController.text,
-                  port,
-                  this.tlsEnabled,
-                  widget.accessKeyController.text,
-                  widget.secretKeyController.text);
+                widget.endpointController.text,
+                port,
+                this.tlsEnabled,
+                widget.accessKeyController.text,
+                widget.secretKeyController.text,
+                widget.bucketController.text,
+              );
               Scaffold.of(context).hideCurrentSnackBar();
               Scaffold.of(context).showSnackBar(SnackBar(
                 content: Row(

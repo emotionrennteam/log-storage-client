@@ -7,6 +7,7 @@
 library settings_storage;
 
 import 'package:cross_local_storage/cross_local_storage.dart';
+import 'package:flutter/foundation.dart';
 
 LocalStorageInterface _localStorageInterface;
 
@@ -16,6 +17,7 @@ Future<LocalStorageInterface> _getStorageReference() async {
       _localStorageInterface = await LocalStorage.getInstance();
     }
   } catch (e) {
+    debugPrint(e.toString());
     // TODO: handle exception when preferences.json is malformed
   }
   return _localStorageInterface;

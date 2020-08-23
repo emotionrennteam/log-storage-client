@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:emotion/utils/app_settings.dart';
 import 'package:emotion/utils/minio_manager.dart';
 import 'package:emotion/widgets/app_drawer.dart';
 import 'package:emotion/widgets/upload_progress_toast.dart';
@@ -259,8 +260,13 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
                   this._progress = progress;
                 });
               });
-              await uploadFileSystemEntities(this._fileSystemEntities,
-                  this._monitoredDirectory, this._progressStreamController);
+              var credentials = await getStorageConnectionCredentials();
+              await uploadFileSystemEntities(
+                credentials,
+                this._fileSystemEntities,
+                this._monitoredDirectory,
+                this._progressStreamController,
+              );
 
               Future.delayed(Duration(seconds: 5), () {
                 setState(() {

@@ -1,3 +1,4 @@
+import 'package:emotion/models/storage_connection_credentials.dart';
 import 'package:emotion/utils/app_settings.dart';
 import 'package:emotion/utils/minio_manager.dart';
 import 'package:emotion/widgets/settings/settings_panel.dart';
@@ -150,31 +151,35 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
                 // TODO: validate input
                 return;
               }
-              final connectionSucceeded = await validateConnection(
+              var credentials = new StorageConnectionCredentials(
                 widget.endpointController.text,
                 port,
-                this.tlsEnabled,
                 widget.accessKeyController.text,
                 widget.secretKeyController.text,
                 widget.bucketController.text,
+                this.tlsEnabled,
               );
+              final connectionSucceeded = await validateConnection(credentials);
               Scaffold.of(context).hideCurrentSnackBar();
               Scaffold.of(context).showSnackBar(SnackBar(
                 content: Row(
                   children: <Widget>[
                     Icon(
-                      connectionSucceeded ? Icons.check : Icons.close,
-                      color: connectionSucceeded
+                      connectionSucceeded.item1 ? Icons.check : Icons.close,
+                      color: connectionSucceeded.item1
                           ? Theme.of(context).accentColor
                           : Colors.redAccent,
                     ),
                     SizedBox(
                       width: 8,
                     ),
-                    Text(
-                      connectionSucceeded
-                          ? 'Successfully connected.'
-                          : 'Failed to connect.',
+                    Expanded(
+                      child: Text(
+                        connectionSucceeded.item1
+                            ? 'Successfully connected.'
+                            : connectionSucceeded.item2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),

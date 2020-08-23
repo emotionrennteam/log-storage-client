@@ -3,40 +3,40 @@ library minio_manager;
 import 'dart:async';
 import 'dart:io';
 
+import 'package:emotion/models/storage_connection_credentials.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:minio/minio.dart';
 import 'package:path/path.dart' as path;
+import 'package:tuple/tuple.dart';
 
-final String _bucket = 'logs';
-
-Minio _initializeClient() {
+Minio _initializeClient(StorageConnectionCredentials credentials) {
   return Minio(
-    endPoint: '127.0.0.1',
-    port: 9000,
-    useSSL: false,
-    accessKey: 'minioadmin',
-    secretKey: 'minioadmin',
+    endPoint: credentials.endpoint,
+    port: credentials.port,
+    useSSL: credentials.tlsEnabled,
+    accessKey: credentials.accessKey,
+    secretKey: credentials.secretKey,
   );
 }
 
 /// Checks whether the given credentials allow to connect to the MinIO storage system.
-/// 
-/// Returns [true] if a successful connection was made. Otherwise, returns [false].
-Future<bool> validateConnection(String endpoint, int port, bool useSSL,
-    String accessKey, String secretKey, String bucket) async {
+///
+/// Returns a [Tuple2<bool, String>] where the first item contains a [bool]. The [bool]
+/// is [true] upon successful connection and otherwise false. If no successful connection
+/// could be established, then the second item contains an additional error message as a [String].
+Future<Tuple2<bool, String>> validateConnection(
+    StorageConnectionCredentials credentials) async {
   try {
-    final minio = Minio(
-      endPoint: endpoint,
-      port: port,
-      useSSL: useSSL,
-      accessKey: accessKey,
-      secretKey: secretKey,
-    );
-    await minio.bucketExists(bucket);
-    return true;
-  } catch (_) {
-    return false;
+    final minio = _initializeClient(credentials);
+    var bucketExists = await minio.bucketExists(credentials.bucket);
+    if (!bucketExists) {
+      return Tuple2(false,
+          'Connection error: the bucket "${credentials.bucket}" doesn\'t exist.');
+    }
+    return Tuple2(true, null);
+  } catch (e) {
+    return Tuple2(false, 'Connection error: ${e.toString()}');
   }
 }
 
@@ -48,13 +48,14 @@ Future<bool> validateConnection(String endpoint, int port, bool useSSL,
 /// Emits upload progress events through the [StreamController]. The values to
 /// depict the upload progress are within the range of 0 and 1.
 Future<void> uploadFileSystemEntities(
+    StorageConnectionCredentials credentials,
     List<FileSystemEntity> fileSystemEntities,
     Directory localBaseDirectory,
     StreamController<double> progressController) async {
   try {
     progressController.add(0.0);
 
-    final minio = _initializeClient();
+    final minio = _initializeClient(credentials);
     int iteration = 0;
 
     for (final fsEntity in fileSystemEntities) {
@@ -72,7 +73,7 @@ Future<void> uploadFileSystemEntities(
         final fileSizeInBytes = fsEntity.lengthSync();
         final fileName = _getCompatibleMinioPath(fsEntity, localBaseDirectory);
         await minio
-            .putObject(_bucket, fileName, stream, fileSizeInBytes)
+            .putObject(credentials.bucket, fileName, stream, fileSizeInBytes)
             .then((value) {})
             // TODO: error handling
             .catchError((error) {});

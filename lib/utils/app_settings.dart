@@ -1,5 +1,6 @@
 library settings;
 
+import 'package:emotion/models/storage_connection_credentials.dart';
 import 'package:emotion/utils/settings_storage.dart';
 import 'package:flutter/foundation.dart';
 
@@ -11,8 +12,14 @@ const String _MINIO_PORT = 'MINIO_PORT';
 const String _MINIO_SECRET_KEY = 'MINIO_SECRET_KEY';
 const String _MINIO_TLS_ENABLED = 'MINIO_TLS_ENABLED';
 
-Future<bool> saveAllSettings(String endpoint, String port, String accessKey,
-    String secretKey, String bucket, bool tlsEnabled, String logFileDirectoryPath) async {
+Future<bool> saveAllSettings(
+    String endpoint,
+    String port,
+    String accessKey,
+    String secretKey,
+    String bucket,
+    bool tlsEnabled,
+    String logFileDirectoryPath) async {
   int portAsInt;
   try {
     portAsInt = int.parse(port);
@@ -34,6 +41,23 @@ Future<bool> saveAllSettings(String endpoint, String port, String accessKey,
     debugPrint(e.toString());
     return false;
   }
+}
+
+Future<StorageConnectionCredentials> getStorageConnectionCredentials() async {
+  var endpoint = await getMinioEndpoint();
+  var port = await getMinioPort();
+  var accessKey = await getMinioAccessKey();
+  var secretKey = await getMinioSecretKey();
+  var bucket = await getMinioBucket();
+  var tlsEnabled = await getMinioTlsEnabled();
+  return new StorageConnectionCredentials(
+    endpoint,
+    port,
+    accessKey,
+    secretKey,
+    bucket,
+    tlsEnabled,
+  );
 }
 
 Future<bool> setMinioBucket(String bucket) async {

@@ -1,15 +1,35 @@
+import 'dart:io';
+
+import 'package:emotion/utils/app_settings.dart';
 import 'package:emotion/widgets/settings/settings_panel.dart';
 import 'package:emotion/widgets/settings/textfield_setting.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class LogFileSettings extends StatefulWidget {
+  final logFileDirectoryController = TextEditingController();
+
   @override
   State<StatefulWidget> createState() => new _LogFileSettingsState();
 }
 
 class _LogFileSettingsState extends State<LogFileSettings> {
   bool _autoUploadEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    this._readSettings();
+  }
+
+  void _readSettings() async {
+    getLogFileDirectoryPath().then(
+      (value) => setState(() {
+        widget.logFileDirectoryController.text = value;
+      }),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,8 +59,8 @@ class _LogFileSettingsState extends State<LogFileSettings> {
               child: Container(
                 child: TextFieldSetting(
                   'Log File Directory',
-                  'C:\\Users\\JohnDoe\\logs',
-                  null,
+                  '/home/johndoe/logs/',
+                  widget.logFileDirectoryController,
                 ),
                 width: 500,
               ),
@@ -53,7 +73,16 @@ class _LogFileSettingsState extends State<LogFileSettings> {
               child: Container(
                 margin: EdgeInsets.only(top: 41),
                 child: FlatButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    // TODO: the function getDirectoryPath() currently doesn't work
+                    // with the official package in pubspec.yaml. Instead, you need
+                    // to clone file_picker and reference it as a dependency.
+                    var directoryPath = await FilePicker.getDirectoryPath();
+                    if (directoryPath != null && directoryPath.length > 1) {
+                      widget.logFileDirectoryController.text =
+                          File(directoryPath).path;
+                    }
+                  },
                   child: Text(
                     'Browse',
                     style: Theme.of(context).textTheme.button,

@@ -12,8 +12,8 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  StorageConnectionSettings storageConnectionsWidget =
-      StorageConnectionSettings();
+  final storageConnectionsWidget = new StorageConnectionSettings();
+  final logFileSettingsWidget = new LogFileSettings();
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,9 @@ class _SettingsPageState extends State<SettingsPage> {
             storageConnectionsWidget.portController.text,
             storageConnectionsWidget.accessKeyController.text,
             storageConnectionsWidget.secretKeyController.text,
+            storageConnectionsWidget.bucketController.text,
             storageConnectionsWidget.getTlsEnabled(),
+            logFileSettingsWidget.logFileDirectoryController.text,
           );
           this._scaffoldKey.currentState.hideCurrentSnackBar();
           this._scaffoldKey.currentState.showSnackBar(SnackBar(
@@ -79,7 +81,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             SizedBox(
                               height: 32,
                             ),
-                            LogFileSettings(),
+                            logFileSettingsWidget,
                           ],
                         ),
                       ),

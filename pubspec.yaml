@@ -27,6 +27,12 @@ dependencies:
   minio: ^0.1.8
   path: ^1.7.0
   cross_local_storage: ^1.1.0
+  # As of right now, there's a bug / issue with this plugin so that we must reference a locally cloned version of it.
+  # I created an issue on Github: https://github.com/miguelpruivo/flutter_file_picker/issues/324
+  #file_picker: ^1.13.3
+  file_picker:
+    path: ../go/src/flutter_file_picker/file_picker
+  tuple: ^1.0.3
 
 dev_dependencies:
   flutter_test:

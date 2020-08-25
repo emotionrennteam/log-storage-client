@@ -20,12 +20,12 @@ class StorageConnectionSettings extends StatefulWidget {
   State<StatefulWidget> createState() => this._state;
 
   bool getTlsEnabled() {
-    return this._state.tlsEnabled;
+    return this._state._tlsEnabled;
   }
 }
 
 class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
-  bool tlsEnabled = false;
+  bool _tlsEnabled = false;
 
   @override
   void initState() {
@@ -57,7 +57,7 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
     getMinioTlsEnabled().then(
       (value) => setState(() {
         if (value != null) {
-          this.tlsEnabled = value;
+          this._tlsEnabled = value;
         }
       }),
     );
@@ -122,11 +122,11 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
         Divider(color: Colors.transparent),
         SettingPanel('TLS'),
         SwitchListTile(
-          value: this.tlsEnabled,
-          title: Text(this.tlsEnabled ? 'TLS Enabled' : 'TLS Disabled'),
+          value: this._tlsEnabled,
+          title: Text(this._tlsEnabled ? 'TLS Enabled' : 'TLS Disabled'),
           onChanged: (value) async {
             setState(() {
-              this.tlsEnabled = value;
+              this._tlsEnabled = value;
             });
           },
           contentPadding: EdgeInsets.only(
@@ -157,7 +157,7 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
                 widget.accessKeyController.text,
                 widget.secretKeyController.text,
                 widget.bucketController.text,
-                this.tlsEnabled,
+                this._tlsEnabled,
               );
               final connectionSucceeded = await validateConnection(credentials);
               Scaffold.of(context).hideCurrentSnackBar();

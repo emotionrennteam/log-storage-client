@@ -10,8 +10,14 @@ import 'package:flutter/material.dart';
 class LogFileSettings extends StatefulWidget {
   final logFileDirectoryController = TextEditingController();
 
+  final _LogFileSettingsState _state = new _LogFileSettingsState();
+
   @override
-  State<StatefulWidget> createState() => new _LogFileSettingsState();
+  State<StatefulWidget> createState() => this._state;
+
+  bool getAutoUploadEnabled() {
+    return this._state._autoUploadEnabled;
+  }
 }
 
 class _LogFileSettingsState extends State<LogFileSettings> {
@@ -27,6 +33,13 @@ class _LogFileSettingsState extends State<LogFileSettings> {
     getLogFileDirectoryPath().then(
       (value) => setState(() {
         widget.logFileDirectoryController.text = value;
+      }),
+    );
+    getAutoUploadEnabled().then(
+      (value) => setState(() {
+        if (value != null) {
+          this._autoUploadEnabled = value;
+        }
       }),
     );
   }

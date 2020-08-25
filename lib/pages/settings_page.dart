@@ -37,6 +37,7 @@ class _SettingsPageState extends State<SettingsPage> {
             storageConnectionsWidget.bucketController.text,
             storageConnectionsWidget.getTlsEnabled(),
             logFileSettingsWidget.logFileDirectoryController.text,
+            logFileSettingsWidget.getAutoUploadEnabled(),
           );
           this._scaffoldKey.currentState.hideCurrentSnackBar();
           this._scaffoldKey.currentState.showSnackBar(SnackBar(

@@ -4,6 +4,7 @@ import 'package:emotion/models/storage_connection_credentials.dart';
 import 'package:emotion/utils/settings_storage.dart';
 import 'package:flutter/foundation.dart';
 
+const String _AUTO_UPLOAD_ENABLED = 'AUTO_UPLOAD_ENABLED';
 const String _LOG_FILE_DIRECTORY_PATH = 'LOG_FILE_DIRECTORY_PATH';
 const String _MINIO_ACCESS_KEY = 'MINIO_ACCESS_KEY';
 const String _MINIO_BUCKET = 'MINIO_BUCKET';
@@ -13,13 +14,15 @@ const String _MINIO_SECRET_KEY = 'MINIO_SECRET_KEY';
 const String _MINIO_TLS_ENABLED = 'MINIO_TLS_ENABLED';
 
 Future<bool> saveAllSettings(
-    String endpoint,
-    String port,
-    String accessKey,
-    String secretKey,
-    String bucket,
-    bool tlsEnabled,
-    String logFileDirectoryPath) async {
+  String endpoint,
+  String port,
+  String accessKey,
+  String secretKey,
+  String bucket,
+  bool tlsEnabled,
+  String logFileDirectoryPath,
+  bool autoUploadEnabled,
+) async {
   int portAsInt;
   try {
     portAsInt = int.parse(port);
@@ -35,6 +38,7 @@ Future<bool> saveAllSettings(
       setMinioBucket(bucket),
       setMinioTlsEnabled(tlsEnabled),
       setLogFileDirectoryPath(logFileDirectoryPath),
+      setAutoUploadEnabled(autoUploadEnabled),
     ]);
     return !responses.contains(false);
   } catch (e) {
@@ -114,4 +118,12 @@ Future<bool> setLogFileDirectoryPath(String logFileDirectoryPath) async {
 
 Future<String> getLogFileDirectoryPath() async {
   return await getStringSetting(_LOG_FILE_DIRECTORY_PATH);
+}
+
+Future<bool> setAutoUploadEnabled(bool enabled) async {
+  return await setBoolSetting(_AUTO_UPLOAD_ENABLED, enabled);
+}
+
+Future<bool> getAutoUploadEnabled() async {
+  return await getBoolSetting(_AUTO_UPLOAD_ENABLED);
 }

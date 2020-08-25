@@ -42,25 +42,33 @@ samples, guidance on mobile development, and a full API reference.
 
 ## Debugging
 
-1. Start per command line:
-   ```bash
-   cd $PROJECT_DIR
-   flutter run
-   ```
-2. Stop the app
-3. Open Visual Studio Code
-4. Open any `*.dart` file
-5. Hit F5 to start debugging
-6. Download MinIO Server from https://min.io/download#/windows
-7. Start Minio Server:
+1. Open Visual Studio Code
+2. Open any `*.dart` file
+3. Hit F5 to start debugging
+4. Download MinIO Server from https://min.io/download#/windows
+5. Start Minio Server:
    ```bash
    mkdir data/
     ./minio.exe server data/
     ```
-8. You can access the MinIO Browser on http://127.0.0.1:9000. The default credentials are:
+6. You can access the MinIO Browser on http://127.0.0.1:9000. The default credentials are:
    * User: `minioadmin`
    * Password: `minioadmin`
 
-
 TODO: 
 * Fix examples in https://github.com/xtyxtyx/minio-dart/blob/master/lib/src/minio.dart
+
+## File Picker Workaround
+
+* Follow the instructions on https://github.com/miguelpruivo/flutter_file_picker/wiki/Setup#--desktop-go-flutter:
+   * Install Go
+   * Install Hover: `GO111MODULE=on go get -u -a github.com/go-flutter-desktop/hover`
+   * Hover requires the installation of GCC. For this purpose, [install Cygwin](https://sourceware.org/cygwin/install.html).
+   * The gcc version of Cygwin somehow didn't work with Hover. Instead, I had to use [tdm-gcc](https://jmeubank.github.io/tdm-gcc/) as denoted [here on StackOverflow](https://stackoverflow.com/questions/44605108/any-ideas-how-to-solve-this-cygwin-go-build-error).
+   * Excecute hover in Cygwin:
+      ```bash
+      hover init
+      hover run
+      hover build windows
+      ```
+   * Edit `./go/cmd/options.go`.

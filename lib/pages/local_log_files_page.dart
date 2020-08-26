@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:emotion/pages/settings_page.dart';
 import 'package:emotion/utils/app_settings.dart';
 import 'package:emotion/utils/minio_manager.dart';
 import 'package:emotion/widgets/app_drawer.dart';
@@ -13,10 +14,9 @@ import 'package:path/path.dart' as path;
 import '../models/extended_file_system_event.dart';
 
 class LocalLogFilesPage extends StatefulWidget {
-  LocalLogFilesPage({Key key, this.title}) : super(key: key);
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final globalKey = GlobalKey<ScaffoldState>();
-  final String title;
+  LocalLogFilesPage({Key key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => new _LocalLogFilesPageState();
@@ -34,20 +34,15 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
   StreamSubscription _fileEventStreamSubscription;
   Directory _monitoredDirectory;
 
-  _LocalLogFilesPageState() {
-    this._monitoredDirectory =
-        //new Directory('C:\\Users\\phili\\Downloads\\ERT-0819\\log');
-        new Directory(
-            'C:\\Users\\phili\\workspace\\emotion\\directoryToMonitor');
-    if (!this._monitoredDirectory.existsSync()) {
-      // TODO: handle exception
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    _initializeFileSystemWatcher();
+
+    this._loadLogFileDirectory().then((success) {
+      if (success) {
+        this._initializeFileSystemWatcher();
+      }
+    });
   }
 
   @override
@@ -57,23 +52,66 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
     super.dispose();
   }
 
-  void _initializeFileSystemWatcher() async {
-    // https://api.dart.dev/stable/2.8.4/dart-io/FileSystemEntity-class.html
-    Stream<FileSystemEvent> eventStream =
-        this._monitoredDirectory.watch(recursive: true);
-    _fileEventStreamSubscription = eventStream.listen((event) {
-      if (mounted) {
-        setState(() {
-          this._fileSystemEvents.add(
-                ExtendedFileSystemEvent(
-                  fileSystemEvent: event,
-                  timestamp: DateTime.now(),
-                ),
-              );
-        });
-        debugPrint('## EVENT: $event');
+  Future<bool> _loadLogFileDirectory() async {
+    try {
+      var logFileDirectory = await getLogFileDirectoryPath();
+      this._monitoredDirectory = new Directory(logFileDirectory);
+
+      if (this._monitoredDirectory.existsSync()) {
+        return true;
       }
-    });
+
+      widget._scaffoldKey.currentState.hideCurrentSnackBar();
+      widget._scaffoldKey.currentState.showSnackBar(
+        SnackBar(
+          action: SnackBarAction(
+            label: 'CONFIGURE',
+            onPressed: () => Navigator.of(context).push(
+              PageRouteBuilder(
+                pageBuilder: (BuildContext context, _, __) {
+                  return SettingsPage();
+                },
+              ),
+            ),
+          ),
+          content: Text(
+              'The specified log file directory does not exist or cannot be accessed.'),
+        ),
+      );
+      return false;
+    } on FileSystemException catch (e) {
+      debugPrint(e.toString());
+    }
+
+    return false;
+  }
+
+  void _initializeFileSystemWatcher() async {
+    try {
+      // https://api.dart.dev/stable/2.8.4/dart-io/FileSystemEntity-class.html
+      Stream<FileSystemEvent> eventStream =
+          this._monitoredDirectory.watch(recursive: true);
+      _fileEventStreamSubscription = eventStream.listen((event) {
+        if (mounted) {
+          setState(() {
+            this._fileSystemEvents.add(
+                  ExtendedFileSystemEvent(
+                    fileSystemEvent: event,
+                    timestamp: DateTime.now(),
+                  ),
+                );
+          });
+          debugPrint('## EVENT: $event');
+        }
+      });
+
+      setState(() {
+        _fileSystemEntities =
+            this._monitoredDirectory.listSync(recursive: true);
+      });
+    } on Exception catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   Widget _monitoredDirectoryWidget() {
@@ -101,7 +139,9 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
             Row(
               children: [
                 Text(
-                  this._monitoredDirectory.absolute.path,
+                  this._monitoredDirectory != null
+                      ? this._monitoredDirectory.absolute.path
+                      : '',
                   style: TextStyle(
                     color: Colors.white,
                   ),
@@ -184,8 +224,6 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
   }
 
   Widget _listFilesWidget() {
-    _fileSystemEntities = this._monitoredDirectory.listSync(recursive: true);
-
     return Card(
       elevation: 2,
       color: Colors.grey.shade100,
@@ -304,7 +342,7 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
     });
 
     return Scaffold(
-      key: widget.globalKey,
+      key: widget._scaffoldKey,
       floatingActionButton: this._uploadFAB(),
       body: Stack(
         children: <Widget>[

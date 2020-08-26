@@ -32,10 +32,9 @@ class TextFieldSetting extends StatelessWidget {
               ),
               borderSide: BorderSide(color: Colors.transparent, width: 0.0),
             ),
-            contentPadding: EdgeInsets.only(
-              left: 20,
-              top: 15,
-              bottom: 15,
+            contentPadding: EdgeInsets.symmetric(
+              vertical: 15,
+              horizontal: 20,
             ),
             fillColor: Color.fromRGBO(40, 40, 40, 1),
             filled: true,
@@ -46,6 +45,7 @@ class TextFieldSetting extends StatelessWidget {
             ),
             hintText: this.hintText,
           ),
+          // TODO: make this configurable
           keyboardType: TextInputType.number,
           style: TextStyle(
             fontSize: 15,

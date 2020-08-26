@@ -37,6 +37,15 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
     this._readSettings();
   }
 
+  @override
+  void dispose() {
+    this._portFocusNode.dispose();
+    this._accessKeyFocusNode.dispose();
+    this._secretKeyFocusNode.dispose();
+    this._bucketFocusNode.dispose();
+    super.dispose();
+  }
+
   void _readSettings() async {
     getMinioEndpoint().then(
       (value) => setState(() {

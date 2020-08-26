@@ -74,6 +74,7 @@ class _LogFileSettingsState extends State<LogFileSettings> {
                   'Log File Directory',
                   '/home/johndoe/logs/',
                   widget.logFileDirectoryController,
+                  null,
                 ),
                 width: 500,
               ),

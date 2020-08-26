@@ -25,6 +25,10 @@ class StorageConnectionSettings extends StatefulWidget {
 }
 
 class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
+  final _portFocusNode = FocusNode();
+  final _accessKeyFocusNode = FocusNode();
+  final _secretKeyFocusNode = FocusNode();
+  final _bucketFocusNode = FocusNode();
   bool _tlsEnabled = false;
 
   @override
@@ -93,6 +97,7 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           'Endpoint',
           '10.11.0.18',
           widget.endpointController,
+          this._portFocusNode,
         ),
         Divider(color: Colors.transparent),
         // TODO: validate user input and ensure that it's a string
@@ -100,28 +105,33 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           'Port',
           '9000',
           widget.portController,
+          this._accessKeyFocusNode,
         ),
         Divider(color: Colors.transparent),
         TextFieldSetting(
           'Access Key',
           'eyW/+8ZtsgT81Cb0e8OVxzJAQP5lY7Dcamnze+JnWEDT ...',
           widget.accessKeyController,
+          this._secretKeyFocusNode,
         ),
         Divider(color: Colors.transparent),
         TextFieldSetting(
           'Secret Key',
           '0tZn+7QQCxphpHwTm6/dC3LpP5JGIbYl6PK8Sy79R+P2 ...',
           widget.secretKeyController,
+          this._bucketFocusNode,
         ),
         Divider(color: Colors.transparent),
         TextFieldSetting(
           'Bucket',
           'logs',
           widget.bucketController,
+          null,
         ),
         Divider(color: Colors.transparent),
         SettingPanel('TLS'),
         SwitchListTile(
+          autofocus: false,
           value: this._tlsEnabled,
           title: Text(this._tlsEnabled ? 'TLS Enabled' : 'TLS Disabled'),
           onChanged: (value) async {

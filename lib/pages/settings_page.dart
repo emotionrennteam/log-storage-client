@@ -12,8 +12,8 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  final storageConnectionsWidget = new StorageConnectionSettings();
-  final logFileSettingsWidget = new LogFileSettings();
+  final _logFileSettingsWidget = new LogFileSettings();
+  final _storageConnectionsWidget = new StorageConnectionSettings();
 
   @override
   Widget build(BuildContext context) {
@@ -30,14 +30,14 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         onPressed: () async {
           final savingSucceeded = await saveAllSettings(
-            storageConnectionsWidget.endpointController.text,
-            storageConnectionsWidget.portController.text,
-            storageConnectionsWidget.accessKeyController.text,
-            storageConnectionsWidget.secretKeyController.text,
-            storageConnectionsWidget.bucketController.text,
-            storageConnectionsWidget.getTlsEnabled(),
-            logFileSettingsWidget.logFileDirectoryController.text,
-            logFileSettingsWidget.getAutoUploadEnabled(),
+            _storageConnectionsWidget.endpointController.text,
+            _storageConnectionsWidget.portController.text,
+            _storageConnectionsWidget.accessKeyController.text,
+            _storageConnectionsWidget.secretKeyController.text,
+            _storageConnectionsWidget.bucketController.text,
+            _storageConnectionsWidget.getTlsEnabled(),
+            _logFileSettingsWidget.logFileDirectoryController.text,
+            _logFileSettingsWidget.getAutoUploadEnabled(),
           );
           this._scaffoldKey.currentState.hideCurrentSnackBar();
           this._scaffoldKey.currentState.showSnackBar(SnackBar(
@@ -78,11 +78,11 @@ class _SettingsPageState extends State<SettingsPage> {
                                 style: Theme.of(context).textTheme.headline2,
                               ),
                             ),
-                            storageConnectionsWidget,
+                            _storageConnectionsWidget,
                             SizedBox(
                               height: 32,
                             ),
-                            logFileSettingsWidget,
+                            _logFileSettingsWidget,
                           ],
                         ),
                       ),

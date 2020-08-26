@@ -2,23 +2,30 @@ import 'package:emotion/widgets/settings/settings_panel.dart';
 import 'package:flutter/material.dart';
 
 class TextFieldSetting extends StatelessWidget {
-  final String title;
-  final String hintText;
-  final TextEditingController controller;
+  final String _title;
+  final String _hintText;
+  final TextEditingController _controller;
+  final FocusNode _nextFocusNode;
 
-  TextFieldSetting(this.title, this.hintText, this.controller);
+  TextFieldSetting(
+    this._title,
+    this._hintText,
+    this._controller,
+    this._nextFocusNode,
+  );
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SettingPanel(this.title),
+        SettingPanel(this._title),
         SizedBox(
           height: 13,
         ),
-        TextField(
+        TextFormField(
+          autofocus: true,
+          controller: this._controller,
           cursorColor: Colors.white,
-          controller: this.controller,
           decoration: InputDecoration(
             focusedBorder: OutlineInputBorder(
               borderRadius: const BorderRadius.all(
@@ -43,8 +50,13 @@ class TextFieldSetting extends StatelessWidget {
               fontWeight: FontWeight.w400,
               color: Colors.grey.withOpacity(0.4),
             ),
-            hintText: this.hintText,
+            hintText: this._hintText,
           ),
+          focusNode: this._nextFocusNode,
+          textInputAction: this._nextFocusNode == null
+              ? TextInputAction.done
+              : TextInputAction.next,
+          onEditingComplete: () => this._nextFocusNode?.nextFocus(),
           // TODO: make this configurable
           keyboardType: TextInputType.number,
           style: TextStyle(

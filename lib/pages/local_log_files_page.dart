@@ -5,11 +5,12 @@ import 'package:emotion/pages/settings_page.dart';
 import 'package:emotion/utils/app_settings.dart';
 import 'package:emotion/utils/minio_manager.dart';
 import 'package:emotion/widgets/app_drawer.dart';
+import 'package:emotion/widgets/file_system_entity_table.dart';
+import 'package:emotion/widgets/settings/textfield_setting.dart';
 import 'package:emotion/widgets/upload_progress_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart' as path;
 
 import '../models/extended_file_system_event.dart';
 
@@ -24,7 +25,7 @@ class LocalLogFilesPage extends StatefulWidget {
 
 class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
   final _dateFormatter = new DateFormat('HH:mm:ss');
-  final _scrollController = ScrollController();
+  // final _scrollController = ScrollController(initialScrollOffset: 0.0);
   StreamController<double> _progressStreamController;
   double _progress = 0.0;
   bool _uploadInProgress = false;
@@ -115,8 +116,10 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
   }
 
   Widget _monitoredDirectoryWidget() {
+    return TextFieldSetting('Log File Directory', 's', null, null);
     return Card(
-      color: Theme.of(context).accentColor,
+      // color: Theme.of(context).accentColor,
+      color: Color.fromRGBO(40, 40, 40, 1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
@@ -154,131 +157,6 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
     );
   }
 
-  Widget _fileSystemEventsWidget() {
-    return Card(
-      color: Colors.grey.shade100,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      elevation: 2,
-      child: Padding(
-        padding: EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Text(
-                  'File System Events',
-                  style: TextStyle(
-                    fontSize: 25,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 200,
-                    color: Colors.grey.shade200,
-                    child: ListView.builder(
-                      itemCount: this._fileSystemEvents.length,
-                      itemBuilder: (context, index) {
-                        return this._fileSystemEventWidget(
-                            this._fileSystemEvents[index]);
-                      },
-                      shrinkWrap: true,
-                      scrollDirection: Axis.vertical,
-                      controller: _scrollController,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _fileSystemEventWidget(ExtendedFileSystemEvent event) {
-    return ListTile(
-      leading: Text(_dateFormatter.format(event.timestamp)),
-      title: Text(
-        event.fileSystemEvent.toString(),
-        style: TextStyle(
-          color: Theme.of(context).primaryColor,
-        ),
-      ),
-      trailing: (event.fileSystemEvent.type == FileSystemEvent.create)
-          ? Icon(Icons.add_circle_outline, color: Colors.teal)
-          : (event.fileSystemEvent.type == FileSystemEvent.delete)
-              ? Icon(Icons.remove_circle_outline, color: Colors.redAccent)
-              : (event.fileSystemEvent.type == FileSystemEvent.modify)
-                  ? Icon(Icons.mode_edit)
-                  : (event.fileSystemEvent.type == FileSystemEvent.move)
-                      ? Icon(Icons.compare_arrows)
-                      : Icon(Icons.info_outline),
-    );
-  }
-
-  Widget _listFilesWidget() {
-    return Card(
-      elevation: 2,
-      color: Colors.grey.shade100,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(20),
-        child: Column(children: <Widget>[
-          Row(
-            children: [
-              Text(
-                'Files',
-                style: TextStyle(
-                  fontSize: 25,
-                ),
-              ),
-            ],
-          ),
-          Container(
-            height: 300,
-            width: MediaQuery.of(context).size.width - 10,
-            child: ListView.builder(
-              itemCount: _fileSystemEntities.length,
-              itemBuilder: (context, index) =>
-                  _fileSystemEntityWidget(_fileSystemEntities[index]),
-            ),
-          ),
-        ]),
-      ),
-    );
-  }
-
-  Widget _fileSystemEntityWidget(FileSystemEntity fileSystemEntity) {
-    final relativePath = path.relative(fileSystemEntity.path,
-        from: this._monitoredDirectory.path);
-    // Hide nested directories & files.
-    if (relativePath.contains('\\')) {
-      return SizedBox();
-    }
-
-    var iconData = Icons.insert_drive_file;
-    if (fileSystemEntity is Directory) {
-      iconData = Icons.folder;
-    }
-    return ListTile(
-      leading: Icon(iconData, color: Theme.of(context).accentColor),
-      title: Text(
-        fileSystemEntity.path.split('\\').last,
-        style: TextStyle(
-          color: Theme.of(context).primaryColor,
-        ),
-      ),
-    );
-  }
 
   /// A [FloatingActionButton] for triggering the upload of log files.
   /// This button is automatically disabled when an upload is in progress.
@@ -316,7 +194,7 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
               });
             },
       backgroundColor: this._uploadInProgress
-          ? Colors.grey.shade200
+          ? Colors.grey
           : Theme.of(context).accentColor,
       disabledElevation: 2,
       icon: Icon(
@@ -335,11 +213,11 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(Duration(milliseconds: 50), () {
-      this._scrollController.jumpTo(
-            _scrollController.position.maxScrollExtent,
-          );
-    });
+    // Future.delayed(Duration(milliseconds: 50), () {
+    // this._scrollController.jumpTo(
+    //       _scrollController.position.maxScrollExtent,
+    //     );
+    // });
 
     return Scaffold(
       key: widget._scaffoldKey,
@@ -357,22 +235,45 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
                     Expanded(
                       child: Container(
                         color: Color.fromRGBO(26, 26, 26, 1),
-                        child: SingleChildScrollView(
-                          physics: BouncingScrollPhysics(),
-                          child: Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(15),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  _monitoredDirectoryWidget(),
-                                  SizedBox(height: 20),
-                                  _fileSystemEventsWidget(),
-                                  SizedBox(height: 20),
-                                  _listFilesWidget(),
-                                ],
-                              ),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 32,
+                        ),
+                        child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(15),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                    bottom: 32,
+                                    top: 32,
+                                  ),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      'Local Log Files',
+                                      style:
+                                          Theme.of(context).textTheme.headline2,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                                // _monitoredDirectoryWidget(),
+                                // SizedBox(height: 20),
+                                Expanded(
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 5,
+                                    ),
+                                    child: FileSystemEntityTable(
+                                      this._monitoredDirectory,
+                                      this._fileSystemEntities,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),

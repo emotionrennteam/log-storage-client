@@ -278,43 +278,37 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
                           horizontal: 32,
                         ),
                         child: Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(15),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                    bottom: 32,
-                                    top: 32,
-                                  ),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      'Local Log Files',
-                                      style:
-                                          Theme.of(context).textTheme.headline2,
-                                      textAlign: TextAlign.center,
-                                    ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  bottom: 32,
+                                  top: 32,
+                                ),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'Local Log Files',
+                                    style:
+                                        Theme.of(context).textTheme.headline2,
+                                    textAlign: TextAlign.center,
                                   ),
                                 ),
-                                // _monitoredDirectoryWidget(),
-                                // SizedBox(height: 20),
-                                Expanded(
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 5,
-                                    ),
-                                    child: FileSystemEntityTable(
-                                      this._autoUploadEnabled,
-                                      this._fileSystemEntities,
-                                      this._monitoredDirectory,
-                                    ),
+                              ),
+                              // _monitoredDirectoryWidget(),
+                              // SizedBox(height: 20),
+                              Expanded(
+                                child: Container(
+                                  child: FileSystemEntityTable(
+                                    this._autoUploadEnabled,
+                                    this._fileSystemEntities,
+                                    this._monitoredDirectory,
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ),

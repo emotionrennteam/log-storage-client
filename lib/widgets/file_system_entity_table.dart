@@ -9,6 +9,7 @@ class FileSystemEntityTable extends StatelessWidget {
   final bool _autoUploadEnabled;
   final List<FileSystemEntity> _fileSystemEntities;
   final Directory _monitoredDirectory;
+  final ScrollController _scrollController = ScrollController();
 
   FileSystemEntityTable(
     this._autoUploadEnabled,
@@ -26,7 +27,7 @@ class FileSystemEntityTable extends StatelessWidget {
     // if (relativePath.contains('\\') || relativePath.contains('/')) {
     //   return SizedBox();
     // }
-    
+
     // Don't show the trigger file if auto upload is enabled
     if (this._autoUploadEnabled &&
         (fileSystemEntity is File) &&
@@ -67,12 +68,20 @@ class FileSystemEntityTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      physics: BouncingScrollPhysics(),
-      itemCount: this._fileSystemEntities.length,
-      itemBuilder: (context, position) {
-        return this._buildRow(this._fileSystemEntities[position]);
-      },
+    return Scrollbar(
+      controller: this._scrollController,
+      isAlwaysShown: true,
+      radius: Radius.circular(50),
+      thickness: 2,
+      child: ListView.builder(
+        controller: this._scrollController,
+        physics: BouncingScrollPhysics(),
+        itemCount: this._fileSystemEntities.length,
+        itemBuilder: (context, position) {
+          return this._buildRow(this._fileSystemEntities[position]);
+        },
+        padding: EdgeInsets.only(right: 10),
+      ),
     );
   }
 }

@@ -33,6 +33,7 @@ dependencies:
   file_picker:
     path: ../go/src/flutter_file_picker/file_picker
   tuple: ^1.0.3
+  font_awesome_flutter: ^8.8.1
 
 dev_dependencies:
   flutter_test:

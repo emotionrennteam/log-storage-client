@@ -3,15 +3,36 @@ import 'package:emotion/pages/local_log_files_page.dart';
 import 'package:emotion/pages/settings_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class AppDrawer extends StatelessWidget {
   final int activeListItemIndex;
   final List<AppDrawerItem> appDrawerItems = [
-    new AppDrawerItem('Home Page', HomePage()),
-    new AppDrawerItem('Profiles', HomePage()),
-    new AppDrawerItem('Local Log Files', LocalLogFilesPage()),
-    new AppDrawerItem('Remote Log Files', HomePage()),
-    new AppDrawerItem('Settings', SettingsPage()),
+    new AppDrawerItem(
+      'Home Page',
+      FontAwesomeIcons.home,
+      HomePage(),
+    ),
+    new AppDrawerItem(
+      'Profiles',
+      FontAwesomeIcons.userAlt,
+      HomePage(),
+    ),
+    new AppDrawerItem(
+      'Local Log Files',
+      FontAwesomeIcons.solidFolder,
+      LocalLogFilesPage(),
+    ),
+    new AppDrawerItem(
+      'Remote Log Files',
+      FontAwesomeIcons.cloud,
+      HomePage(),
+    ),
+    new AppDrawerItem(
+      'Settings',
+      FontAwesomeIcons.cog,
+      SettingsPage(),
+    ),
   ];
 
   AppDrawer(this.activeListItemIndex);
@@ -58,7 +79,21 @@ class AppDrawer extends StatelessWidget {
                       ),
                     ),
                     SizedBox(
+                      width: 20,
+                    ),
+                    SizedBox(
                       width: 30,
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: FaIcon(
+                          element.icon,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10,
                     ),
                     Text(
                       element.title,
@@ -95,7 +130,8 @@ class AppDrawer extends StatelessWidget {
 
 class AppDrawerItem {
   final String title;
+  final IconData icon;
   final Widget destinationPage;
 
-  AppDrawerItem(this.title, this.destinationPage);
+  AppDrawerItem(this.title, this.icon, this.destinationPage);
 }

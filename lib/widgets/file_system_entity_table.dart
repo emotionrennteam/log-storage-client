@@ -54,9 +54,11 @@ class FileSystemEntityTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
+    return ListView.builder(
       physics: BouncingScrollPhysics(),
-      children: this._fileSystemEntities.map(this._buildRow).toList(),
+      itemBuilder: (context, position) {
+        return this._buildRow(this._fileSystemEntities[position]);
+      },
     );
   }
 }

@@ -139,6 +139,7 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
         ),
         Divider(color: Colors.transparent),
         SettingPanel('TLS'),
+        // TODO: add a FocusNode to the switch
         SwitchListTile(
           autofocus: false,
           value: this._tlsEnabled,

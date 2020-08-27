@@ -27,6 +27,12 @@ class TextFieldSetting extends StatelessWidget {
           controller: this._controller,
           cursorColor: Colors.white,
           decoration: InputDecoration(
+            // suffix: IconButton(
+            //   padding: EdgeInsets.all(0),
+            //   icon: Icon(Icons.visibility),
+            //   onPressed: () {
+            //   },
+            // ),
             focusedBorder: OutlineInputBorder(
               borderRadius: const BorderRadius.all(
                 const Radius.circular(28.0),
@@ -59,6 +65,8 @@ class TextFieldSetting extends StatelessWidget {
           onEditingComplete: () => this._nextFocusNode?.nextFocus(),
           // TODO: make this configurable
           keyboardType: TextInputType.number,
+          // TODO: make this configurable and add an icon as suffix
+          obscureText: false,
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w400,

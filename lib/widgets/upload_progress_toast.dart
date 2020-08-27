@@ -20,6 +20,7 @@ class UploadProgressToast extends StatelessWidget {
           child: Material(
             elevation: 10,
             clipBehavior: Clip.antiAliasWithSaveLayer,
+            color: Theme.of(context).accentColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10.0),
             ),

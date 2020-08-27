@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:emotion/utils/constants.dart';
 import 'package:emotion/pages/settings_page.dart';
 import 'package:emotion/utils/app_settings.dart';
 import 'package:emotion/utils/minio_manager.dart';
@@ -10,7 +11,9 @@ import 'package:emotion/widgets/settings/textfield_setting.dart';
 import 'package:emotion/widgets/upload_progress_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+
 import 'package:intl/intl.dart';
+import 'package:path/path.dart' as path;
 
 import '../models/extended_file_system_event.dart';
 
@@ -27,8 +30,9 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
   final _dateFormatter = new DateFormat('HH:mm:ss');
   // final _scrollController = ScrollController(initialScrollOffset: 0.0);
   StreamController<double> _progressStreamController;
-  double _progress = 0.0;
   bool _uploadInProgress = false;
+  bool _autoUploadEnabled = true;
+  double _progress = 0.0;
 
   List<FileSystemEntity> _fileSystemEntities = [];
   List<ExtendedFileSystemEvent> _fileSystemEvents = [];
@@ -39,17 +43,25 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
   void initState() {
     super.initState();
 
-    this._loadLogFileDirectory().then((success) {
-      if (success) {
-        this._initializeFileSystemWatcher();
+    getAutoUploadEnabled().then((value) {
+      if (mounted) {
+        setState(() {
+          this._autoUploadEnabled = value;
+        });
       }
+
+      this._loadLogFileDirectory().then((success) {
+        if (success) {
+          this._initializeFileSystemWatcher();
+        }
+      });
     });
   }
 
   @override
   void dispose() {
     _fileEventStreamSubscription.cancel();
-    this._progressStreamController.close();
+    this._progressStreamController?.close();
     super.dispose();
   }
 
@@ -67,7 +79,7 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
         SnackBar(
           action: SnackBarAction(
             label: 'CONFIGURE',
-            onPressed: () => Navigator.of(context).push(
+            onPressed: () => Navigator.of(context).pushReplacement(
               PageRouteBuilder(
                 pageBuilder: (BuildContext context, _, __) {
                   return SettingsPage();
@@ -92,20 +104,32 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
       // https://api.dart.dev/stable/2.8.4/dart-io/FileSystemEntity-class.html
       Stream<FileSystemEvent> eventStream =
           this._monitoredDirectory.watch(recursive: true);
-      _fileEventStreamSubscription = eventStream.listen((event) {
-        if (mounted) {
-          setState(() {
-            this._fileSystemEvents.add(
-                  ExtendedFileSystemEvent(
-                    fileSystemEvent: event,
-                    timestamp: DateTime.now(),
-                  ),
-                );
-          });
-          debugPrint('## EVENT: $event');
-        }
-      });
+      _fileEventStreamSubscription = eventStream.listen(
+        (event) {
+          debugPrint('upload enabled_ ${_autoUploadEnabled.toString()}');
 
+          /// If auto upload is enabled, then start upload on [FileSystemEvent.modify] of the trigger file.
+          if ((path.basename(event.path) == AUTO_UPLOAD_TRIGGER_FILE) &&
+              this._autoUploadEnabled &&
+              (!event.isDirectory) &&
+              (event.type == FileSystemEvent.modify)) {
+            this._uploadFiles();
+          }
+          if (mounted) {
+            setState(() {
+              // this._fileSystemEvents.add(
+              //       ExtendedFileSystemEvent(
+              //         fileSystemEvent: event,
+              //         timestamp: DateTime.now(),
+              //       ),
+              //     );
+              this._fileSystemEntities =
+                  this._monitoredDirectory.listSync(recursive: true);
+            });
+            debugPrint('## EVENT: $event');
+          }
+        },
+      );
       setState(() {
         _fileSystemEntities =
             this._monitoredDirectory.listSync(recursive: true);
@@ -157,45 +181,60 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
     );
   }
 
+  void _uploadFiles() async {
+    if (this._uploadInProgress) return;
+    if (mounted) {
+      setState(() {
+        this._progressStreamController = StreamController<double>();
+        _uploadInProgress = true;
+      });
+    }
+    final streamSubscription =
+        this._progressStreamController.stream.listen((progress) {
+      if (mounted) {
+        setState(() {
+          this._progress = progress;
+        });
+      }
+    });
+    var credentials = await getStorageConnectionCredentials();
+    await uploadFileSystemEntities(
+      credentials,
+      this._fileSystemEntities,
+      this._monitoredDirectory,
+      this._progressStreamController,
+    );
+
+    Future.delayed(Duration(seconds: 5), () {
+      if (mounted) {
+        setState(() {
+          streamSubscription.cancel();
+          this._progressStreamController.close();
+          this._progressStreamController = null;
+          this._uploadInProgress = false;
+        });
+      }
+    });
+
+    final uploadTriggerFile = File(
+      path.join(
+        this._monitoredDirectory.path,
+        AUTO_UPLOAD_TRIGGER_FILE,
+      ),
+    );
+    if (uploadTriggerFile.existsSync()) {
+      uploadTriggerFile.deleteSync();
+    }
+  }
 
   /// A [FloatingActionButton] for triggering the upload of log files.
   /// This button is automatically disabled when an upload is in progress.
   Widget _uploadFAB() {
     return FloatingActionButton.extended(
       /// During upload, the FAB is disabled
-      onPressed: this._uploadInProgress
-          ? null
-          : () async {
-              setState(() {
-                this._progressStreamController = StreamController<double>();
-                _uploadInProgress = true;
-              });
-              final streamSubscription =
-                  this._progressStreamController.stream.listen((progress) {
-                setState(() {
-                  this._progress = progress;
-                });
-              });
-              var credentials = await getStorageConnectionCredentials();
-              await uploadFileSystemEntities(
-                credentials,
-                this._fileSystemEntities,
-                this._monitoredDirectory,
-                this._progressStreamController,
-              );
-
-              Future.delayed(Duration(seconds: 5), () {
-                setState(() {
-                  streamSubscription.cancel();
-                  this._progressStreamController.close();
-                  this._progressStreamController = null;
-                  this._uploadInProgress = false;
-                });
-              });
-            },
-      backgroundColor: this._uploadInProgress
-          ? Colors.grey
-          : Theme.of(context).accentColor,
+      onPressed: this._uploadFiles,
+      backgroundColor:
+          this._uploadInProgress ? Colors.grey : Theme.of(context).accentColor,
       disabledElevation: 2,
       icon: Icon(
         Icons.cloud_upload,
@@ -268,8 +307,9 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
                                       horizontal: 5,
                                     ),
                                     child: FileSystemEntityTable(
-                                      this._monitoredDirectory,
+                                      this._autoUploadEnabled,
                                       this._fileSystemEntities,
+                                      this._monitoredDirectory,
                                     ),
                                   ),
                                 ),

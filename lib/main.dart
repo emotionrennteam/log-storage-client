@@ -19,6 +19,12 @@ class MyApp extends StatelessWidget {
         accentColor: Color.fromRGBO(35, 201, 95, 1),
         // accentColor: Color.fromRGBO(1, 176, 117, 1),
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        accentTextTheme: TextTheme(
+          headline5: TextStyle(
+            fontWeight: FontWeight.w300,
+            color: Colors.white,
+          ),
+        ),
         textTheme: TextTheme(
           headline1: TextStyle(
             fontWeight: FontWeight.w300,
@@ -41,7 +47,7 @@ class MyApp extends StatelessWidget {
             color: constants.TEXT_COLOR,
           ),
           headline6: TextStyle(
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w400,
             color: constants.TEXT_COLOR,
           ),
           button: TextStyle(
@@ -59,9 +65,9 @@ class MyApp extends StatelessWidget {
           contentTextStyle: TextStyle(
             color: Colors.white,
             fontSize: 18,
-            fontWeight: FontWeight.w400
+            fontWeight: FontWeight.w400,
           ),
-        )
+        ),
       ),
       home: HomePage(title: 'E-Motion Rennteam Aalen - Log Client'),
     );

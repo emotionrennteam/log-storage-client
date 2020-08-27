@@ -34,7 +34,7 @@ class UploadProgressToast extends StatelessWidget {
                         this.progressValue == 1.0
                             ? 'Upload Completed'
                             : 'Uploading Log Files...',
-                        style: Theme.of(context).textTheme.headline5,
+                        style: Theme.of(context).accentTextTheme.headline5,
                       ),
                     ),
                     Expanded(
@@ -43,7 +43,7 @@ class UploadProgressToast extends StatelessWidget {
                         child: Text(
                           '${(this.progressValue * 100).round()} %',
                           textAlign: TextAlign.right,
-                          style: Theme.of(context).textTheme.headline5,
+                          style: Theme.of(context).accentTextTheme.headline5,
                         ),
                       ),
                     ),

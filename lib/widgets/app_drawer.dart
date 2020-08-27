@@ -55,7 +55,7 @@ class AppDrawer extends StatelessWidget {
                 splashColor: Theme.of(context).primaryColor,
                 highlightColor: Colors.transparent,
                 onTap: () {
-                  Navigator.of(context).push(
+                  Navigator.of(context).pushReplacement(
                     PageRouteBuilder(
                       pageBuilder: (BuildContext context, _, __) {
                         return element.destinationPage;

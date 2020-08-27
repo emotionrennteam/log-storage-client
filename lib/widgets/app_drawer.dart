@@ -1,6 +1,7 @@
 import 'package:emotion/pages/home_page.dart';
 import 'package:emotion/pages/local_log_files_page.dart';
 import 'package:emotion/pages/settings_page.dart';
+import 'package:emotion/utils/constants.dart' as constants;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -87,7 +88,7 @@ class AppDrawer extends StatelessWidget {
                         alignment: Alignment.center,
                         child: FaIcon(
                           element.icon,
-                          color: Colors.white,
+                          color: constants.TEXT_COLOR,
                           size: 20,
                         ),
                       ),

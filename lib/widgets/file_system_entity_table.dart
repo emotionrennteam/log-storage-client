@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:emotion/utils/constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -68,11 +69,10 @@ class FileSystemEntityTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scrollbar(
+    return DraggableScrollbar.arrows(
+      labelConstraints: BoxConstraints.tightFor(width: 80.0, height: 30.0),
+      backgroundColor: Theme.of(context).accentColor,
       controller: this._scrollController,
-      isAlwaysShown: true,
-      radius: Radius.circular(50),
-      thickness: 2,
       child: ListView.builder(
         controller: this._scrollController,
         physics: BouncingScrollPhysics(),

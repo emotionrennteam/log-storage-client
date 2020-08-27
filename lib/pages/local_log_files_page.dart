@@ -60,7 +60,7 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
 
   @override
   void dispose() {
-    _fileEventStreamSubscription.cancel();
+    this._fileEventStreamSubscription?.cancel();
     this._progressStreamController?.close();
     super.dispose();
   }

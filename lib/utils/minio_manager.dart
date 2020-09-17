@@ -93,7 +93,7 @@ Future<void> downloadObjectsFromRemoteStorage(
   for (StorageObject storageObject in storageObjectsToDownload) {
     // Create directories and only download files
     if (storageObject.isDirectory) {
-      p.join(downloadDirectory.path, storageObject.name);
+      Directory(p.join(downloadDirectory.path, storageObject.name)).createSync();
       continue;
     }
     var objectByteStream =

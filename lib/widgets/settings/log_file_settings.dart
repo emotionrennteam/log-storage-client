@@ -88,10 +88,7 @@ class _LogFileSettingsState extends State<LogFileSettings> {
                 margin: EdgeInsets.only(top: 41),
                 child: FlatButton(
                   onPressed: () async {
-                    // TODO: the function getDirectoryPath() currently doesn't work
-                    // with the official package in pubspec.yaml. Instead, you need
-                    // to clone file_picker and reference it as a dependency.
-                    var directoryPath = await FilePicker.getDirectoryPath();
+                    var directoryPath = await FilePicker.platform.getDirectoryPath();
                     if (directoryPath != null && directoryPath.length > 1) {
                       widget.logFileDirectoryController.text =
                           File(directoryPath).path;

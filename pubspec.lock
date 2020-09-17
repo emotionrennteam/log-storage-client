@@ -95,17 +95,10 @@ packages:
   file_picker:
     dependency: "direct main"
     description:
-      path: "../go/src/flutter_file_picker/file_picker"
-      relative: true
-    source: path
-    version: "1.13.3"
-  file_picker_platform_interface:
-    dependency: transitive
-    description:
-      name: file_picker_platform_interface
+      name: file_picker
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.3.1"
+    version: "2.0.0"
   flutter:
     dependency: "direct main"
     description: flutter

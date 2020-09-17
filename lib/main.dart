@@ -1,5 +1,6 @@
 import 'package:emotion/pages/home_page.dart';
 import 'package:emotion/utils/constants.dart' as constants;
+import 'package:emotion/utils/constants.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -67,6 +68,9 @@ class MyApp extends StatelessWidget {
             fontSize: 18,
             fontWeight: FontWeight.w400,
           ),
+        ),
+        iconTheme: IconThemeData(
+          color: TEXT_COLOR,
         ),
       ),
       home: HomePage(title: 'E-Motion Rennteam Aalen - Log Client'),

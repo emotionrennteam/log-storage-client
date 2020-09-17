@@ -4,9 +4,12 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:emotion/models/storage_connection_credentials.dart';
+import 'package:emotion/models/storage_object.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:path/path.dart' as p;
 import 'package:minio/minio.dart';
+import 'package:minio/models.dart';
 import 'package:path/path.dart' as path;
 import 'package:tuple/tuple.dart';
 
@@ -37,6 +40,67 @@ Future<Tuple2<bool, String>> validateConnection(
     return Tuple2(true, null);
   } catch (e) {
     return Tuple2(false, 'Connection error: ${e.toString()}');
+  }
+}
+
+/// Asynchronically lists all objects in the given Minio bucket.
+///
+/// Returns a list of [StorageObject]s which represent directories
+/// and files in Minio.
+Future<List<StorageObject>> listObjectsInRemoteStorage(
+    StorageConnectionCredentials credentials) async {
+  final minio = _initializeClient(credentials);
+  bool bucketExists = await minio.bucketExists(credentials.bucket);
+  if (!bucketExists) {
+    throw Exception('The given bucket "${credentials.bucket}" doesn\'t exist.');
+  }
+
+  List<ListObjectsChunk> objectsChunks =
+      await minio.listObjects(credentials.bucket).toList();
+  List<StorageObject> storageObjects = List();
+
+  for (var objectsChunk in objectsChunks) {
+    for (var object in objectsChunk.objects) {
+      storageObjects.add(StorageObject(
+        object.key,
+        lastModified: object.lastModified,
+        sizeInBytes: object.size,
+      ));
+    }
+    for (var prefix in objectsChunk.prefixes) {
+      storageObjects.add(StorageObject(prefix, isDirectory: true));
+    }
+  }
+  return storageObjects;
+}
+
+/// Downloads all objects in the given list of [StorageObject]s to the given [downloadDirectory].
+/// 
+/// [StorageObject]s which are actually directories cannot be downloaded and will simply be created
+/// as a directory on the local hard drive.
+Future<void> downloadObjectsFromRemoteStorage(
+  StorageConnectionCredentials credentials,
+  Directory downloadDirectory,
+  List<StorageObject> storageObjectsToDownload,
+) async {
+  final minio = _initializeClient(credentials);
+  bool bucketExists = await minio.bucketExists(credentials.bucket);
+  if (!bucketExists) {
+    throw Exception('The given bucket "${credentials.bucket}" doesn\'t exist.');
+  }
+
+  // TODO: improve by adding a stream for the download progress
+  for (StorageObject storageObject in storageObjectsToDownload) {
+    // Create directories and only download files
+    if (storageObject.isDirectory) {
+      p.join(downloadDirectory.path, storageObject.name);
+      continue;
+    }
+    var objectByteStream =
+        await minio.getObject(credentials.bucket, storageObject.name);
+    var bytes = await objectByteStream.toBytes();
+    File(p.join(downloadDirectory.path, storageObject.name))
+        .writeAsBytes(bytes);
   }
 }
 

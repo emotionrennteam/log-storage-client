@@ -1,5 +1,6 @@
 import 'package:emotion/pages/home_page.dart';
 import 'package:emotion/pages/local_log_files_page.dart';
+import 'package:emotion/pages/remote_log_files_page.dart';
 import 'package:emotion/pages/settings_page.dart';
 import 'package:emotion/utils/constants.dart' as constants;
 import 'package:flutter/cupertino.dart';
@@ -27,7 +28,7 @@ class AppDrawer extends StatelessWidget {
     new AppDrawerItem(
       'Remote Log Files',
       FontAwesomeIcons.cloud,
-      HomePage(),
+      RemoteLogFilesPage(),
     ),
     new AppDrawerItem(
       'Settings',

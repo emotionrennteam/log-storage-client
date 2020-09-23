@@ -45,15 +45,32 @@ class AppDrawer extends StatelessWidget {
       appDrawerItems.add(
         Padding(
           padding: EdgeInsets.only(
-            left: 5,
-            top: 5,
+            left: 20,
+            right: 20,
+            top: 10,
           ),
           child: Container(
-            height: 40,
+            height: 50,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(7),
+              boxShadow: [
+                BoxShadow(
+                  color: this.activeListItemIndex == index
+                      ? Theme.of(context).accentColor.withOpacity(0.5)
+                      : Colors.transparent,
+                  blurRadius: 30,
+                  spreadRadius: 0,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
             child: Material(
-              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(7),
+              color: this.activeListItemIndex == index
+                  ? Theme.of(context).accentColor
+                  : Colors.transparent,
               child: InkWell(
-                splashColor: Theme.of(context).primaryColor,
+                splashColor: Theme.of(context).accentColor,
                 highlightColor: Colors.transparent,
                 onTap: () {
                   Navigator.of(context).pushReplacement(
@@ -66,20 +83,6 @@ class AppDrawer extends StatelessWidget {
                 },
                 child: Row(
                   children: [
-                    Container(
-                      width: 5.0,
-                      height: 25,
-                      decoration: BoxDecoration(
-                        border: Border(
-                          left: BorderSide(
-                            color: this.activeListItemIndex == index
-                                ? Theme.of(context).accentColor
-                                : Colors.transparent,
-                            width: 3.0,
-                          ),
-                        ),
-                      ),
-                    ),
                     SizedBox(
                       width: 20,
                     ),
@@ -116,13 +119,7 @@ class AppDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 300,
-      decoration: BoxDecoration(
-        border: Border(
-          right: BorderSide(
-            color: Colors.transparent,
-          ),
-        ),
-      ),
+      color: Theme.of(context).primaryColor,
       child: ListView(
         children: _buildAppDrawerItems(context),
       ),

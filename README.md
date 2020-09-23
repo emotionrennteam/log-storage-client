@@ -15,6 +15,17 @@ For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
+## Color Palette
+
+![](./color-palette.png)
+
+## UI Design
+
+* [Podcast Dashboard by Valery Pevnev](https://dribbble.com/shots/9699028-Podcast-Dashboard)
+  ![](https://cdn.dribbble.com/users/863815/screenshots/9699028/media/461bbfca32fee7b48f52ab6fc3825e12.jpg)
+* [Desktop app - Settings by Kirill Kalita](https://dribbble.com/shots/7090778-Desktop-app-Settings)
+  ![](https://cdn.dribbble.com/users/1256370/screenshots/7090778/media/e08226c870383ae934c26e1b79253212.png)
+
 
 ## Flutter on Windows
 
@@ -45,15 +56,26 @@ samples, guidance on mobile development, and a full API reference.
 1. Open Visual Studio Code
 2. Open any `*.dart` file
 3. Hit F5 to start debugging
-4. Download MinIO Server from https://min.io/download#/windows
-5. Start Minio Server:
-   ```bash
-   mkdir data/
-    ./minio.exe server data/
-    ```
-6. You can access the MinIO Browser on http://127.0.0.1:9000. The default credentials are:
-   * User: `minioadmin`
-   * Password: `minioadmin`
+4. Start MinIO Server:
+   * Windows:
+     1. Download MinIO Server from https://min.io/download#/windows
+     2. Start Minio Server:
+        ```bash
+        mkdir data/
+         ./minio.exe server data/
+         ```
+     3. You can access the MinIO Browser on http://127.0.0.1:9000. The default credentials are:
+        * User: `minioadmin`
+        * Password: `minioadmin`
+   * Docker / Linux:
+     ```bash
+     docker run \
+         -p 9000:9000 \
+         -e MINIO_ACCESS_KEY=minioadmin \
+         -e MINIO_SECRET_KEY=minioadmin \
+         -v $(pwd)/data:/data minio/minio \
+         server /data
+     ```
 
 TODO: 
 * Fix examples in https://github.com/xtyxtyx/minio-dart/blob/master/lib/src/minio.dart

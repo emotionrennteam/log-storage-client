@@ -4,7 +4,7 @@ import 'package:emotion/models/storage_connection_credentials.dart';
 import 'package:emotion/models/storage_object.dart';
 import 'package:emotion/utils/app_settings.dart';
 import 'package:emotion/utils/minio_manager.dart';
-import 'package:emotion/widgets/app_drawer.dart';
+import 'package:emotion/widgets/app_layout.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
@@ -34,6 +34,13 @@ class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
             this._selectedStorageObjects =
                 List<bool>.generate(storageObjects.length, (index) => false);
           });
+        }).catchError((error) {
+          widget._scaffoldKey.currentState.hideCurrentSnackBar();
+          widget._scaffoldKey.currentState.showSnackBar(
+            SnackBar(
+              content: Text('Failed to list objects. Error: $error'),
+            ),
+          );
         });
       }
     });
@@ -56,7 +63,7 @@ class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
       if (downloadPath == null) {
         return;
       }
-      
+
       Directory downloadDirectory = Directory(downloadPath);
       if (!downloadDirectory.existsSync()) {
         // TODO: visualize exception
@@ -168,10 +175,9 @@ class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
       key: widget._scaffoldKey,
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: this._uploadFloatingActionButtonOnPressed == null
-            ? Colors.grey
+            ? Theme.of(context).primaryColor
             : Theme.of(context).accentColor,
         onPressed: this._uploadFloatingActionButtonOnPressed,
-        disabledElevation: 2,
         icon: Icon(
           Icons.cloud_download,
           color: Colors.white,
@@ -184,54 +190,34 @@ class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
           ),
         ),
       ),
-      body: Builder(
-        builder: (context) => Column(
-          children: <Widget>[
-            Expanded(
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  AppDrawer(3),
-                  Expanded(
-                    child: Container(
-                      color: Color.fromRGBO(26, 26, 26, 1),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 32,
-                      ),
-                      child: SingleChildScrollView(
-                        padding: EdgeInsets.only(bottom: 100),
-                        physics: BouncingScrollPhysics(),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.only(
-                                bottom: 32,
-                                top: 32,
-                              ),
-                              child: Align(
-                                alignment: Alignment.center,
-                                child: Text(
-                                  'Remote Log Files',
-                                  style: Theme.of(context).textTheme.headline2,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                            Center(
-                              child: this._buildDataTable(),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+      body: AppLayout(
+        appDrawerCurrentIndex: 3,
+        view: SingleChildScrollView(
+          padding: EdgeInsets.only(bottom: 100),
+          physics: BouncingScrollPhysics(),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(
+                  bottom: 32,
+                  top: 32,
+                ),
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Remote Log Files',
+                    style: Theme.of(context).textTheme.headline2,
+                    textAlign: TextAlign.center,
                   ),
-                ],
+                ),
               ),
-            ),
-          ],
+              Center(
+                child: this._buildDataTable(),
+              ),
+            ],
+          ),
         ),
       ),
     );

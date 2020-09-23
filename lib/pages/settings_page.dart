@@ -1,5 +1,5 @@
 import 'package:emotion/utils/app_settings.dart';
-import 'package:emotion/widgets/app_drawer.dart';
+import 'package:emotion/widgets/app_layout.dart';
 import 'package:emotion/widgets/settings/log_file_settings.dart';
 import 'package:emotion/widgets/settings/storage_connection_settings.dart';
 import 'package:flutter/cupertino.dart';
@@ -47,51 +47,30 @@ class _SettingsPageState extends State<SettingsPage> {
               ));
         },
       ),
-      backgroundColor: Color.fromRGBO(19, 19, 19, 1),
-      body: Builder(
-        builder: (context) => Column(
-          children: <Widget>[
-            Expanded(
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  AppDrawer(4),
-                  Expanded(
-                    child: Container(
-                      color: Color.fromRGBO(26, 26, 26, 1),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 32,
-                      ),
-                      child: SingleChildScrollView(
-                        padding: EdgeInsets.only(bottom: 100),
-                        physics: BouncingScrollPhysics(),
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(
-                                bottom: 32,
-                                top: 32,
-                              ),
-                              child: Text(
-                                'Settings',
-                                style: Theme.of(context).textTheme.headline2,
-                              ),
-                            ),
-                            _storageConnectionsWidget,
-                            SizedBox(
-                              height: 32,
-                            ),
-                            _logFileSettingsWidget,
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+      body: AppLayout(
+        appDrawerCurrentIndex: 4,
+        view: SingleChildScrollView(
+          padding: EdgeInsets.only(bottom: 100),
+          physics: BouncingScrollPhysics(),
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(
+                  bottom: 32,
+                  top: 32,
+                ),
+                child: Text(
+                  'Settings',
+                  style: Theme.of(context).textTheme.headline2,
+                ),
               ),
-            ),
-          ],
+              _storageConnectionsWidget,
+              SizedBox(
+                height: 32,
+              ),
+              _logFileSettingsWidget,
+            ],
+          ),
         ),
       ),
     );

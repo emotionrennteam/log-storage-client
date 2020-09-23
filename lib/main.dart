@@ -70,6 +70,7 @@ class MyApp extends StatelessWidget {
         iconTheme: IconThemeData(
           color: TEXT_COLOR,
         ),
+        unselectedWidgetColor: Colors.white,
       ),
       home: HomePage(title: 'E-Motion Rennteam Aalen - Log Client'),
     );

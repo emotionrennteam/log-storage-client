@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:emotion/models/storage_connection_credentials.dart';
 import 'package:emotion/models/storage_object.dart';
 import 'package:emotion/utils/app_settings.dart';
+import 'package:emotion/utils/constants.dart';
 import 'package:emotion/utils/minio_manager.dart';
 import 'package:emotion/widgets/app_layout.dart';
 import 'package:file_picker/file_picker.dart';
@@ -18,6 +19,7 @@ class RemoteLogFilesPage extends StatefulWidget {
 class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
   List<bool> _selectedStorageObjects = List<bool>.generate(0, (index) => false);
   List<StorageObject> _storageObjects = new List();
+  bool _allStorageObjectsSelected = false;
   TextStyle _textStyle = const TextStyle(color: Colors.white);
   Function _uploadFloatingActionButtonOnPressed;
   StorageConnectionCredentials _credentials;
@@ -91,81 +93,139 @@ class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
     };
   }
 
+  Widget _buildHeader() {
+    return Container(
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            margin: EdgeInsets.symmetric(horizontal: 10),
+            child: Checkbox(
+              value: this._allStorageObjectsSelected,
+              onChanged: (bool newValue) {
+                setState(() {
+                  this._allStorageObjectsSelected = newValue;
+                  this._selectedStorageObjects = this._selectedStorageObjects.map((e) => newValue).toList();
+                  _setFloatingActionButtonState();
+                });
+              },
+            ),
+          ),
+          Container(
+            width: 100,
+            child: Text(
+              'Type',
+              style: _textStyle,
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Container(
+            width: 500,
+            child: Text(
+              'Name',
+              style: _textStyle,
+            ),
+          ),
+          Container(
+            width: 120,
+            margin: EdgeInsets.only(right: 20),
+            child: Text(
+              'Last Modified',
+              style: _textStyle,
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Container(
+            width: 100,
+            child: Text(
+              'Size',
+              style: _textStyle,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
+      height: 50,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+        color: Theme.of(context).accentColor,
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).accentColor.withOpacity(0.5),
+            blurRadius: 30,
+            spreadRadius: 0,
+            offset: Offset(0, -3),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Builds the widget for displaying the list of remote [StorageObject]s using
   /// a [DataTable] widget.
   Widget _buildDataTable() {
-    return DataTable(
-      columns: <DataColumn>[
-        DataColumn(
-          label: Text(
-            'Type',
-            style: Theme.of(context).textTheme.headline6,
+    return ListView.separated(
+      itemBuilder: (context, index) {
+        return Container(
+          color: this._selectedStorageObjects[index] ? DARK_GREY : Theme.of(context).primaryColor,
+          height: 50,
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                margin: EdgeInsets.symmetric(horizontal: 10),
+                child: Checkbox(
+                  activeColor: DARK_GREY,
+                  value: this._selectedStorageObjects[index],
+                  onChanged: (bool newValue) {
+                    setState(() {
+                      this._selectedStorageObjects[index] = newValue;
+                      _setFloatingActionButtonState();
+                    });
+                  },
+                ),
+              ),
+              Container(
+                width: 100,
+                child: Icon(
+                  this._storageObjects[index].isDirectory
+                      ? Icons.folder
+                      : Icons.insert_drive_file,
+                  color: Theme.of(context).iconTheme.color,
+                ),
+              ),
+              Container(
+                width: 500,
+                child: Text(
+                  this._storageObjects[index].name,
+                  style: _textStyle,
+                ),
+              ),
+              Container(
+                width: 120,
+                margin: EdgeInsets.only(right: 20),
+                child: Text(
+                  this._storageObjects[index].getHumanReadableLastModified(),
+                  style: _textStyle,
+                ),
+              ),
+              Container(
+                width: 100,
+                child: Text(
+                  this._storageObjects[index].getHumanReadableSize(),
+                  style: _textStyle,
+                  textAlign: TextAlign.right,
+                ),
+              ),
+            ],
           ),
-          numeric: false,
-        ),
-        DataColumn(
-          label: Text(
-            'Name',
-            style: Theme.of(context).textTheme.headline6,
-          ),
-          numeric: false,
-        ),
-        DataColumn(
-          label: Text(
-            'Last Modified',
-            style: Theme.of(context).textTheme.headline6,
-          ),
-          numeric: false,
-        ),
-        DataColumn(
-          label: Text(
-            'Size',
-            style: Theme.of(context).textTheme.headline6,
-          ),
-          numeric: true,
-        ),
-      ],
-      rows: List<DataRow>.generate(
-        this._storageObjects.length,
-        (index) => DataRow(
-          color: MaterialStateProperty.resolveWith<Color>(
-              (Set<MaterialState> states) {
-            // All rows will have the same selected color.
-            if (states.contains(MaterialState.selected))
-              return Theme.of(context).colorScheme.primary.withOpacity(0.08);
-            // Even rows will have a grey color.
-            if (index % 2 == 0) return Color.fromRGBO(40, 40, 40, 1);
-            return Color.fromRGBO(50, 50, 50, 1);
-          }),
-          cells: [
-            DataCell(Icon(
-              this._storageObjects[index].isDirectory
-                  ? Icons.folder
-                  : Icons.insert_drive_file,
-              color: Theme.of(context).iconTheme.color,
-            )),
-            DataCell(Text(
-              this._storageObjects[index].name,
-              style: _textStyle,
-            )),
-            DataCell(Text(
-              this._storageObjects[index].getHumanReadableLastModified(),
-              style: _textStyle,
-            )),
-            DataCell(Text(
-              this._storageObjects[index].getHumanReadableSize(),
-              style: _textStyle,
-            )),
-          ],
-          selected: this._selectedStorageObjects[index],
-          onSelectChanged: (bool value) {
-            setState(() {
-              this._selectedStorageObjects[index] = value;
-              _setFloatingActionButtonState();
-            });
-          },
-        ),
-      ),
+        );
+      },
+      itemCount: this._storageObjects.length,
+      padding: EdgeInsets.only(bottom: 100),
+      physics: BouncingScrollPhysics(),
+      separatorBuilder: (context, index) =>
+          Container(height: 0, color: DARK_GREY),
     );
   }
 
@@ -175,7 +235,7 @@ class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
       key: widget._scaffoldKey,
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: this._uploadFloatingActionButtonOnPressed == null
-            ? Theme.of(context).primaryColor
+            ? DARK_GREY
             : Theme.of(context).accentColor,
         onPressed: this._uploadFloatingActionButtonOnPressed,
         icon: Icon(
@@ -192,32 +252,33 @@ class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
       ),
       body: AppLayout(
         appDrawerCurrentIndex: 3,
-        view: SingleChildScrollView(
-          padding: EdgeInsets.only(bottom: 100),
-          physics: BouncingScrollPhysics(),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(
-                  bottom: 32,
-                  top: 32,
-                ),
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Remote Log Files',
-                    style: Theme.of(context).textTheme.headline2,
-                    textAlign: TextAlign.center,
-                  ),
+        view: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(
+                bottom: 32,
+                top: 32,
+              ),
+              child: Align(
+                alignment: Alignment.center,
+                child: Text(
+                  'Remote Log Files',
+                  style: Theme.of(context).textTheme.headline2,
+                  textAlign: TextAlign.center,
                 ),
               ),
-              Center(
+            ),
+            Center(
+              child: this._buildHeader(),
+            ),
+            Expanded(
+              child: Center(
                 child: this._buildDataTable(),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -75,7 +75,7 @@ Future<List<StorageObject>> listObjectsInRemoteStorage(
 }
 
 /// Downloads all objects in the given list of [StorageObject]s to the given [downloadDirectory].
-/// 
+///
 /// [StorageObject]s which are actually directories cannot be downloaded and will simply be created
 /// as a directory on the local hard drive.
 Future<void> downloadObjectsFromRemoteStorage(
@@ -93,7 +93,12 @@ Future<void> downloadObjectsFromRemoteStorage(
   for (StorageObject storageObject in storageObjectsToDownload) {
     // Create directories and only download files
     if (storageObject.isDirectory) {
-      Directory(p.join(downloadDirectory.path, storageObject.name)).createSync();
+      Directory(
+        p.join(
+          downloadDirectory.path,
+          storageObject.name,
+        ),
+      ).createSync();
       continue;
     }
     var objectByteStream =

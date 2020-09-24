@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:path/path.dart' as path;
 
 class StorageObject {
   final bool isDirectory;
@@ -40,5 +41,11 @@ class StorageObject {
       return this._format.format(this.lastModified.toLocal());
     }
     return '';
+  }
+
+  /// Returns the basename, that is the name of the current directory or file
+  /// without the full / absolute path.
+  String getBasename() {
+    return path.basename(this.name);
   }
 }

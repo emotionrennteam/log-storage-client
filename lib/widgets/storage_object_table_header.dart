@@ -10,18 +10,22 @@ class StorageObjectTableHeader extends StatefulWidget {
   /// respectively deselecting all elements of the table was tapped.
   final Function(bool) onSelectDeselectAllCallback;
 
-  /// A string which represents the root, e.g. the storage bucket or the root directory.
-  final String rootDirectory;
-
   /// A string representing the path of the current directory.
   final String currentDirectory;
 
+  /// A string which represents the root, e.g. the storage bucket or the root directory.
+  final String rootDirectory;
+
+  /// An optional character used to denote the root directory from child directories,
+  /// e.g. foward or backslash.
+  final String rootDirectorySeparator;
+
   StorageObjectTableHeader(
-    this.currentDirectory,
-    this.rootDirectory,
-    this.onNavigateToParentDirectoryCallback,
-    this.onSelectDeselectAllCallback,
-  );
+      this.currentDirectory,
+      this.rootDirectory,
+      this.onNavigateToParentDirectoryCallback,
+      this.onSelectDeselectAllCallback,
+      {this.rootDirectorySeparator});
 
   @override
   State<StatefulWidget> createState() => _StorageObjectTableHeaderState();
@@ -76,7 +80,7 @@ class _StorageObjectTableHeaderState extends State<StorageObjectTableHeader> {
                     padding: EdgeInsets.all(10),
                     color: Theme.of(context).primaryColor.withOpacity(0.5),
                     child: Text(
-                      path.separator + widget.currentDirectory,
+                      '${widget.rootDirectorySeparator != null ? widget.rootDirectorySeparator : ""}${widget.currentDirectory}',
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,

@@ -172,6 +172,7 @@ class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
                 this._credentials?.bucket,
                 this._navigateToDirectory,
                 this._setAllCheckboxes,
+                rootDirectorySeparator: '/',
               ),
             ),
             Expanded(

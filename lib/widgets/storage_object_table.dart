@@ -67,6 +67,13 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
     this._initializeCheckboxes();
 
     return ListView.separated(
+      itemCount: widget.storageObjects.length,
+      padding: EdgeInsets.only(bottom: 100),
+      physics: BouncingScrollPhysics(),
+      separatorBuilder: (context, index) => Container(
+        height: 0,
+        color: DARK_GREY,
+      ),
       itemBuilder: (context, index) {
         return Container(
           color: this._selectedStorageObjects[index]
@@ -90,57 +97,63 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
                   },
                 ),
               ),
-              MouseRegion(
-                cursor: widget.storageObjects[index].isDirectory
-                    ? SystemMouseCursors.click
-                    : MouseCursor.defer,
-                child: GestureDetector(
-                  onTap: widget.storageObjects[index].isDirectory
-                      ? () => widget.onNavigateToDirectoryCallback(
-                            widget.storageObjects[index].name,
-                          )
-                      : null,
-                  onDoubleTap: widget.storageObjects[index].isDirectory
-                      ? () => widget.onNavigateToDirectoryCallback(
-                            widget.storageObjects[index].name,
-                          )
-                      : null,
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 100,
-                        child: Icon(
-                          widget.storageObjects[index].isDirectory
-                              ? Icons.folder
-                              : Icons.insert_drive_file,
-                          color: Theme.of(context).iconTheme.color,
+              Expanded(
+                child: MouseRegion(
+                  cursor: widget.storageObjects[index].isDirectory
+                      ? SystemMouseCursors.click
+                      : MouseCursor.defer,
+                  child: GestureDetector(
+                    onTap: widget.storageObjects[index].isDirectory
+                        ? () => widget.onNavigateToDirectoryCallback(
+                              widget.storageObjects[index].name,
+                            )
+                        : null,
+                    onDoubleTap: widget.storageObjects[index].isDirectory
+                        ? () => widget.onNavigateToDirectoryCallback(
+                              widget.storageObjects[index].name,
+                            )
+                        : null,
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 100,
+                          child: Icon(
+                            widget.storageObjects[index].isDirectory
+                                ? Icons.folder
+                                : Icons.insert_drive_file,
+                            color: Theme.of(context).iconTheme.color,
+                          ),
                         ),
-                      ),
-                      Container(
-                        width: 500,
-                        child: Text(
-                          widget.storageObjects[index].getBasename(),
-                          style: _textStyle,
+                        Expanded(
+                          child: Container(
+                            child: Text(
+                              widget.storageObjects[index].getBasename(),
+                              style: _textStyle,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                         ),
-                      ),
-                      Container(
-                        width: 120,
-                        margin: EdgeInsets.only(right: 20),
-                        child: Text(
-                          widget.storageObjects[index]
-                              .getHumanReadableLastModified(),
-                          style: _textStyle,
+                        Container(
+                          width: 110,
+                          margin: EdgeInsets.only(right: 20),
+                          child: Text(
+                            widget.storageObjects[index]
+                                .getHumanReadableLastModified(),
+                            style: _textStyle,
+                          ),
                         ),
-                      ),
-                      Container(
-                        width: 100,
-                        child: Text(
-                          widget.storageObjects[index].getHumanReadableSize(),
-                          style: _textStyle,
-                          textAlign: TextAlign.right,
+                        Container(
+                          width: 100,
+                          padding: EdgeInsets.only(right: 20),
+                          child: Text(
+                            widget.storageObjects[index].getHumanReadableSize(),
+                            style: _textStyle,
+                            textAlign: TextAlign.right,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -148,13 +161,6 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
           ),
         );
       },
-      itemCount: widget.storageObjects.length,
-      padding: EdgeInsets.only(bottom: 100),
-      physics: BouncingScrollPhysics(),
-      separatorBuilder: (context, index) => Container(
-        height: 0,
-        color: DARK_GREY,
-      ),
     );
   }
 }

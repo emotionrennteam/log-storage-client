@@ -41,6 +41,7 @@ class _StorageObjectTableHeaderState extends State<StorageObjectTableHeader> {
             child: Row(
               children: [
                 Container(
+                  height: 40,
                   color: Theme.of(context).primaryColor.withOpacity(0.8),
                   child: Material(
                     type: MaterialType.transparency,
@@ -56,6 +57,7 @@ class _StorageObjectTableHeaderState extends State<StorageObjectTableHeader> {
                   ),
                 ),
                 Container(
+                  height: 40,
                   padding: EdgeInsets.all(10),
                   color: Theme.of(context).primaryColor.withOpacity(0.8),
                   child: Text(
@@ -70,6 +72,7 @@ class _StorageObjectTableHeaderState extends State<StorageObjectTableHeader> {
                 Expanded(
                   child: Container(
                     width: 500,
+                    height: 40,
                     padding: EdgeInsets.all(10),
                     color: Theme.of(context).primaryColor.withOpacity(0.5),
                     child: Text(
@@ -109,28 +112,30 @@ class _StorageObjectTableHeaderState extends State<StorageObjectTableHeader> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              Container(
-                width: 500,
-                child: Text(
-                  'Name',
-                  style: this._textStyle,
+              Expanded(
+                child: Container(
+                  child: Text(
+                    'Name',
+                    style: this._textStyle,
+                  ),
                 ),
               ),
               Container(
-                width: 120,
+                width: 110,
                 margin: EdgeInsets.only(right: 20),
                 child: Text(
                   'Last Modified',
                   style: this._textStyle,
-                  textAlign: TextAlign.center,
+                  textAlign: TextAlign.left,
                 ),
               ),
               Container(
                 width: 100,
+                padding: EdgeInsets.only(right: 20),
                 child: Text(
                   'Size',
                   style: this._textStyle,
-                  textAlign: TextAlign.center,
+                  textAlign: TextAlign.right,
                 ),
               ),
             ],

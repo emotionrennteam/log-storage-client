@@ -49,26 +49,36 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       body: AppLayout(
         appDrawerCurrentIndex: 4,
-        view: SingleChildScrollView(
-          padding: EdgeInsets.only(bottom: 100),
-          physics: BouncingScrollPhysics(),
-          child: Column(
+        view: Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Padding(
-                padding: EdgeInsets.only(
-                  bottom: 32,
-                  top: 32,
-                ),
-                child: Text(
-                  'Settings',
-                  style: Theme.of(context).textTheme.headline2,
+              Container(
+                constraints: BoxConstraints(maxWidth: 700),
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(bottom: 100),
+                  physics: BouncingScrollPhysics(),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(
+                          bottom: 32,
+                          top: 32,
+                        ),
+                        child: Text(
+                          'Settings',
+                          style: Theme.of(context).textTheme.headline2,
+                        ),
+                      ),
+                      _storageConnectionsWidget,
+                      SizedBox(
+                        height: 32,
+                      ),
+                      _logFileSettingsWidget,
+                    ],
+                  ),
                 ),
               ),
-              _storageConnectionsWidget,
-              SizedBox(
-                height: 32,
-              ),
-              _logFileSettingsWidget,
             ],
           ),
         ),

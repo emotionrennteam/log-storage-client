@@ -114,7 +114,7 @@ class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
     // Navigate to parent in the directory tree
     if (absolutePath == null) {
       setState(() {
-        this._currentDirectory = getParentForPath(this._currentDirectory);
+        this._currentDirectory = getParentForPath(this._currentDirectory, '/');
       });
     } else {
       // Navigate to child in the directory tree

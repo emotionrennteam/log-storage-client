@@ -108,11 +108,6 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
                               widget.storageObjects[index].name,
                             )
                         : null,
-                    onDoubleTap: widget.storageObjects[index].isDirectory
-                        ? () => widget.onNavigateToDirectoryCallback(
-                              widget.storageObjects[index].name,
-                            )
-                        : null,
                     child: Row(
                       children: [
                         Container(

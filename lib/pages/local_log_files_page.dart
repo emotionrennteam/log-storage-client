@@ -1,21 +1,19 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:emotion/models/storage_object.dart';
 import 'package:emotion/utils/constants.dart';
-import 'package:emotion/pages/settings_page.dart';
 import 'package:emotion/utils/app_settings.dart';
 import 'package:emotion/utils/minio_manager.dart';
+import 'package:emotion/utils/utils.dart';
 import 'package:emotion/widgets/app_drawer.dart';
-import 'package:emotion/widgets/file_system_entity_table.dart';
-import 'package:emotion/widgets/settings/textfield_setting.dart';
+import 'package:emotion/widgets/storage_object_table.dart';
+import 'package:emotion/widgets/storage_object_table_header.dart';
 import 'package:emotion/widgets/upload_progress_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
-
-import '../models/extended_file_system_event.dart';
 
 class LocalLogFilesPage extends StatefulWidget {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -27,158 +25,66 @@ class LocalLogFilesPage extends StatefulWidget {
 }
 
 class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
-  final _dateFormatter = new DateFormat('HH:mm:ss');
-  // final _scrollController = ScrollController(initialScrollOffset: 0.0);
   StreamController<double> _progressStreamController;
   bool _uploadInProgress = false;
-  bool _autoUploadEnabled = true;
   double _progress = 0.0;
 
   List<FileSystemEntity> _fileSystemEntities = [];
-  List<ExtendedFileSystemEvent> _fileSystemEvents = [];
-  StreamSubscription _fileEventStreamSubscription;
   Directory _monitoredDirectory;
+  List<StorageObject> _storageObjects = List();
+
+  Directory _currentDirectory;
 
   @override
   void initState() {
     super.initState();
-
-    getAutoUploadEnabled().then((value) {
-      if (mounted) {
-        setState(() {
-          this._autoUploadEnabled = value;
-        });
-      }
-
-      this._loadLogFileDirectory().then((success) {
-        if (success) {
-          this._initializeFileSystemWatcher();
-        }
-      });
-    });
+    _init();
   }
 
   @override
   void dispose() {
-    this._fileEventStreamSubscription?.cancel();
     this._progressStreamController?.close();
     super.dispose();
   }
 
-  Future<bool> _loadLogFileDirectory() async {
-    try {
-      var logFileDirectory = await getLogFileDirectoryPath();
-      this._monitoredDirectory = new Directory(logFileDirectory);
-
-      if (this._monitoredDirectory.existsSync()) {
-        return true;
-      }
-
-      widget._scaffoldKey.currentState.hideCurrentSnackBar();
-      widget._scaffoldKey.currentState.showSnackBar(
-        SnackBar(
-          action: SnackBarAction(
-            label: 'CONFIGURE',
-            onPressed: () => Navigator.of(context).pushReplacement(
-              PageRouteBuilder(
-                pageBuilder: (BuildContext context, _, __) {
-                  return SettingsPage();
-                },
-              ),
-            ),
-          ),
-          content: Text(
-              'The specified log file directory does not exist or cannot be accessed.'),
-        ),
-      );
-      return false;
-    } on FileSystemException catch (e) {
-      debugPrint(e.toString());
-    }
-
-    return false;
-  }
-
-  void _initializeFileSystemWatcher() async {
-    try {
-      // https://api.dart.dev/stable/2.8.4/dart-io/FileSystemEntity-class.html
-      Stream<FileSystemEvent> eventStream =
-          this._monitoredDirectory.watch(recursive: true);
-      _fileEventStreamSubscription = eventStream.listen(
-        (event) {
-          debugPrint('upload enabled_ ${_autoUploadEnabled.toString()}');
-
-          /// If auto upload is enabled, then start upload on [FileSystemEvent.modify] of the trigger file.
-          if ((path.basename(event.path) == AUTO_UPLOAD_TRIGGER_FILE) &&
-              this._autoUploadEnabled &&
-              (!event.isDirectory) &&
-              (event.type == FileSystemEvent.modify)) {
-            this._uploadFiles();
-          }
-          if (mounted) {
-            setState(() {
-              // this._fileSystemEvents.add(
-              //       ExtendedFileSystemEvent(
-              //         fileSystemEvent: event,
-              //         timestamp: DateTime.now(),
-              //       ),
-              //     );
-              this._fileSystemEntities =
-                  this._monitoredDirectory.listSync(recursive: true);
-            });
-            debugPrint('## EVENT: $event');
-          }
-        },
-      );
+  void _navigateToDirectory(String absolutePath) {
+    // Navigate to parent in the directory tree
+    if (absolutePath == null) {
       setState(() {
-        _fileSystemEntities =
-            this._monitoredDirectory.listSync(recursive: true);
+        this._currentDirectory = Directory(
+          getParentForPath(this._currentDirectory.path, path.separator),
+        );
       });
-    } on Exception catch (e) {
-      debugPrint(e.toString());
+    } else {
+      // Navigate to child in the directory tree
+      setState(() {
+        this._currentDirectory = Directory(absolutePath);
+      });
     }
+    _loadStorageObjects();
   }
 
-  Widget _monitoredDirectoryWidget() {
-    return TextFieldSetting('Log File Directory', 's', null, null);
-    return Card(
-      // color: Theme.of(context).accentColor,
-      color: Color.fromRGBO(40, 40, 40, 1),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      elevation: 2,
-      child: Padding(
-        padding: EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Text(
-                  'Monitored Directory:',
-                  style: TextStyle(
-                    fontSize: 25,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Text(
-                  this._monitoredDirectory != null
-                      ? this._monitoredDirectory.absolute.path
-                      : '',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+  void _init() async {
+    var logFileDirectory = await getLogFileDirectoryPath();
+    this._monitoredDirectory = new Directory(logFileDirectory);
+    this._currentDirectory = this._monitoredDirectory;
+    _loadStorageObjects();
+  }
+
+  void _loadStorageObjects() {
+    _fileSystemEntities = this._currentDirectory.listSync(recursive: false);
+
+    setState(() {
+      this._storageObjects = this._fileSystemEntities.map((e) {
+        final stats = e.statSync();
+        return new StorageObject(
+          e.path,
+          isDirectory: e is Directory,
+          lastModified: stats.modified,
+          sizeInBytes: stats.size,
+        );
+      }).toList();
+    });
   }
 
   void _uploadFiles() async {
@@ -252,12 +158,6 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Future.delayed(Duration(milliseconds: 50), () {
-    // this._scrollController.jumpTo(
-    //       _scrollController.position.maxScrollExtent,
-    //     );
-    // });
-
     return Scaffold(
       key: widget._scaffoldKey,
       floatingActionButton: this._uploadFAB(),
@@ -297,14 +197,24 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
                                   ),
                                 ),
                               ),
-                              // _monitoredDirectoryWidget(),
-                              // SizedBox(height: 20),
+                              Center(
+                                child: StorageObjectTableHeader(
+                                  this._currentDirectory != null
+                                      ? path.relative(
+                                          this._currentDirectory.path,
+                                          from: this._monitoredDirectory.path)
+                                      : '',
+                                  '',
+                                  this._navigateToDirectory,
+                                  (_) {},
+                                ),
+                              ),
                               Expanded(
                                 child: Container(
-                                  child: FileSystemEntityTable(
-                                    this._autoUploadEnabled,
-                                    this._fileSystemEntities,
-                                    this._monitoredDirectory,
+                                  child: StorageObjectTable(
+                                    this._navigateToDirectory,
+                                    (_) => {},
+                                    this._storageObjects,
                                   ),
                                 ),
                               ),

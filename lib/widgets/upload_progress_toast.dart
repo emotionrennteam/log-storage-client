@@ -1,3 +1,4 @@
+import 'package:emotion/utils/constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -17,6 +18,17 @@ class UploadProgressToast extends StatelessWidget {
         child: Container(
           width: 400,
           height: 70,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(7),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: Theme.of(context).accentColor.withOpacity(0.5),
+                blurRadius: 30,
+                spreadRadius: 0,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
           child: Material(
             elevation: 10,
             clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -55,11 +67,8 @@ class UploadProgressToast extends StatelessWidget {
                       child: LinearProgressIndicator(
                         minHeight: 6,
                         value: this.progressValue,
-                        valueColor: AlwaysStoppedAnimation(
-                          this.progressValue == 1.0
-                              ? Colors.greenAccent.shade400
-                              : Theme.of(context).accentColor,
-                        ),
+                        backgroundColor: Theme.of(context).primaryColor.withOpacity(0.7),
+                        valueColor: AlwaysStoppedAnimation(Theme.of(context).accentColor),
                       ),
                     ),
                   ],

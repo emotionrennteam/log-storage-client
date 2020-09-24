@@ -6,8 +6,8 @@ github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/gen2brain/dlgs v0.0.0-20190708095831-3854608588f7 h1:qA8Mdjwrlv/r/aMqArqO0IMHUiy6ApdW4+8DtKr7PvA=
 github.com/gen2brain/dlgs v0.0.0-20190708095831-3854608588f7/go.mod h1:/eFcjDXaU2THSOOqLxOPETIbHETnamk8FA/hMjhg/gU=
 github.com/go-flutter-desktop/go-flutter v0.30.0/go.mod h1:NCryd/AqiRbYSd8pMzQldYkgH1tZIFGt2ToUghZcWGA=
-github.com/go-flutter-desktop/go-flutter v0.41.2 h1:DYy2ghZ+VxxbltCG9BXSApLKUQH3Ia89zSUdeIqYEgo=
-github.com/go-flutter-desktop/go-flutter v0.41.2/go.mod h1:qDG/ylPWgvZOL0IjId3ndUKm9T4czrlFAQYUm2dqzis=
+github.com/go-flutter-desktop/go-flutter v0.42.0 h1:uOWTmV2GLEFde6GMKLIGop4MDuvQddoVTca0k9abAOg=
+github.com/go-flutter-desktop/go-flutter v0.42.0/go.mod h1:qDG/ylPWgvZOL0IjId3ndUKm9T4czrlFAQYUm2dqzis=
 github.com/go-gl/gl v0.0.0-20190320180904-bf2b1f2f34d7 h1:SCYMcCJ89LjRGwEa0tRluNRiMjZHalQZrVrvTbPh+qw=
 github.com/go-gl/gl v0.0.0-20190320180904-bf2b1f2f34d7/go.mod h1:482civXOzJJCPzJ4ZOX/pwvXBWSnzD4OKMdH4ClKGbk=
 github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1 h1:QbL/5oDUmRBzO9/Z7Seo6zf912W/a6Sr4Eu0G/3Jho0=
@@ -22,8 +22,8 @@ github.com/gopherjs/gopherjs v0.0.0-20190915194858-d3ddacdb130f/go.mod h1:wJfORR
 github.com/jtolds/gls v4.20.0+incompatible h1:xdiiI2gbIgH/gLH7ADydsJ1uDOEzR8yvV7C0MuV77Wo=
 github.com/jtolds/gls v4.20.0+incompatible/go.mod h1:QJZ7F/aHp+rZTRtaJ1ow/lLfFfVYBRgL+9YlvaHOwJU=
 github.com/miguelpruivo/flutter_file_picker v1.4.3 h1:4no+PtzEL9ooQXXVI7lVKgva4/nZYKEPWlcVesmZdbk=
-github.com/miguelpruivo/flutter_file_picker/go v0.0.0-20200911175224-4ff33b6acc44 h1:CZjwJpyMURBJY2viz0whbgJWGgrQBZERn8lCgtWWYZE=
-github.com/miguelpruivo/flutter_file_picker/go v0.0.0-20200911175224-4ff33b6acc44/go.mod h1:csuW+TFyYKtiUwNvcvhcpyX4quPI7Pvv0SUogdqCW4I=
+github.com/miguelpruivo/flutter_file_picker/go v0.0.0-20200923150842-acf3f1b24831 h1:WkAg1gdKfNY4kxBKeLca0e1T3CJyA9FRbydo7VpcUNE=
+github.com/miguelpruivo/flutter_file_picker/go v0.0.0-20200923150842-acf3f1b24831/go.mod h1:csuW+TFyYKtiUwNvcvhcpyX4quPI7Pvv0SUogdqCW4I=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=

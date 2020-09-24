@@ -62,15 +62,18 @@ class _StorageObjectTableHeaderState extends State<StorageObjectTableHeader> {
                 ),
                 Container(
                   height: 40,
-                  padding: EdgeInsets.all(10),
+                  padding: EdgeInsets.all(widget.rootDirectory == '' ? 0 : 10),
                   color: Theme.of(context).primaryColor.withOpacity(0.8),
-                  child: Text(
-                    widget.rootDirectory != null ? widget.rootDirectory : '',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      widget.rootDirectory != null ? widget.rootDirectory : '',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.left,
                     ),
-                    textAlign: TextAlign.left,
                   ),
                 ),
                 Expanded(
@@ -79,14 +82,17 @@ class _StorageObjectTableHeaderState extends State<StorageObjectTableHeader> {
                     height: 40,
                     padding: EdgeInsets.all(10),
                     color: Theme.of(context).primaryColor.withOpacity(0.5),
-                    child: Text(
-                      '${widget.rootDirectorySeparator != null ? widget.rootDirectorySeparator : ""}${widget.currentDirectory}',
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '${widget.rootDirectorySeparator != null ? widget.rootDirectorySeparator : ""}${widget.currentDirectory}',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.left,
                       ),
-                      textAlign: TextAlign.left,
                     ),
                   ),
                 ),

@@ -48,7 +48,8 @@ Future<Tuple2<bool, String>> validateConnection(
 /// Returns a list of [StorageObject]s which represent directories
 /// and files in Minio.
 Future<List<StorageObject>> listObjectsInRemoteStorage(
-    StorageConnectionCredentials credentials) async {
+    StorageConnectionCredentials credentials,
+    {String path = ''}) async {
   final minio = _initializeClient(credentials);
   bool bucketExists = await minio.bucketExists(credentials.bucket);
   if (!bucketExists) {
@@ -56,7 +57,7 @@ Future<List<StorageObject>> listObjectsInRemoteStorage(
   }
 
   List<ListObjectsChunk> objectsChunks =
-      await minio.listObjects(credentials.bucket).toList();
+      await minio.listObjects(credentials.bucket, prefix: path, recursive: false).toList();
   List<StorageObject> storageObjects = List();
 
   for (var objectsChunk in objectsChunks) {

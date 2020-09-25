@@ -11,8 +11,8 @@ class AppDrawer extends StatelessWidget {
   final int activeListItemIndex;
   final List<AppDrawerItem> appDrawerItems = [
     new AppDrawerItem(
-      'Home Page',
-      FontAwesomeIcons.home,
+      'Dashboard',
+      Icons.dashboard_rounded,
       HomePage(),
     ),
     new AppDrawerItem(

@@ -9,8 +9,6 @@
 .history
 .svn/
 
-data/
-
 # IntelliJ related
 *.iml
 *.ipr
@@ -46,7 +44,8 @@ app.*.map.json
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 
 preferences.json
-directoryToMonitor/
+dirToMonitor/
+data/
 _SUCCESS
 arguments.txt
 postload.bat

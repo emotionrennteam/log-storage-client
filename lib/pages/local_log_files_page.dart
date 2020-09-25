@@ -173,9 +173,10 @@ class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
                     AppDrawer(2),
                     Expanded(
                       child: Container(
-                        color: Color.fromRGBO(26, 26, 26, 1),
+                        // color: Color.fromRGBO(26, 26, 26, 1),
+                        color: Theme.of(context).canvasColor,
                         padding: EdgeInsets.symmetric(
-                          horizontal: 32,
+                          horizontal: 64,
                         ),
                         child: Center(
                           child: Column(

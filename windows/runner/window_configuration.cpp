@@ -1,6 +1,6 @@
 #include "window_configuration.h"
 
-const wchar_t* kFlutterWindowTitle = L"emotion";
+const wchar_t* kFlutterWindowTitle = L"Log Storage Client";
 const unsigned int kFlutterWindowOriginX = 10;
 const unsigned int kFlutterWindowOriginY = 10;
 const unsigned int kFlutterWindowWidth = 1280;

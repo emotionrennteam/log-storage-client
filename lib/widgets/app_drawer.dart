@@ -1,4 +1,4 @@
-import 'package:emotion/pages/home_page.dart';
+import 'package:emotion/pages/dashboard_view.dart';
 import 'package:emotion/pages/local_log_files_page.dart';
 import 'package:emotion/pages/remote_log_files_page.dart';
 import 'package:emotion/pages/settings_page.dart';
@@ -13,12 +13,12 @@ class AppDrawer extends StatelessWidget {
     new AppDrawerItem(
       'Dashboard',
       Icons.dashboard_rounded,
-      HomePage(),
+      DashboardView(),
     ),
     new AppDrawerItem(
       'Profiles',
       FontAwesomeIcons.userAlt,
-      HomePage(),
+      DashboardView(),
     ),
     new AppDrawerItem(
       'Local Log Files',

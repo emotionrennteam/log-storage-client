@@ -1,4 +1,4 @@
-import 'package:emotion/pages/home_page.dart';
+import 'package:emotion/pages/dashboard_view.dart';
 import 'package:emotion/utils/constants.dart' as constants;
 import 'package:emotion/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -72,7 +72,7 @@ class MyApp extends StatelessWidget {
         ),
         unselectedWidgetColor: Colors.white,
       ),
-      home: HomePage(title: 'E-Motion Rennteam Aalen - Log Client'),
+      home: DashboardView(),
     );
   }
 }

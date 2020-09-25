@@ -12,6 +12,7 @@ import 'package:emotion/widgets/storage_object_table_header.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:path/path.dart' as path;
 
 class RemoteLogFilesPage extends StatefulWidget {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -60,9 +61,11 @@ class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
 
   /// Enables or disables the [FloatingActionButton] for downloading objects
   /// when at least one object has been selected.
-  void _setFloatingActionButtonState(List<bool> selectedStorageObjects) {
-    final selectCount =
-        selectedStorageObjects.where((selected) => selected).length;
+  void _onSelectionOfStorageObjectsChanged(List<bool> selectedStorageObjects) {
+    this._selectedStorageObjects = selectedStorageObjects;
+
+    final selectCount = selectedStorageObjects.where((s) => s).length;
+    
     // Disable the FAB when no files are selected
     if (selectCount == 0) {
       setState(() {
@@ -70,6 +73,7 @@ class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
       });
       return;
     }
+    
     setState(() {
       this._uploadFloatingActionButtonOnPressed = () async {
         String downloadPath = await FilePicker.platform.getDirectoryPath();
@@ -90,7 +94,7 @@ class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
           }
         });
         await downloadObjectsFromRemoteStorage(this._credentials,
-            downloadDirectory, remoteStorageObjectsToDownload);
+            downloadDirectory, this._currentDirectory, remoteStorageObjectsToDownload);
 
         widget._scaffoldKey.currentState.hideCurrentSnackBar();
         widget._scaffoldKey.currentState.showSnackBar(
@@ -98,6 +102,7 @@ class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
             content: Text('Download completed.'),
           ),
         );
+        // TODO: de-select all objects after download
         // setState(() {
         //   this._selectedStorageObjects =
         //       List<bool>.generate(this._storageObjects.length, (_) => false);
@@ -110,6 +115,11 @@ class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
     // TODO: implementation
   }
 
+  /// Changes the currently displayed directory to the given parameter [absolutePath].
+  ///
+  /// If the parameter [absolutePath] is set to [null], then the current directory
+  /// will be set to parent directory of the current directory (navigate up in the
+  /// hierarchy of directories).
   void _navigateToDirectory(String absolutePath) {
     // Navigate to parent in the directory tree
     if (absolutePath == null) {
@@ -179,7 +189,7 @@ class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
               child: Center(
                 child: StorageObjectTable(
                   this._navigateToDirectory,
-                  this._setFloatingActionButtonState,
+                  this._onSelectionOfStorageObjectsChanged,
                   this._storageObjects,
                 ),
               ),

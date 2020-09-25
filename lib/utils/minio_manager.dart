@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:emotion/models/storage_connection_credentials.dart';
 import 'package:emotion/models/storage_object.dart';
+import 'package:emotion/utils/app_settings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
@@ -43,6 +44,15 @@ Future<Tuple2<bool, String>> validateConnection(
   }
 }
 
+Future<Tuple5<String, String, int, bool, List<Bucket>>>
+    getStorageDetails() async {
+  final credentials = await getStorageConnectionCredentials();
+  final minio = _initializeClient(credentials);
+  List<Bucket> buckets = await minio.listBuckets();
+  return Tuple5(minio.endPoint, minio.region, minio.port,
+      credentials.tlsEnabled, buckets);
+}
+
 /// Asynchronically lists all objects in the given Minio bucket.
 ///
 /// Returns a list of [StorageObject]s which represent directories
@@ -56,8 +66,9 @@ Future<List<StorageObject>> listObjectsInRemoteStorage(
     throw Exception('The given bucket "${credentials.bucket}" doesn\'t exist.');
   }
 
-  List<ListObjectsChunk> objectsChunks =
-      await minio.listObjects(credentials.bucket, prefix: path, recursive: false).toList();
+  List<ListObjectsChunk> objectsChunks = await minio
+      .listObjects(credentials.bucket, prefix: path, recursive: false)
+      .toList();
   List<StorageObject> storageObjects = List();
 
   for (var objectsChunk in objectsChunks) {
@@ -82,6 +93,7 @@ Future<List<StorageObject>> listObjectsInRemoteStorage(
 Future<void> downloadObjectsFromRemoteStorage(
   StorageConnectionCredentials credentials,
   Directory downloadDirectory,
+  String currentDirectory,
   List<StorageObject> storageObjectsToDownload,
 ) async {
   final minio = _initializeClient(credentials);
@@ -91,23 +103,8 @@ Future<void> downloadObjectsFromRemoteStorage(
   }
 
   // TODO: improve by adding a stream for the download progress
-  for (StorageObject storageObject in storageObjectsToDownload) {
-    // Create directories and only download files
-    if (storageObject.isDirectory) {
-      Directory(
-        p.join(
-          downloadDirectory.path,
-          storageObject.name,
-        ),
-      ).createSync();
-      continue;
-    }
-    var objectByteStream =
-        await minio.getObject(credentials.bucket, storageObject.name);
-    var bytes = await objectByteStream.toBytes();
-    File(p.join(downloadDirectory.path, storageObject.name))
-        .writeAsBytes(bytes);
-  }
+  _downloadStorageObjects(storageObjectsToDownload, downloadDirectory,
+      currentDirectory, minio, credentials);
 }
 
 /// Uploads all files listed in [List<FileSystemEntity>] to Minio.
@@ -177,4 +174,100 @@ String _getCompatibleMinioPath(
     return relativePath.substring(1);
   }
   return relativePath;
+}
+
+/// Entry point for triggering the recursive download of all [StorageObject] in
+/// the given list (files + directories).
+void _downloadStorageObjects(
+  List<StorageObject> storageObjects,
+  Directory downloadDirectory,
+  String currentDirectory,
+  Minio minio,
+  StorageConnectionCredentials credentials,
+) {
+  for (StorageObject storageObject in storageObjects) {
+    // Create directories (don't download because MinIO comes without the abstraction of directories).
+    if (storageObject.isDirectory) {
+      _downloadDirectoryStorageObject(storageObject, downloadDirectory,
+          currentDirectory, credentials, minio);
+    } else {
+      // Download files
+      _downloadFileStorageObject(storageObject, downloadDirectory,
+          currentDirectory, credentials, minio);
+    }
+  }
+}
+
+/// Recursively mirrors a directory and all its child files and directories
+/// from MinIO and stores it on the local file system.
+/// 
+/// Directories itself are created directly and not downloaded from 
+/// MinIO because MinIO doesn't come with the concept of directories.
+/// Triggers the download of all child [StorageObject]s (files
+/// and directories).
+void _downloadDirectoryStorageObject(
+  StorageObject directoryStorageObject,
+  Directory downloadDirectory,
+  String currentDirectory,
+  StorageConnectionCredentials credentials,
+  Minio minio,
+) async {
+  var directoryName = _removeCurrentDirectoryPrefixFromStorageObject(
+      directoryStorageObject, currentDirectory);
+  Directory(
+    p.join(
+      downloadDirectory.path,
+      directoryName,
+    ),
+  ).createSync();
+
+  final childStorageObjects = await listObjectsInRemoteStorage(credentials,
+      path: directoryStorageObject.name);
+  _downloadStorageObjects(
+    childStorageObjects,
+    downloadDirectory,
+    currentDirectory,
+    minio,
+    credentials,
+  );
+}
+
+/// Downloads a single [StorageObject] (file) from MinIO and stores it in the given
+/// [downloadDirectory] as file on the local file system.
+void _downloadFileStorageObject(
+  StorageObject fileStorageObject,
+  Directory downloadDirectory,
+  String currentDirectory,
+  StorageConnectionCredentials credentials,
+  Minio minio,
+) async {
+  var objectByteStream =
+      await minio.getObject(credentials.bucket, fileStorageObject.name);
+  var bytes = await objectByteStream.toBytes();
+
+  var objectName = _removeCurrentDirectoryPrefixFromStorageObject(
+      fileStorageObject, currentDirectory);
+
+  try {
+    File(p.join(downloadDirectory.path, objectName)).writeAsBytes(bytes);
+  } on Exception catch (e) {
+    // TODO: handle error
+    debugPrint('Failed to download file. Reason: $e');
+  }
+}
+
+/// Removes the current directory (e.g. '/file') from the StorageObject's name.
+///
+/// This step is necessary in situation such as: we are not in the root directory
+/// of the remote storage (e.g. '/file/') and we now want to download a file. The
+/// downloaded file should not be downloaded to $DOWNLOAD_DIR/file/my-file.txt but
+/// instead to $DOWNLOAD_DIR/my-file.txt
+String _removeCurrentDirectoryPrefixFromStorageObject(
+  StorageObject storageObject,
+  String currentDirectory,
+) {
+  if (currentDirectory.isNotEmpty && currentDirectory != path.separator) {
+    return storageObject.name.substring(currentDirectory.length);
+  }
+  return storageObject.name;
 }

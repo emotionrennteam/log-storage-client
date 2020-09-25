@@ -8,4 +8,5 @@ import (
 var options = []flutter.Option{
 	flutter.WindowInitialDimensions(1200, 800),
 	flutter.AddPlugin(&file_picker.FilePickerPlugin{}),
+	flutter.WindowDimensionLimits(1000, 500, 1920, 1080),
 }

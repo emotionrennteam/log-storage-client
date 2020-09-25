@@ -4,6 +4,6 @@ go 1.15
 
 require (
 	github.com/go-flutter-desktop/go-flutter v0.42.0
-	github.com/miguelpruivo/flutter_file_picker/go v0.0.0-20200923150842-acf3f1b24831
+	github.com/miguelpruivo/flutter_file_picker/go v0.0.0-20200925172501-f731f4ae264f
 	github.com/pkg/errors v0.9.1
 )

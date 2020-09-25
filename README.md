@@ -67,7 +67,7 @@ samples, guidance on mobile development, and a full API reference.
      3. You can access the MinIO Browser on http://127.0.0.1:9000. The default credentials are:
         * User: `minioadmin`
         * Password: `minioadmin`
-   * Docker / Linux:
+   * Docker:
      ```bash
      docker run \
          -p 9000:9000 \
@@ -94,3 +94,46 @@ TODO:
       hover build windows
       ```
    * Edit `./go/cmd/options.go`.
+
+
+## MinIO
+
+### Administration
+
+With `mc` (MinIO Client) MinIO provides a client application for administrative purposes ([see documentation](https://docs.min.io/docs/minio-admin-complete-guide.html)).
+
+* Run the client:
+   ```bash
+   docker run -it --entrypoint sh minio/mc
+   ```
+
+* Add alias `test` for a MinIO Storage Service (deployed cluster):
+   ```bash
+   mc alias set test http://127.0.0.1:9000 minioadmin minioadmin
+   mc admin info test
+   ```
+
+* List all users:
+   ```bash
+   mc admin user list test
+   ```
+
+* Add a new user `phil` with password `emotion`:
+   ```bash
+   mc admin user add test phil secretpassword
+   ```
+
+* List all policies:
+   ```bash
+   mc admin policy list test
+   ```
+
+* Show details of a policy:
+   ```bash
+   mc admin policy info test readwrite
+   ```
+
+* Set the canned policy `readwrite` on user `phil`:
+   ```bash
+   mc admin policy set test readwrite user=phil
+   ```

@@ -197,7 +197,7 @@ class _DashboardViewState extends State<DashboardView>
                           opacity:
                               this._animationController.isAnimating ? 1.0 : 0.0,
                           child: Text(
-                            this._connectionFailure ? 'FAILURE' : 'SUCCESS',
+                            this._connectionFailure ? 'ERROR' : 'SUCCESS',
                             style: TextStyle(
                               color: TEXT_COLOR,
                               fontWeight: FontWeight.w400,

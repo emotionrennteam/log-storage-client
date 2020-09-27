@@ -5,7 +5,6 @@ import 'dart:io';
 
 import 'package:emotion/models/storage_connection_credentials.dart';
 import 'package:emotion/models/storage_object.dart';
-import 'package:emotion/utils/app_settings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
@@ -248,7 +247,10 @@ void _downloadFileStorageObject(
       fileStorageObject, currentDirectory);
 
   try {
-    File(p.join(downloadDirectory.path, objectName)).writeAsBytes(bytes);
+    // TODO: async or sync file creation?
+    File(p.join(downloadDirectory.path, objectName)).writeAsBytesSync(bytes);
+  } on FileSystemException catch (e) {
+    throw new Exception('Failed to download file to "${e.path}". Reason: ${e.osError}');
   } on Exception catch (e) {
     // TODO: handle error
     debugPrint('Failed to download file. Reason: $e');

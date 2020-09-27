@@ -1,4 +1,5 @@
 import 'package:emotion/utils/app_settings.dart';
+import 'package:emotion/utils/utils.dart';
 import 'package:emotion/widgets/app_layout.dart';
 import 'package:emotion/widgets/settings/log_file_settings.dart';
 import 'package:emotion/widgets/settings/storage_connection_settings.dart';
@@ -40,11 +41,14 @@ class _SettingsPageState extends State<SettingsPage> {
             _logFileSettingsWidget.getAutoUploadEnabled(),
           );
           this._scaffoldKey.currentState.hideCurrentSnackBar();
-          this._scaffoldKey.currentState.showSnackBar(SnackBar(
-                content: Text(savingSucceeded
-                    ? 'Successfully saved settings.'
-                    : 'Failed to save settings.'),
-              ));
+          this._scaffoldKey.currentState.showSnackBar(
+                getSnackBar(
+                  savingSucceeded
+                      ? 'Successfully saved settings.'
+                      : 'Failed to save settings.',
+                  !savingSucceeded,
+                ),
+              );
         },
       ),
       body: AppLayout(

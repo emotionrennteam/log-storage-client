@@ -52,8 +52,9 @@ class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
     }).catchError((error) {
       widget._scaffoldKey.currentState.hideCurrentSnackBar();
       widget._scaffoldKey.currentState.showSnackBar(
-        SnackBar(
-          content: Text('Failed to list objects. Error: $error'),
+        getSnackBar(
+          'Failed to list objects. Error: $error',
+          true,
         ),
       );
     });
@@ -65,7 +66,7 @@ class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
     this._selectedStorageObjects = selectedStorageObjects;
 
     final selectCount = selectedStorageObjects.where((s) => s).length;
-    
+
     // Disable the FAB when no files are selected
     if (selectCount == 0) {
       setState(() {
@@ -73,7 +74,7 @@ class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
       });
       return;
     }
-    
+
     setState(() {
       this._uploadFloatingActionButtonOnPressed = () async {
         String downloadPath = await FilePicker.platform.getDirectoryPath();
@@ -84,8 +85,14 @@ class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
 
         Directory downloadDirectory = Directory(downloadPath);
         if (!downloadDirectory.existsSync()) {
-          // TODO: visualize exception
-          throw new Exception('Selected directory doesn\'t exist.');
+          widget._scaffoldKey.currentState.hideCurrentSnackBar();
+          widget._scaffoldKey.currentState.showSnackBar(
+            getSnackBar(
+              'The selected download directory "$downloadPath" could not be found.',
+              true,
+            ),
+          );
+          return;
         }
         List<StorageObject> remoteStorageObjectsToDownload = List();
         this._selectedStorageObjects.asMap().forEach((index, selected) {
@@ -93,15 +100,26 @@ class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
             remoteStorageObjectsToDownload.add(this._storageObjects[index]);
           }
         });
-        await downloadObjectsFromRemoteStorage(this._credentials,
-            downloadDirectory, this._currentDirectory, remoteStorageObjectsToDownload);
 
-        widget._scaffoldKey.currentState.hideCurrentSnackBar();
-        widget._scaffoldKey.currentState.showSnackBar(
-          SnackBar(
-            content: Text('Download completed.'),
-          ),
-        );
+        // TODO: doesn't catch exceptions
+        downloadObjectsFromRemoteStorage(
+          this._credentials,
+          downloadDirectory,
+          this._currentDirectory,
+          remoteStorageObjectsToDownload,
+        ).then((_) {
+          widget._scaffoldKey.currentState.hideCurrentSnackBar();
+          widget._scaffoldKey.currentState.showSnackBar(
+            getSnackBar('Download completed.', false),
+          );
+        }).catchError((error) {
+          widget._scaffoldKey.currentState.hideCurrentSnackBar();
+          widget._scaffoldKey.currentState.showSnackBar(
+            getSnackBar(error.toString(), true),
+          );
+          return;
+        });
+
         // TODO: de-select all objects after download
         // setState(() {
         //   this._selectedStorageObjects =

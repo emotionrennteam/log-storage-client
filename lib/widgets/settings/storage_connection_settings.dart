@@ -1,6 +1,8 @@
 import 'package:emotion/models/storage_connection_credentials.dart';
 import 'package:emotion/utils/app_settings.dart';
+import 'package:emotion/utils/constants.dart';
 import 'package:emotion/utils/minio_manager.dart';
+import 'package:emotion/utils/utils.dart';
 import 'package:emotion/widgets/settings/settings_panel.dart';
 import 'package:emotion/widgets/settings/textfield_setting.dart';
 import 'package:flutter/material.dart';
@@ -181,28 +183,11 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
               );
               final connectionSucceeded = await validateConnection(credentials);
               Scaffold.of(context).hideCurrentSnackBar();
-              Scaffold.of(context).showSnackBar(SnackBar(
-                content: Row(
-                  children: <Widget>[
-                    Icon(
-                      connectionSucceeded.item1 ? Icons.check : Icons.close,
-                      color: connectionSucceeded.item1
-                          ? Theme.of(context).accentColor
-                          : Colors.redAccent,
-                    ),
-                    SizedBox(
-                      width: 8,
-                    ),
-                    Expanded(
-                      child: Text(
-                        connectionSucceeded.item1
-                            ? 'Successfully connected.'
-                            : connectionSucceeded.item2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
+              Scaffold.of(context).showSnackBar(getSnackBar(
+                connectionSucceeded.item1
+                    ? 'Successfully connected.'
+                    : connectionSucceeded.item2,
+                !connectionSucceeded.item1,
               ));
             },
             padding: EdgeInsets.symmetric(vertical: 20, horizontal: 30),

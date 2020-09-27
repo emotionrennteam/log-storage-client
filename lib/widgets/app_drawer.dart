@@ -64,6 +64,7 @@ class AppDrawer extends StatelessWidget {
                 ),
               ],
             ),
+            clipBehavior: Clip.antiAlias,
             child: Material(
               borderRadius: BorderRadius.circular(7),
               color: this.activeListItemIndex == index

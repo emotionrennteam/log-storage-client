@@ -1,3 +1,4 @@
+import 'package:emotion/models/storage_connection_credentials.dart';
 import 'package:emotion/utils/app_settings.dart';
 import 'package:emotion/utils/constants.dart';
 import 'package:emotion/utils/minio_manager.dart';
@@ -13,36 +14,79 @@ class DashboardView extends StatefulWidget {
   State<StatefulWidget> createState() => _DashboardViewState();
 }
 
-class _DashboardViewState extends State<DashboardView> {
-  String endpoint;
-  String region;
-  bool useTLS = false;
+class _DashboardViewState extends State<DashboardView>
+    with SingleTickerProviderStateMixin {
+  String _bucket;
+  List<Bucket> _buckets;
+  bool _connectionFailure = true;
+  String _endpoint;
   int port;
-  String bucket;
-  List<Bucket> buckets;
+  String _region;
+  bool _useTLS = false;
+  AnimationController _animationController;
 
-  // final globalKey = GlobalKey<ScaffoldState>();
-
+  @override
   initState() {
     super.initState();
+
     getMinioBucket().then((String bucket) {
-      this.bucket = bucket;
+      this._bucket = bucket;
     });
-    getStorageDetails().then((storageDetails) {
+    getStorageConnectionCredentials().then((credentials) {
       if (mounted) {
         setState(() {
-          this.endpoint = storageDetails.item1;
-          this.region = storageDetails.item2;
-          this.port = storageDetails.item3;
-          this.useTLS = storageDetails.item4;
-          this.buckets = storageDetails.item5;
+          this._endpoint = credentials.endpoint;
+          this.port = credentials.port;
+          this._useTLS = credentials.tlsEnabled;
+        });
+      }
+      this._checkStorageConnection(credentials: credentials);
+    });
+
+    this._animationController = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    );
+  }
+
+  @override
+  dispose() {
+    this._animationController.dispose();
+    super.dispose();
+  }
+
+  void _checkStorageConnection(
+      {StorageConnectionCredentials credentials}) async {
+    this._animationController.forward();
+    Future.delayed(
+      Duration(seconds: 1),
+      () {
+        if (mounted) this._animationController.reset();
+      },
+    );
+    if (credentials == null) {
+      credentials = await getStorageConnectionCredentials();
+    }
+    getStorageDetails(credentials).then((details) {
+      if (mounted) {
+        setState(() {
+          this._connectionFailure = false;
+          this._region = details.item1;
+          this._buckets = details.item2;
+        });
+      }
+    }).catchError((error) {
+      if (mounted) {
+        setState(() {
+          this._connectionFailure = true;
         });
       }
     });
   }
 
   Widget _cardWidget(String title, String highlightedContent,
-      {Color highlightedContentColor = Colors.white}) {
+      {Color titleColor = LIGHT_GREY,
+      Color highlightedContentColor = Colors.white}) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: 20,
@@ -50,21 +94,20 @@ class _DashboardViewState extends State<DashboardView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              title,
-              style: TextStyle(
-                color: LIGHT_GREY,
-                fontWeight: FontWeight.w300,
-                fontSize: 20,
-              ),
-              overflow: TextOverflow.ellipsis,
+          Text(
+            title,
+            style: TextStyle(
+              color: titleColor,
+              fontWeight: FontWeight.w300,
+              fontSize: 20,
             ),
+            overflow: TextOverflow.ellipsis,
           ),
           SizedBox(height: 10),
           Align(
-            alignment: highlightedContent != null ? Alignment.centerLeft : Alignment.center,
+            alignment: highlightedContent != null
+                ? Alignment.centerLeft
+                : Alignment.center,
             child: Text(
               highlightedContent != null ? highlightedContent : '-',
               style: TextStyle(
@@ -81,7 +124,103 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
-  Widget _storageConnectionWidget(BuildContext context) {
+  Widget _storageConnectionWidget() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(7),
+        boxShadow: [
+          BoxShadow(
+            color: this._connectionFailure
+                ? LIGHT_RED.withOpacity(0.8)
+                : Theme.of(context).accentColor.withOpacity(0.8),
+            blurRadius: 30,
+            spreadRadius: 0,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: AnimatedContainer(
+        duration: Duration(seconds: 1),
+        color:
+            this._connectionFailure ? DARK_RED : Theme.of(context).accentColor,
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            splashColor: Colors.white,
+            onTap: () {
+              this._checkStorageConnection();
+            },
+            child: Stack(
+              children: [
+                Padding(
+                  padding: EdgeInsets.fromLTRB(40, 20, 30, 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Storage Connection',
+                            style: TextStyle(
+                              color: TEXT_COLOR,
+                              fontWeight: FontWeight.w300,
+                              fontSize: 20,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          SizedBox(
+                            width: 32,
+                          ),
+                          new AnimatedBuilder(
+                            animation: this._animationController,
+                            builder: (context, widget) {
+                              return new Transform.rotate(
+                                angle: this._animationController.value * 6.3,
+                                child: widget,
+                              );
+                            },
+                            child: Icon(
+                              Icons.refresh,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: AnimatedOpacity(
+                          duration: Duration(seconds: 1),
+                          curve: Curves.easeOutCirc,
+                          opacity:
+                              this._animationController.isAnimating ? 1.0 : 0.0,
+                          child: Text(
+                            this._connectionFailure ? 'FAILURE' : 'SUCCESS',
+                            style: TextStyle(
+                              color: TEXT_COLOR,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 30,
+                            ),
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 50),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _configurationWidget(BuildContext context) {
     return Container(
       height: 120,
       child: Material(
@@ -93,11 +232,11 @@ class _DashboardViewState extends State<DashboardView> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Expanded(
-                child: this._cardWidget('Bucket', this.bucket),
+                child: this._cardWidget('Bucket', this._bucket),
               ),
               VerticalDivider(color: DARK_GREY),
               Expanded(
-                child: this._cardWidget('Endpoint', this.endpoint),
+                child: this._cardWidget('Endpoint', this._endpoint),
               ),
               VerticalDivider(color: DARK_GREY),
               Expanded(
@@ -105,14 +244,10 @@ class _DashboardViewState extends State<DashboardView> {
               ),
               VerticalDivider(color: DARK_GREY),
               Expanded(
-                child: this._cardWidget('TLS', this.useTLS.toString(),
-                    highlightedContentColor: this.useTLS
+                child: this._cardWidget('TLS', this._useTLS.toString(),
+                    highlightedContentColor: this._useTLS
                         ? Theme.of(context).accentColor
                         : LIGHT_RED),
-              ),
-              VerticalDivider(color: DARK_GREY),
-              Expanded(
-                child: this._cardWidget('Region', this.region),
               ),
             ],
           ),
@@ -130,39 +265,20 @@ class _DashboardViewState extends State<DashboardView> {
           padding: EdgeInsets.symmetric(vertical: 40),
           child: Column(
             children: [
-              this._storageConnectionWidget(context),
-              // GridView.count(
-              //   physics: BouncingScrollPhysics(),
-              //   crossAxisCount: 2,
-              //   padding: EdgeInsets.symmetric(
-              //     vertical: 32,
-              //     horizontal: 0,
-              //   ),
-              //   childAspectRatio: 2.0,
-              //   children: List.generate(
-              //     10,
-              //     (index) => Card(
-              //       clipBehavior: Clip.antiAlias,
-              //       color: Theme.of(context).primaryColor,
-              //       shape: RoundedRectangleBorder(
-              //         borderRadius: BorderRadius.circular(10.0),
-              //       ),
-              //       elevation: 3,
-              //       margin: EdgeInsets.all(10),
-              //       child: Padding(
-              //         padding: EdgeInsets.all(20),
-              //         child: Text(
-              //           'Lorem ipsum',
-              //           style: TextStyle(
-              //             color: Colors.white,
-              //             fontWeight: FontWeight.w300,
-              //             fontSize: 30,
-              //           ),
-              //         ),
-              //       ),
-              //     ),
-              //   ),
-              // ),
+              this._configurationWidget(context),
+              SizedBox(
+                height: 32,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    children: [
+                      _storageConnectionWidget(),
+                    ],
+                  ),
+                ],
+              ),
             ],
           ),
         ),

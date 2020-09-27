@@ -44,13 +44,12 @@ Future<Tuple2<bool, String>> validateConnection(
   }
 }
 
-Future<Tuple5<String, String, int, bool, List<Bucket>>>
-    getStorageDetails() async {
-  final credentials = await getStorageConnectionCredentials();
+Future<Tuple2<String, List<Bucket>>> getStorageDetails(
+  StorageConnectionCredentials credentials,
+) async {
   final minio = _initializeClient(credentials);
   List<Bucket> buckets = await minio.listBuckets();
-  return Tuple5(minio.endPoint, minio.region, minio.port,
-      credentials.tlsEnabled, buckets);
+  return Tuple2(minio.region, buckets);
 }
 
 /// Asynchronically lists all objects in the given Minio bucket.
@@ -200,8 +199,8 @@ void _downloadStorageObjects(
 
 /// Recursively mirrors a directory and all its child files and directories
 /// from MinIO and stores it on the local file system.
-/// 
-/// Directories itself are created directly and not downloaded from 
+///
+/// Directories itself are created directly and not downloaded from
 /// MinIO because MinIO doesn't come with the concept of directories.
 /// Triggers the download of all child [StorageObject]s (files
 /// and directories).

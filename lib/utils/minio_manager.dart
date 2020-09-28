@@ -84,6 +84,38 @@ Future<List<StorageObject>> listObjectsInRemoteStorage(
   return storageObjects;
 }
 
+/// Creates a "presigned" (=shareable) link for downloading a [StorageObject] without
+/// needing to authenticate at MinIO (=> public link).
+///
+/// Attention: in MinIO / S3, it is not possible to share directories. Only single files
+/// can be shared via a link. The created link / URL is valid for 7 days.
+Future<String> shareObjectFromRemoteStorage(
+  StorageObject storageObject,
+  StorageConnectionCredentials credentials,
+) async {
+  final minio = _initializeClient(credentials);
+  if (storageObject.isDirectory) {
+    throw new UnimplementedError();
+  }
+  return await minio.presignedGetObject(
+    credentials.bucket,
+    storageObject.name,
+  );
+}
+
+/// Irreversibly deletes the specified [StorageObject].
+Future<void> deleteObjectFromRemoteStorage(
+  StorageObject storageObject,
+  StorageConnectionCredentials credentials,
+) async {
+  final minio = _initializeClient(credentials);
+  // TODO: delete directories by removing objects recursively
+  if (storageObject.isDirectory) {
+    throw new UnimplementedError();
+  }
+  await minio.removeObject(credentials.bucket, storageObject.name);
+}
+
 /// Downloads all objects in the given list of [StorageObject]s to the given [downloadDirectory].
 ///
 /// [StorageObject]s which are actually directories cannot be downloaded and will simply be created
@@ -250,7 +282,8 @@ void _downloadFileStorageObject(
     // TODO: async or sync file creation?
     File(p.join(downloadDirectory.path, objectName)).writeAsBytesSync(bytes);
   } on FileSystemException catch (e) {
-    throw new Exception('Failed to download file to "${e.path}". Reason: ${e.osError}');
+    throw new Exception(
+        'Failed to download file to "${e.path}". Reason: ${e.osError}');
   } on Exception catch (e) {
     // TODO: handle error
     debugPrint('Failed to download file. Reason: $e');

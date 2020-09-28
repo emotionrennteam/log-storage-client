@@ -29,7 +29,7 @@ dependencies:
   minio: ^0.1.8
   path: ^1.7.0
   cross_local_storage: ^1.1.0
-  file_picker: ^2.0.1+2
+  file_picker: ^2.0.4
   tuple: ^1.0.3
   font_awesome_flutter: ^8.8.1
   draggable_scrollbar: ^0.0.4

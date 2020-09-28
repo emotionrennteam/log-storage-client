@@ -126,7 +126,7 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           'eyW/+8ZtsgT81Cb0e8OVxzJAQP5lY7Dcamnze+JnWEDT ...',
           widget.accessKeyController,
           this._secretKeyFocusNode,
-          'The access key is like user-id that uniquely\nidentifies your account.',
+          'The access key is like  a user-id that\nuniquely identifies your account.',
         ),
         Divider(color: Colors.transparent),
         TextFieldSetting(

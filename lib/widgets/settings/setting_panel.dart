@@ -38,9 +38,8 @@ class _SettingPanelState extends State<SettingPanel> {
         Expanded(
           child: Align(
             alignment: Alignment.centerRight,
-            heightFactor: 0.5,
+            heightFactor: 0.6,
             child: AnimatedOpacity(
-              opacity: widget.isIconForTooltipVisible ? 1.0 : 0.0,
               duration: Duration(milliseconds: 400),
               child: Tooltip(
                 child: IconButton(
@@ -52,11 +51,17 @@ class _SettingPanelState extends State<SettingPanel> {
                   ),
                   onPressed: null,
                 ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.circular(7),
+                ),
                 message: widget.tooltipMessage,
                 padding: EdgeInsets.all(12),
                 preferBelow: true,
                 verticalOffset: 15,
               ),
+              opacity: widget.isIconForTooltipVisible ? 1.0 : 0.0,
+              curve: Curves.easeInBack,
             ),
           ),
         ),

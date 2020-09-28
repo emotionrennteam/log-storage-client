@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:path/path.dart' as path;
 
 class StorageObjectTableHeader extends StatefulWidget {
   /// Callback function to be called when the user want to navigate up
@@ -9,6 +8,9 @@ class StorageObjectTableHeader extends StatefulWidget {
   /// Callback function to be called when the checkbox for selecting
   /// respectively deselecting all elements of the table was tapped.
   final Function(bool) onSelectDeselectAllCallback;
+
+  /// Whether to display the last column with options to delete or share files.
+  final bool optionsColumnEnabled;
 
   /// A string representing the path of the current directory.
   final String currentDirectory;
@@ -25,7 +27,8 @@ class StorageObjectTableHeader extends StatefulWidget {
       this.rootDirectory,
       this.onNavigateToParentDirectoryCallback,
       this.onSelectDeselectAllCallback,
-      {this.rootDirectorySeparator});
+      {this.optionsColumnEnabled = false,
+      this.rootDirectorySeparator});
 
   @override
   State<StatefulWidget> createState() => _StorageObjectTableHeaderState();
@@ -131,8 +134,7 @@ class _StorageObjectTableHeaderState extends State<StorageObjectTableHeader> {
                 ),
               ),
               Container(
-                width: 110,
-                margin: EdgeInsets.only(right: 20),
+                width: 120,
                 child: Text(
                   'Last Modified',
                   style: this._textStyle,
@@ -141,13 +143,26 @@ class _StorageObjectTableHeaderState extends State<StorageObjectTableHeader> {
               ),
               Container(
                 width: 100,
-                padding: EdgeInsets.only(right: 20),
+                padding: EdgeInsets.only(
+                  right: widget.optionsColumnEnabled ? 10 : 20,
+                ),
                 child: Text(
                   'Size',
                   style: this._textStyle,
                   textAlign: TextAlign.right,
                 ),
               ),
+              widget.optionsColumnEnabled
+                  ? Container(
+                      width: 80,
+                      padding: EdgeInsets.only(right: 20),
+                      child: Text(
+                        'Options',
+                        style: this._textStyle,
+                        textAlign: TextAlign.right,
+                      ),
+                    )
+                  : SizedBox(),
             ],
           ),
         ],

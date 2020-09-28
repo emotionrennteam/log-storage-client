@@ -12,7 +12,6 @@ import 'package:emotion/widgets/storage_object_table_header.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:path/path.dart' as path;
 
 class RemoteLogFilesPage extends StatefulWidget {
   final _scaffoldKey = GlobalKey<ScaffoldState>();

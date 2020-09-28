@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Builds the widget for displaying the list of [StorageObject]s as a table.
 class StorageObjectTable extends StatefulWidget {
@@ -96,6 +97,13 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
                 Scaffold.of(context).showSnackBar(getSnackBar(
                   'Successfully copied shareable link to your clipboard (valid for 7 days).',
                   false,
+                  snackBarAction: SnackBarAction(
+                      label: 'OPEN IN BROWSER',
+                      onPressed: () async {
+                        if (await canLaunch(shareableLink)) {
+                          launch(shareableLink);
+                        }
+                      }),
                 ));
               });
             });

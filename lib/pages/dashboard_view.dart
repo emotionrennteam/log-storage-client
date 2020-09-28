@@ -18,7 +18,8 @@ class _DashboardViewState extends State<DashboardView>
     with SingleTickerProviderStateMixin {
   String _bucket;
   List<Bucket> _buckets;
-  bool _connectionFailure = true;
+  bool _connectionError = true;
+  String _connectionErrorMessage;
   String _endpoint;
   int port;
   String _region;
@@ -58,27 +59,33 @@ class _DashboardViewState extends State<DashboardView>
   void _checkStorageConnection(
       {StorageConnectionCredentials credentials}) async {
     this._animationController.forward();
+
+    // Reset animation controller after 1 second so that the user can click on the
+    // refresh icon again and the animation will restart.
     Future.delayed(
       Duration(seconds: 1),
       () {
         if (mounted) this._animationController.reset();
       },
     );
+
     if (credentials == null) {
       credentials = await getStorageConnectionCredentials();
     }
-    getStorageDetails(credentials).then((details) {
+    validateConnection(credentials).then((result) {
       if (mounted) {
         setState(() {
-          this._connectionFailure = false;
-          this._region = details.item1;
-          this._buckets = details.item2;
+          this._connectionError = !result.item1;
+          this._connectionErrorMessage = result.item2;
+          this._region = result.item3;
+          this._buckets = result.item4;
         });
       }
     }).catchError((error) {
       if (mounted) {
         setState(() {
-          this._connectionFailure = true;
+          this._connectionError = true;
+          this._connectionErrorMessage = (error as Exception).toString();
         });
       }
     });
@@ -130,7 +137,7 @@ class _DashboardViewState extends State<DashboardView>
         borderRadius: BorderRadius.circular(7),
         boxShadow: [
           BoxShadow(
-            color: this._connectionFailure
+            color: this._connectionError
                 ? LIGHT_RED.withOpacity(0.8)
                 : Theme.of(context).accentColor.withOpacity(0.8),
             blurRadius: 30,
@@ -142,8 +149,7 @@ class _DashboardViewState extends State<DashboardView>
       clipBehavior: Clip.antiAlias,
       child: AnimatedContainer(
         duration: Duration(seconds: 1),
-        color:
-            this._connectionFailure ? DARK_RED : Theme.of(context).accentColor,
+        color: this._connectionError ? DARK_RED : Theme.of(context).accentColor,
         child: Material(
           type: MaterialType.transparency,
           child: InkWell(
@@ -197,7 +203,7 @@ class _DashboardViewState extends State<DashboardView>
                           opacity:
                               this._animationController.isAnimating ? 1.0 : 0.0,
                           child: Text(
-                            this._connectionFailure ? 'ERROR' : 'SUCCESS',
+                            this._connectionError ? 'ERROR' : 'SUCCESS',
                             style: TextStyle(
                               color: TEXT_COLOR,
                               fontWeight: FontWeight.w400,
@@ -208,7 +214,21 @@ class _DashboardViewState extends State<DashboardView>
                           ),
                         ),
                       ),
-                      SizedBox(height: 50),
+                      this._connectionErrorMessage != null
+                          ? Padding(
+                              padding: EdgeInsets.only(top: 10),
+                              child: Text(
+                                this._connectionErrorMessage,
+                                style: TextStyle(
+                                  color: TEXT_COLOR,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 15,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 3,
+                              ),
+                            )
+                          : SizedBox(height: 50),
                     ],
                   ),
                 ),
@@ -272,10 +292,17 @@ class _DashboardViewState extends State<DashboardView>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    children: [
-                      _storageConnectionWidget(),
-                    ],
+                  Expanded(
+                    child: Column(
+                      children: [
+                        _storageConnectionWidget(),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      children: [],
+                    ),
                   ),
                 ],
               ),

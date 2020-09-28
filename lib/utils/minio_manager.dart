@@ -25,30 +25,40 @@ Minio _initializeClient(StorageConnectionCredentials credentials) {
 
 /// Checks whether the given credentials allow to connect to the MinIO storage system.
 ///
-/// Returns a [Tuple2<bool, String>] where the first item contains a [bool]. The [bool]
-/// is [true] upon successful connection and otherwise false. If no successful connection
-/// could be established, then the second item contains an additional error message as a [String].
-Future<Tuple2<bool, String>> validateConnection(
+/// Returns a [Tuple4]. The first item contains a [bool] which [bool] is [true] upon
+/// successful connection to MinIO and otherwise false. If no successful connection
+/// could be established, then the second item contains an additional error message as
+/// a [String]. The third item contains the region of the MinIO server. The fourth item
+/// contains the [List] of buckets available at the MinIO server.
+Future<Tuple4<bool, String, String, List<Bucket>>> validateConnection(
     StorageConnectionCredentials credentials) async {
+  Minio minio;
+  List<Bucket> buckets;
   try {
-    final minio = _initializeClient(credentials);
-    var bucketExists = await minio.bucketExists(credentials.bucket);
-    if (!bucketExists) {
-      return Tuple2(false,
-          'Connection error: the bucket "${credentials.bucket}" doesn\'t exist.');
-    }
-    return Tuple2(true, null);
-  } catch (e) {
-    return Tuple2(false, 'Connection error: ${e.toString()}');
-  }
-}
+    minio = _initializeClient(credentials);
+    
+    final bucketExists = await minio.bucketExists(credentials.bucket);
+    buckets = await minio.listBuckets();
 
-Future<Tuple2<String, List<Bucket>>> getStorageDetails(
-  StorageConnectionCredentials credentials,
-) async {
-  final minio = _initializeClient(credentials);
-  List<Bucket> buckets = await minio.listBuckets();
-  return Tuple2(minio.region, buckets);
+    if (!bucketExists) {
+      return Tuple4(
+        false,
+        'The specified bucket ${credentials.bucket} doesn\'t exist.',
+        minio.region,
+        buckets,
+      );
+    }
+
+    return Tuple4(true, null, minio.region, buckets);
+
+  } catch (e) {
+    return Tuple4(
+      false,
+      e.toString(),
+      minio?.region,
+      buckets,
+    );
+  }
 }
 
 /// Asynchronically lists all objects in the given Minio bucket.

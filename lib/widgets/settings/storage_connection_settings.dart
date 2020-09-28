@@ -190,7 +190,11 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
               try {
                 port = int.parse(widget.portController.text);
               } on FormatException catch (_) {
-                // TODO: validate input
+                Scaffold.of(context).hideCurrentSnackBar();
+                Scaffold.of(context).showSnackBar(getSnackBar(
+                  'The specified port must be a numerical value, e.g. 80 or 443.',
+                  true,
+                ));
                 return;
               }
               var credentials = new StorageConnectionCredentials(
@@ -206,7 +210,7 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
               Scaffold.of(context).showSnackBar(getSnackBar(
                 connectionSucceeded.item1
                     ? 'Successfully connected.'
-                    : connectionSucceeded.item2,
+                    : 'Connection error: ${connectionSucceeded.item2}',
                 !connectionSucceeded.item1,
               ));
             },

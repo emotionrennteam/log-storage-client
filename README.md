@@ -73,6 +73,7 @@ samples, guidance on mobile development, and a full API reference.
          -p 9000:9000 \
          -e MINIO_ACCESS_KEY=minioadmin \
          -e MINIO_SECRET_KEY=minioadmin \
+         -e MINIO_REGION_NAME=de-south-1-aalen \
          -v $(pwd)/data:/data minio/minio \
          server /data
      ```
@@ -104,7 +105,7 @@ With `mc` (MinIO Client) MinIO provides a client application for administrative 
 
 * Run the client:
    ```bash
-   docker run -it --entrypoint sh minio/mc
+   docker run -it --entrypoint sh --network host minio/mc
    ```
 
 * Add alias `test` for a MinIO Storage Service (deployed cluster):

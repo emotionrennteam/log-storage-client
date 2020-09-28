@@ -6,12 +6,12 @@ import 'package:emotion/widgets/settings/storage_connection_settings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class SettingsPage extends StatefulWidget {
+class SettingsView extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => new _SettingsPageState();
+  State<StatefulWidget> createState() => new _SettingsViewState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsViewState extends State<SettingsView> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final _logFileSettingsWidget = new LogFileSettings();
   final _storageConnectionsWidget = new StorageConnectionSettings();

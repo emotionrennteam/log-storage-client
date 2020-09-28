@@ -25,7 +25,7 @@ Future<bool> saveAllSettings(
 ) async {
   int portAsInt;
   try {
-    portAsInt = int.parse(port);
+    portAsInt = port.isNotEmpty ? int.parse(port) : null;
   } catch (_) {
     return false;
   }
@@ -42,7 +42,7 @@ Future<bool> saveAllSettings(
     ]);
     return !responses.contains(false);
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('Failed to save settings. Exception: $e');
     return false;
   }
 }

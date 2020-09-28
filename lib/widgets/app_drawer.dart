@@ -1,7 +1,7 @@
 import 'package:emotion/pages/dashboard_view.dart';
 import 'package:emotion/pages/local_log_files_page.dart';
 import 'package:emotion/pages/remote_log_files_page.dart';
-import 'package:emotion/pages/settings_page.dart';
+import 'package:emotion/pages/settings_view.dart';
 import 'package:emotion/utils/constants.dart' as constants;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +33,7 @@ class AppDrawer extends StatelessWidget {
     new AppDrawerItem(
       'Settings',
       FontAwesomeIcons.cog,
-      SettingsPage(),
+      SettingsView(),
     ),
   ];
 

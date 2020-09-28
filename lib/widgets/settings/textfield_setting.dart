@@ -1,79 +1,96 @@
-import 'package:emotion/widgets/settings/settings_panel.dart';
+import 'package:emotion/widgets/settings/setting_panel.dart';
 import 'package:flutter/material.dart';
 
-class TextFieldSetting extends StatelessWidget {
-  final String _title;
-  final String _hintText;
-  final TextEditingController _controller;
-  final FocusNode _nextFocusNode;
+class TextFieldSetting extends StatefulWidget {
+  final String title;
+  final String hintText;
+  final TextEditingController controller;
+  final FocusNode nextFocusNode;
+  final String tooltipMessage;
 
   TextFieldSetting(
-    this._title,
-    this._hintText,
-    this._controller,
-    this._nextFocusNode,
+    this.title,
+    this.hintText,
+    this.controller,
+    this.nextFocusNode,
+    this.tooltipMessage,
   );
 
   @override
+  State<StatefulWidget> createState() => _TextFieldSettingState();
+}
+
+class _TextFieldSettingState extends State<TextFieldSetting> {
+  bool _isTooltipVisible = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SettingPanel(this._title),
-        SizedBox(
-          height: 13,
-        ),
-        TextFormField(
-          autofocus: true,
-          controller: this._controller,
-          cursorColor: Colors.white,
-          decoration: InputDecoration(
-            // suffix: IconButton(
-            //   padding: EdgeInsets.all(0),
-            //   icon: Icon(Icons.visibility),
-            //   onPressed: () {
-            //   },
-            // ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: const BorderRadius.all(
-                const Radius.circular(28.0),
+    return MouseRegion(
+      onEnter: (_) => setState(() {
+        _isTooltipVisible = true;
+      }),
+      onExit: (_) => setState(() {
+        _isTooltipVisible = false;
+      }),
+      child: Column(
+        children: [
+          SettingPanel(widget.title, widget.tooltipMessage, this._isTooltipVisible),
+          SizedBox(
+            height: 13,
+          ),
+          TextFormField(
+            autofocus: true,
+            controller: widget.controller,
+            cursorColor: Colors.white,
+            decoration: InputDecoration(
+              // suffix: IconButton(
+              //   padding: EdgeInsets.all(0),
+              //   icon: Icon(Icons.visibility),
+              //   onPressed: () {
+              //   },
+              // ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: const BorderRadius.all(
+                  const Radius.circular(28.0),
+                ),
+                borderSide: BorderSide(color: Colors.transparent, width: 0.0),
               ),
-              borderSide: BorderSide(color: Colors.transparent, width: 0.0),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: const BorderRadius.all(
-                const Radius.circular(28.0),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: const BorderRadius.all(
+                  const Radius.circular(28.0),
+                ),
+                borderSide: BorderSide(color: Colors.transparent, width: 0.0),
               ),
-              borderSide: BorderSide(color: Colors.transparent, width: 0.0),
+              contentPadding: EdgeInsets.symmetric(
+                vertical: 15,
+                horizontal: 20,
+              ),
+              fillColor: Color.fromRGBO(40, 40, 40, 1),
+              filled: true,
+              hintStyle: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w400,
+                color: Colors.grey.withOpacity(0.4),
+              ),
+              hintText: widget.hintText,
             ),
-            contentPadding: EdgeInsets.symmetric(
-              vertical: 15,
-              horizontal: 20,
-            ),
-            fillColor: Color.fromRGBO(40, 40, 40, 1),
-            filled: true,
-            hintStyle: TextStyle(
+            focusNode: widget.nextFocusNode,
+            textInputAction: widget.nextFocusNode == null
+                ? TextInputAction.done
+                : TextInputAction.next,
+            onEditingComplete: () => widget.nextFocusNode?.nextFocus(),
+            // TODO: make this configurable
+            keyboardType: TextInputType.number,
+            // TODO: make this configurable and add an icon as suffix
+            obscureText: false,
+            style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w400,
-              color: Colors.grey.withOpacity(0.4),
+              color: Colors.white,
             ),
-            hintText: this._hintText,
           ),
-          focusNode: this._nextFocusNode,
-          textInputAction: this._nextFocusNode == null
-              ? TextInputAction.done
-              : TextInputAction.next,
-          onEditingComplete: () => this._nextFocusNode?.nextFocus(),
-          // TODO: make this configurable
-          keyboardType: TextInputType.number,
-          // TODO: make this configurable and add an icon as suffix
-          obscureText: false,
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w400,
-            color: Colors.white,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

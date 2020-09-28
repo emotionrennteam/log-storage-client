@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:emotion/utils/app_settings.dart';
-import 'package:emotion/widgets/settings/settings_panel.dart';
+import 'package:emotion/widgets/settings/setting_panel.dart';
 import 'package:emotion/widgets/settings/textfield_setting.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -22,6 +22,7 @@ class LogFileSettings extends StatefulWidget {
 
 class _LogFileSettingsState extends State<LogFileSettings> {
   bool _autoUploadEnabled = false;
+  bool _isAutoUploadTooltipVisible = false;
 
   @override
   void initState() {
@@ -75,6 +76,7 @@ class _LogFileSettingsState extends State<LogFileSettings> {
                   '/home/johndoe/logs/',
                   widget.logFileDirectoryController,
                   null,
+                  'The directory on your local hard drive which\ncontains log files. Only files in this directory\ncan be uploaded.',
                 ),
                 width: 500,
               ),
@@ -88,7 +90,8 @@ class _LogFileSettingsState extends State<LogFileSettings> {
                 margin: EdgeInsets.only(top: 41),
                 child: FlatButton(
                   onPressed: () async {
-                    var directoryPath = await FilePicker.platform.getDirectoryPath();
+                    var directoryPath =
+                        await FilePicker.platform.getDirectoryPath();
                     if (directoryPath != null && directoryPath.length > 1) {
                       widget.logFileDirectoryController.text =
                           File(directoryPath).path;
@@ -112,20 +115,36 @@ class _LogFileSettingsState extends State<LogFileSettings> {
           ],
         ),
         Divider(color: Colors.transparent),
-        SettingPanel('Auto Upload'),
-        SwitchListTile(
-          value: this._autoUploadEnabled,
-          title: Text(this._autoUploadEnabled
-              ? 'Auto Upload Enabled'
-              : 'Auto Upload Disabled'),
-          onChanged: (value) async {
-            setState(() {
-              this._autoUploadEnabled = value;
-            });
-          },
-          contentPadding: EdgeInsets.only(
-            left: 20,
-            right: 0,
+        MouseRegion(
+          onEnter: (_) => setState(() {
+            this._isAutoUploadTooltipVisible = true;
+          }),
+          onExit: (_) => setState(() {
+            this._isAutoUploadTooltipVisible = false;
+          }),
+          child: Column(
+            children: [
+              SettingPanel(
+                'Auto Upload',
+                'Determines whether new log files shall be\nuploaded automatically. If enabled, then\nthe specified log directory will be monitored\nfor file changes. An upload is automatically\nstarted when the user creates a new file\nnamed "_SUCCESS".',
+                this._isAutoUploadTooltipVisible,
+              ),
+              SwitchListTile(
+                value: this._autoUploadEnabled,
+                title: Text(this._autoUploadEnabled
+                    ? 'Auto Upload Enabled'
+                    : 'Auto Upload Disabled'),
+                onChanged: (value) async {
+                  setState(() {
+                    this._autoUploadEnabled = value;
+                  });
+                },
+                contentPadding: EdgeInsets.only(
+                  left: 20,
+                  right: 0,
+                ),
+              ),
+            ],
           ),
         ),
       ],

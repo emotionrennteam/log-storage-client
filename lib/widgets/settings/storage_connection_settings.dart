@@ -1,9 +1,8 @@
 import 'package:emotion/models/storage_connection_credentials.dart';
 import 'package:emotion/utils/app_settings.dart';
-import 'package:emotion/utils/constants.dart';
 import 'package:emotion/utils/minio_manager.dart';
 import 'package:emotion/utils/utils.dart';
-import 'package:emotion/widgets/settings/settings_panel.dart';
+import 'package:emotion/widgets/settings/setting_panel.dart';
 import 'package:emotion/widgets/settings/textfield_setting.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -32,6 +31,7 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
   final _secretKeyFocusNode = FocusNode();
   final _bucketFocusNode = FocusNode();
   bool _tlsEnabled = false;
+  bool _isTlsTooltipVisible = false;
 
   @override
   void initState() {
@@ -109,6 +109,7 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           '10.11.0.18',
           widget.endpointController,
           this._portFocusNode,
+          'The hostname or IP address of the MinIO\nserver (without port and scheme).',
         ),
         Divider(color: Colors.transparent),
         // TODO: validate user input and ensure that it's a string
@@ -117,6 +118,7 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           '9000',
           widget.portController,
           this._accessKeyFocusNode,
+          'The TCP/IP port number for the MinIO server.\nTypically port 80 for HTTP and 443 for HTTPS.',
         ),
         Divider(color: Colors.transparent),
         TextFieldSetting(
@@ -124,36 +126,54 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           'eyW/+8ZtsgT81Cb0e8OVxzJAQP5lY7Dcamnze+JnWEDT ...',
           widget.accessKeyController,
           this._secretKeyFocusNode,
+          'The access key is like user-id that uniquely\nidentifies your account.',
         ),
         Divider(color: Colors.transparent),
         TextFieldSetting(
-          'Secret Key',
-          '0tZn+7QQCxphpHwTm6/dC3LpP5JGIbYl6PK8Sy79R+P2 ...',
-          widget.secretKeyController,
-          this._bucketFocusNode,
-        ),
+            'Secret Key',
+            '0tZn+7QQCxphpHwTm6/dC3LpP5JGIbYl6PK8Sy79R+P2 ...',
+            widget.secretKeyController,
+            this._bucketFocusNode,
+            'The secret key is the password to your\naccount.'),
         Divider(color: Colors.transparent),
         TextFieldSetting(
           'Bucket',
           'logs',
           widget.bucketController,
           null,
+          'The name of the bucket in MinIO. A bucket is\nthe uppermost storage unit in MinIO (root).\nBuckets can store files and directories.',
         ),
         Divider(color: Colors.transparent),
-        SettingPanel('TLS'),
-        // TODO: add a FocusNode to the switch
-        SwitchListTile(
-          autofocus: false,
-          value: this._tlsEnabled,
-          title: Text(this._tlsEnabled ? 'TLS Enabled' : 'TLS Disabled'),
-          onChanged: (value) async {
-            setState(() {
-              this._tlsEnabled = value;
-            });
-          },
-          contentPadding: EdgeInsets.only(
-            left: 20,
-            right: 0,
+        MouseRegion(
+          onEnter: (_) => setState(() {
+            this._isTlsTooltipVisible = true;
+          }),
+          onExit: (_) => setState(() {
+            this._isTlsTooltipVisible = false;
+          }),
+          child: Column(
+            children: [
+              SettingPanel(
+                'TLS',
+                'If set to true, a TLS secured connection (HTTPS)\nis used instead of a plain-text connection (HTTP).',
+                this._isTlsTooltipVisible,
+              ),
+              // TODO: add a FocusNode to the switch
+              SwitchListTile(
+                autofocus: false,
+                value: this._tlsEnabled,
+                title: Text(this._tlsEnabled ? 'TLS Enabled' : 'TLS Disabled'),
+                onChanged: (value) async {
+                  setState(() {
+                    this._tlsEnabled = value;
+                  });
+                },
+                contentPadding: EdgeInsets.only(
+                  left: 20,
+                  right: 0,
+                ),
+              ),
+            ],
           ),
         ),
         Divider(color: Colors.transparent),

@@ -29,13 +29,6 @@ SnackBar getSnackBar(String message, bool isErrorMessage) {
   return SnackBar(
     content: Row(
       children: <Widget>[
-        // Icon(
-        //   errorMessage ? Icons.highlight_off : Icons.check_circle_outline,
-        //   color: color,
-        // ),
-        // SizedBox(
-        //   width: 8,
-        // ),
         Text(
           isErrorMessage ? 'ERROR' : 'SUCCESS',
           style: TextStyle(
@@ -44,7 +37,7 @@ SnackBar getSnackBar(String message, bool isErrorMessage) {
             shadows: <Shadow>[
               Shadow(
                 offset: Offset(2, 2),
-                blurRadius: 3,
+                blurRadius: 10,
                 color: color,
               ),
             ],

@@ -20,32 +20,35 @@ String getParentForPath(String currentPath, String pathSeparator) {
 }
 
 /// Returns a styled instance of [SnackBar].
-/// 
+///
 /// Depending on [isErrorMessage], the SnackBar includes an additional
 /// label with the text 'SUCCESS' or 'ERROR' in green respectively red
 /// color.
 SnackBar getSnackBar(String message, bool isErrorMessage) {
-  final color = isErrorMessage ? LIGHT_RED : Color.fromRGBO(1, 176, 117, 1);
   return SnackBar(
     content: Row(
       children: <Widget>[
-        Text(
-          isErrorMessage ? 'ERROR' : 'SUCCESS',
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.w800,
-            shadows: <Shadow>[
-              Shadow(
-                offset: Offset(2, 2),
-                blurRadius: 10,
-                color: color,
-              ),
-            ],
-          ),
-        ),
-        SizedBox(
-          width: 26,
-        ),
+        isErrorMessage
+            ? Container(
+                margin: EdgeInsets.only(
+                  right: 24,
+                ),
+                child: Text(
+                  'ERROR',
+                  style: TextStyle(
+                    color: LIGHT_RED,
+                    fontWeight: FontWeight.w800,
+                    shadows: <Shadow>[
+                      Shadow(
+                        offset: Offset(2, 2),
+                        blurRadius: 10,
+                        color: LIGHT_RED,
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            : SizedBox(),
         Expanded(
           child: Text(
             message,

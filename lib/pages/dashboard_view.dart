@@ -6,6 +6,7 @@ import 'package:emotion/widgets/app_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:minio/models.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class DashboardView extends StatefulWidget {
   DashboardView({Key key}) : super(key: key);
@@ -91,7 +92,7 @@ class _DashboardViewState extends State<DashboardView>
     });
   }
 
-  Widget _cardWidget(String title, String highlightedContent,
+  Widget _infoWidget(String title, String highlightedContent,
       {Color titleColor = LIGHT_GREY,
       Color highlightedContentColor = Colors.white}) {
     return Padding(
@@ -134,7 +135,7 @@ class _DashboardViewState extends State<DashboardView>
   Widget _storageConnectionWidget() {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(7),
+        borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
             color: this._connectionError
@@ -252,23 +253,99 @@ class _DashboardViewState extends State<DashboardView>
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Expanded(
-                child: this._cardWidget('Bucket', this._bucket),
+                child: this._infoWidget('Bucket', this._bucket),
               ),
               VerticalDivider(color: DARK_GREY),
               Expanded(
-                child: this._cardWidget('Endpoint', this._endpoint),
+                child: this._infoWidget('Endpoint', this._endpoint),
               ),
               VerticalDivider(color: DARK_GREY),
               Expanded(
-                child: this._cardWidget('Port', this.port.toString()),
+                child: this._infoWidget('Port', this.port.toString()),
               ),
               VerticalDivider(color: DARK_GREY),
               Expanded(
-                child: this._cardWidget('TLS', this._useTLS.toString(),
+                child: this._infoWidget('TLS', this._useTLS.toString(),
                     highlightedContentColor: this._useTLS
                         ? Theme.of(context).accentColor
                         : LIGHT_RED),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _bucketsAndRegionWidget(BuildContext context) {
+    var bucketsString = '';
+    if (this._buckets == null || this._buckets.isEmpty) {
+      bucketsString = '-';
+    } else {
+      for (var i = 0; i < this._buckets.length; i++) {
+        bucketsString += this._buckets[i].name;
+        if (i != this._buckets.length - 1) {
+          bucketsString += ', ';
+        }
+      }
+    }
+
+    return Container(
+      child: Material(
+        borderRadius: BorderRadius.circular(10),
+        color: Theme.of(context).primaryColor,
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Available Buckets',
+                      style: TextStyle(
+                        color: LIGHT_GREY,
+                        fontWeight: FontWeight.w300,
+                        fontSize: 20,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 10),
+                    Container(
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          bucketsString,
+                          style: TextStyle(
+                            color: TEXT_COLOR,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 30,
+                          ),
+                          textAlign: (this._buckets != null &&
+                                  this._buckets.isNotEmpty)
+                              ? TextAlign.left
+                              : TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 16,
+              ),
+              Divider(color: DARK_GREY),
+              SizedBox(
+                height: 16,
+              ),
+              this._infoWidget('Region', this._region),
             ],
           ),
         ),
@@ -283,30 +360,31 @@ class _DashboardViewState extends State<DashboardView>
         appDrawerCurrentIndex: 0,
         view: Padding(
           padding: EdgeInsets.symmetric(vertical: 40),
-          child: Column(
-            children: [
-              this._configurationWidget(context),
-              SizedBox(
-                height: 32,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      children: [
-                        _storageConnectionWidget(),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      children: [],
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          child: StaggeredGridView.countBuilder(
+            crossAxisCount: 4,
+            crossAxisSpacing: 32,
+            mainAxisSpacing: 32,
+            itemCount: 3,
+            itemBuilder: (BuildContext context, int index) {
+              if (index == 0) {
+                return this._configurationWidget(context);
+              } else if (index == 1) {
+                return this._storageConnectionWidget();
+              } else if (index == 2) {
+                return this._bucketsAndRegionWidget(context);
+              }
+              return SizedBox();
+            },
+            staggeredTileBuilder: (int index) {
+              if (index == 0) {
+                return StaggeredTile.fit(4);
+              } else if (index == 1) {
+                return StaggeredTile.fit(2);
+              } else if (index == 2) {
+                return StaggeredTile.fit(2);
+              }
+              return StaggeredTile.count(1, 1);
+            },
           ),
         ),
       ),

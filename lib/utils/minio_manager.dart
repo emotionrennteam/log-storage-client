@@ -34,9 +34,16 @@ Future<Tuple4<bool, String, String, List<Bucket>>> validateConnection(
     StorageConnectionCredentials credentials) async {
   Minio minio;
   List<Bucket> buckets;
+  String region;
   try {
     minio = _initializeClient(credentials);
-    
+    if (credentials.bucket != null) {
+      // Warning before misconception: the "region" is not attached
+      // to the server but to each bucket separately. This is why we
+      // can't use `minio.region`.
+      region = await minio.getBucketRegion(credentials.bucket);
+    }
+
     final bucketExists = await minio.bucketExists(credentials.bucket);
     buckets = await minio.listBuckets();
 
@@ -44,18 +51,17 @@ Future<Tuple4<bool, String, String, List<Bucket>>> validateConnection(
       return Tuple4(
         false,
         'The specified bucket ${credentials.bucket} doesn\'t exist.',
-        minio.region,
+        region,
         buckets,
       );
     }
 
-    return Tuple4(true, null, minio.region, buckets);
-
+    return Tuple4(true, null, region, buckets);
   } catch (e) {
     return Tuple4(
       false,
       e.toString(),
-      minio?.region,
+      region,
       buckets,
     );
   }

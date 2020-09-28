@@ -78,8 +78,8 @@ class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
     setState(() {
       this._uploadFloatingActionButtonOnPressed = () async {
         String downloadPath = await FilePicker.platform.getDirectoryPath();
-        // Path is null when user didn't select a directory but closed the dialog
-        if (downloadPath == null) {
+        // Path is null or empty when user didn't select a directory but closed the dialog.
+        if (downloadPath == null || downloadPath.isEmpty) {
           return;
         }
 

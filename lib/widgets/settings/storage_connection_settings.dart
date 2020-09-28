@@ -184,7 +184,6 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
               'Test Connection',
               style: Theme.of(context).textTheme.button,
             ),
-            // TODO: show progress spinner
             onPressed: () async {
               int port = 0;
               try {

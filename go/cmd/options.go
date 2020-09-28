@@ -7,8 +7,8 @@ import (
 )
 
 var options = []flutter.Option{
-	flutter.WindowInitialDimensions(1200, 800),
+	flutter.WindowInitialDimensions(1280, 720),
 	flutter.AddPlugin(&file_picker.FilePickerPlugin{}),
 	flutter.AddPlugin(&url_launcher.UrlLauncherPlugin{}),
-	flutter.WindowDimensionLimits(1000, 500, 1920, 1080),
+	flutter.WindowDimensionLimits(1280, 500, 1920, 1080),
 }

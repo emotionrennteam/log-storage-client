@@ -119,6 +119,7 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           widget.portController,
           this._accessKeyFocusNode,
           'The TCP/IP port number for the MinIO server.\nTypically port 80 for HTTP and 443 for HTTPS.',
+          isValueNumerical: true,
         ),
         Divider(color: Colors.transparent),
         TextFieldSetting(

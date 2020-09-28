@@ -7,14 +7,11 @@ class TextFieldSetting extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode nextFocusNode;
   final String tooltipMessage;
+  final bool isValueNumerical;
 
-  TextFieldSetting(
-    this.title,
-    this.hintText,
-    this.controller,
-    this.nextFocusNode,
-    this.tooltipMessage,
-  );
+  TextFieldSetting(this.title, this.hintText, this.controller,
+      this.nextFocusNode, this.tooltipMessage,
+      {this.isValueNumerical = false});
 
   @override
   State<StatefulWidget> createState() => _TextFieldSettingState();
@@ -34,7 +31,8 @@ class _TextFieldSettingState extends State<TextFieldSetting> {
       }),
       child: Column(
         children: [
-          SettingPanel(widget.title, widget.tooltipMessage, this._isTooltipVisible),
+          SettingPanel(
+              widget.title, widget.tooltipMessage, this._isTooltipVisible),
           SizedBox(
             height: 13,
           ),
@@ -79,9 +77,9 @@ class _TextFieldSettingState extends State<TextFieldSetting> {
                 ? TextInputAction.done
                 : TextInputAction.next,
             onEditingComplete: () => widget.nextFocusNode?.nextFocus(),
-            // TODO: make this configurable
-            keyboardType: TextInputType.number,
-            // TODO: make this configurable and add an icon as suffix
+            keyboardType: widget.isValueNumerical
+                ? TextInputType.number
+                : TextInputType.text,
             obscureText: false,
             style: TextStyle(
               fontSize: 15,

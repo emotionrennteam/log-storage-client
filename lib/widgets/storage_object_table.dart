@@ -119,7 +119,6 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
                   backgroundColor: Theme.of(context).primaryColor,
                   elevation: 20,
                   title: Text('Delete File'),
-                  // TODO: recursive deletion in case of a directory
                   content: Text(
                     'Do you really want to delete ${storageObject.name}?\nThis action can\'t be undone.',
                   ),

@@ -1,8 +1,8 @@
-import 'package:emotion/utils/app_settings.dart';
-import 'package:emotion/utils/utils.dart';
-import 'package:emotion/widgets/floating_action_button_position.dart';
-import 'package:emotion/widgets/settings/log_file_settings.dart';
-import 'package:emotion/widgets/settings/storage_connection_settings.dart';
+import 'package:log_storage_client/utils/app_settings.dart';
+import 'package:log_storage_client/utils/utils.dart';
+import 'package:log_storage_client/widgets/floating_action_button_position.dart';
+import 'package:log_storage_client/widgets/settings/log_file_settings.dart';
+import 'package:log_storage_client/widgets/settings/storage_connection_settings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

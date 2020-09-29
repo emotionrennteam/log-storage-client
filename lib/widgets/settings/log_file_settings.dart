@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:emotion/utils/app_settings.dart';
-import 'package:emotion/widgets/settings/setting_panel.dart';
-import 'package:emotion/widgets/settings/textfield_setting.dart';
+import 'package:log_storage_client/utils/app_settings.dart';
+import 'package:log_storage_client/widgets/settings/setting_panel.dart';
+import 'package:log_storage_client/widgets/settings/textfield_setting.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

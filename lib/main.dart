@@ -1,7 +1,7 @@
-import 'package:emotion/utils/locator.dart';
-import 'package:emotion/utils/constants.dart' as constants;
-import 'package:emotion/utils/constants.dart';
-import 'package:emotion/widgets/app_layout.dart';
+import 'package:log_storage_client/utils/locator.dart';
+import 'package:log_storage_client/utils/constants.dart' as constants;
+import 'package:log_storage_client/utils/constants.dart';
+import 'package:log_storage_client/widgets/app_layout.dart';
 import 'package:flutter/material.dart';
 
 void main() {

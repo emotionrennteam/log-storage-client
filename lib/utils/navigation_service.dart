@@ -1,8 +1,8 @@
-import 'package:emotion/views/profiles_view.dart';
-import 'package:emotion/views/dashboard_view.dart';
-import 'package:emotion/views/local_log_files_view.dart';
-import 'package:emotion/views/remote_log_files_view.dart';
-import 'package:emotion/views/settings_view.dart';
+import 'package:log_storage_client/views/profiles_view.dart';
+import 'package:log_storage_client/views/dashboard_view.dart';
+import 'package:log_storage_client/views/local_log_files_view.dart';
+import 'package:log_storage_client/views/remote_log_files_view.dart';
+import 'package:log_storage_client/views/settings_view.dart';
 import 'package:flutter/widgets.dart';
 
 const String DashboardRoute = 'dashboard';

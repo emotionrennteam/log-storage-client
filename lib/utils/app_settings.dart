@@ -1,7 +1,7 @@
 library settings;
 
-import 'package:emotion/models/storage_connection_credentials.dart';
-import 'package:emotion/utils/settings_storage.dart';
+import 'package:log_storage_client/models/storage_connection_credentials.dart';
+import 'package:log_storage_client/utils/settings_storage.dart';
 import 'package:flutter/foundation.dart';
 
 const String _AUTO_UPLOAD_ENABLED = 'AUTO_UPLOAD_ENABLED';

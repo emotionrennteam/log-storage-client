@@ -1,14 +1,14 @@
 import 'dart:io';
 
-import 'package:emotion/models/storage_connection_credentials.dart';
-import 'package:emotion/models/storage_object.dart';
-import 'package:emotion/utils/app_settings.dart';
-import 'package:emotion/utils/constants.dart';
-import 'package:emotion/utils/minio_manager.dart';
-import 'package:emotion/utils/utils.dart';
-import 'package:emotion/widgets/floating_action_button_position.dart';
-import 'package:emotion/widgets/storage_object_table.dart';
-import 'package:emotion/widgets/storage_object_table_header.dart';
+import 'package:log_storage_client/models/storage_connection_credentials.dart';
+import 'package:log_storage_client/models/storage_object.dart';
+import 'package:log_storage_client/utils/app_settings.dart';
+import 'package:log_storage_client/utils/constants.dart';
+import 'package:log_storage_client/utils/minio_manager.dart';
+import 'package:log_storage_client/utils/utils.dart';
+import 'package:log_storage_client/widgets/floating_action_button_position.dart';
+import 'package:log_storage_client/widgets/storage_object_table.dart';
+import 'package:log_storage_client/widgets/storage_object_table_header.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';

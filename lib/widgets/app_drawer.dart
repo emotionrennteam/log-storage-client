@@ -1,6 +1,6 @@
-import 'package:emotion/utils/locator.dart';
-import 'package:emotion/utils/navigation_service.dart';
-import 'package:emotion/utils/constants.dart' as constants;
+import 'package:log_storage_client/utils/locator.dart';
+import 'package:log_storage_client/utils/navigation_service.dart';
+import 'package:log_storage_client/utils/constants.dart' as constants;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';

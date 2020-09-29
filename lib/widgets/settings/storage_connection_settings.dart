@@ -1,9 +1,9 @@
-import 'package:emotion/models/storage_connection_credentials.dart';
-import 'package:emotion/utils/app_settings.dart';
-import 'package:emotion/utils/minio_manager.dart';
-import 'package:emotion/utils/utils.dart';
-import 'package:emotion/widgets/settings/setting_panel.dart';
-import 'package:emotion/widgets/settings/textfield_setting.dart';
+import 'package:log_storage_client/models/storage_connection_credentials.dart';
+import 'package:log_storage_client/utils/app_settings.dart';
+import 'package:log_storage_client/utils/minio_manager.dart';
+import 'package:log_storage_client/utils/utils.dart';
+import 'package:log_storage_client/widgets/settings/setting_panel.dart';
+import 'package:log_storage_client/widgets/settings/textfield_setting.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 

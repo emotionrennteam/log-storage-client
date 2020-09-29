@@ -3,8 +3,8 @@ library minio_manager;
 import 'dart:async';
 import 'dart:io';
 
-import 'package:emotion/models/storage_connection_credentials.dart';
-import 'package:emotion/models/storage_object.dart';
+import 'package:log_storage_client/models/storage_connection_credentials.dart';
+import 'package:log_storage_client/models/storage_object.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;

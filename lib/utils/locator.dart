@@ -1,4 +1,4 @@
-import 'package:emotion/utils/navigation_service.dart';
+import 'package:log_storage_client/utils/navigation_service.dart';
 import 'package:get_it/get_it.dart';
 
 /// Allows to locate singleton instances of services.

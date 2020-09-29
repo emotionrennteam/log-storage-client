@@ -1,4 +1,4 @@
-import 'package:emotion/widgets/settings/setting_panel.dart';
+import 'package:log_storage_client/widgets/settings/setting_panel.dart';
 import 'package:flutter/material.dart';
 
 class TextFieldSetting extends StatefulWidget {

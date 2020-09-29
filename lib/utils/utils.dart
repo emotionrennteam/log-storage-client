@@ -1,6 +1,6 @@
 library utils;
 
-import 'package:emotion/utils/constants.dart';
+import 'package:log_storage_client/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 

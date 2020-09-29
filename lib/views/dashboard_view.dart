@@ -2,7 +2,6 @@ import 'package:emotion/models/storage_connection_credentials.dart';
 import 'package:emotion/utils/app_settings.dart';
 import 'package:emotion/utils/constants.dart';
 import 'package:emotion/utils/minio_manager.dart';
-import 'package:emotion/widgets/app_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:minio/models.dart';
@@ -359,38 +358,36 @@ class _DashboardViewState extends State<DashboardView>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: AppLayout(
-        appDrawerCurrentIndex: 0,
-        view: Padding(
-          padding: EdgeInsets.symmetric(vertical: 40),
-          child: StaggeredGridView.countBuilder(
-            crossAxisCount: 4,
-            crossAxisSpacing: 32,
-            mainAxisSpacing: 32,
-            itemCount: 3,
-            itemBuilder: (BuildContext context, int index) {
-              if (index == 0) {
-                return this._configurationWidget(context);
-              } else if (index == 1) {
-                return this._storageConnectionWidget();
-              } else if (index == 2) {
-                return this._bucketsAndRegionWidget(context);
-              }
-              return SizedBox();
-            },
-            staggeredTileBuilder: (int index) {
-              if (index == 0) {
-                return StaggeredTile.fit(4);
-              } else if (index == 1) {
-                return StaggeredTile.fit(2);
-              } else if (index == 2) {
-                return StaggeredTile.fit(2);
-              }
-              return StaggeredTile.count(1, 1);
-            },
-          ),
-        ),
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 42,
+      ),
+      child: StaggeredGridView.countBuilder(
+        crossAxisCount: 4,
+        crossAxisSpacing: 32,
+        mainAxisSpacing: 32,
+        itemCount: 3,
+        itemBuilder: (BuildContext context, int index) {
+          if (index == 0) {
+            return this._configurationWidget(context);
+          } else if (index == 1) {
+            return this._storageConnectionWidget();
+          } else if (index == 2) {
+            return this._bucketsAndRegionWidget(context);
+          }
+          return SizedBox();
+        },
+        staggeredTileBuilder: (int index) {
+          if (index == 0) {
+            return StaggeredTile.fit(4);
+          } else if (index == 1) {
+            return StaggeredTile.fit(2);
+          } else if (index == 2) {
+            return StaggeredTile.fit(2);
+          }
+          return StaggeredTile.count(1, 1);
+        },
       ),
     );
   }

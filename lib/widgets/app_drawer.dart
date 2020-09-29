@@ -1,47 +1,51 @@
-import 'package:emotion/views/dashboard_view.dart';
-import 'package:emotion/views/local_log_files_view.dart';
-import 'package:emotion/views/remote_log_files_view.dart';
-import 'package:emotion/views/settings_view.dart';
+import 'package:emotion/utils/locator.dart';
+import 'package:emotion/utils/navigation_service.dart';
 import 'package:emotion/utils/constants.dart' as constants;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class AppDrawer extends StatelessWidget {
-  final int activeListItemIndex;
+class AppDrawer extends StatefulWidget {
   final List<AppDrawerItem> appDrawerItems = [
     new AppDrawerItem(
       'Dashboard',
       Icons.dashboard_rounded,
-      DashboardView(),
+      DashboardRoute,
     ),
     new AppDrawerItem(
       'Profiles',
       FontAwesomeIcons.userAlt,
-      DashboardView(),
+      ProfilesRoute,
     ),
     new AppDrawerItem(
       'Local Log Files',
       FontAwesomeIcons.solidFolder,
-      LocalLogFilesView(),
+      LocalLogFilesRoute,
     ),
     new AppDrawerItem(
       'Remote Log Files',
       FontAwesomeIcons.cloud,
-      RemoteLogFilesView(),
+      RemoteLogFilesRoute,
     ),
     new AppDrawerItem(
       'Settings',
       FontAwesomeIcons.cog,
-      SettingsView(),
+      SettingsRoute,
     ),
   ];
 
-  AppDrawer(this.activeListItemIndex);
+  AppDrawer({Key key}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => _AppDrawerState();
+}
+
+class _AppDrawerState extends State<AppDrawer> {
+  String _activeRouteName = DashboardRoute;
 
   List<Widget> _buildAppDrawerItems(BuildContext context) {
     final appDrawerItems = List<Widget>();
-    this.appDrawerItems.asMap().forEach((index, element) {
+    widget.appDrawerItems.asMap().forEach((index, element) {
       appDrawerItems.add(
         Padding(
           padding: EdgeInsets.only(
@@ -55,7 +59,7 @@ class AppDrawer extends StatelessWidget {
               borderRadius: BorderRadius.circular(7),
               boxShadow: [
                 BoxShadow(
-                  color: this.activeListItemIndex == index
+                  color: this._activeRouteName == element.routeName
                       ? Theme.of(context).accentColor.withOpacity(0.5)
                       : Colors.transparent,
                   blurRadius: 30,
@@ -67,20 +71,17 @@ class AppDrawer extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             child: Material(
               borderRadius: BorderRadius.circular(7),
-              color: this.activeListItemIndex == index
+              color: this._activeRouteName == element.routeName
                   ? Theme.of(context).accentColor
                   : Colors.transparent,
               child: InkWell(
                 splashColor: Theme.of(context).accentColor,
                 highlightColor: Colors.transparent,
                 onTap: () {
-                  Navigator.of(context).pushReplacement(
-                    PageRouteBuilder(
-                      pageBuilder: (BuildContext context, _, __) {
-                        return element.destinationPage;
-                      },
-                    ),
-                  );
+                  setState(() {
+                    this._activeRouteName = element.routeName;
+                  });
+                  locator<NavigationService>().navigateTo(element.routeName);
                 },
                 child: Row(
                   children: [
@@ -122,7 +123,7 @@ class AppDrawer extends StatelessWidget {
       width: 300,
       color: Theme.of(context).primaryColor,
       child: ListView(
-        children: _buildAppDrawerItems(context),
+        children: this._buildAppDrawerItems(context),
       ),
     );
   }
@@ -131,7 +132,7 @@ class AppDrawer extends StatelessWidget {
 class AppDrawerItem {
   final String title;
   final IconData icon;
-  final Widget destinationPage;
+  final String routeName;
 
-  AppDrawerItem(this.title, this.icon, this.destinationPage);
+  AppDrawerItem(this.title, this.icon, this.routeName);
 }

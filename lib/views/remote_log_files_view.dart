@@ -6,7 +6,7 @@ import 'package:emotion/utils/app_settings.dart';
 import 'package:emotion/utils/constants.dart';
 import 'package:emotion/utils/minio_manager.dart';
 import 'package:emotion/utils/utils.dart';
-import 'package:emotion/widgets/app_layout.dart';
+import 'package:emotion/widgets/floating_action_button_position.dart';
 import 'package:emotion/widgets/storage_object_table.dart';
 import 'package:emotion/widgets/storage_object_table_header.dart';
 import 'package:file_picker/file_picker.dart';
@@ -154,68 +154,71 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: widget._scaffoldKey,
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: this._uploadFloatingActionButtonOnPressed == null
-            ? DARK_GREY
-            : Theme.of(context).accentColor,
-        onPressed: this._uploadFloatingActionButtonOnPressed,
-        icon: Icon(
-          Icons.cloud_download,
-          color: Colors.white,
-        ),
-        label: Text(
-          'Download',
-          style: TextStyle(
-            fontSize: 20,
-            color: Colors.white,
+    return Stack(
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(
+                  bottom: 32,
+                  top: 32,
+                ),
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Remote Log Files',
+                    style: Theme.of(context).textTheme.headline2,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              Center(
+                child: StorageObjectTableHeader(
+                  this._currentDirectory,
+                  this._credentials?.bucket,
+                  this._navigateToDirectory,
+                  this._setAllCheckboxes,
+                  optionsColumnEnabled: true,
+                  rootDirectorySeparator: '/',
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: StorageObjectTable(
+                    this._navigateToDirectory,
+                    this._onSelectionOfStorageObjectsChanged,
+                    this._storageObjects,
+                    optionsColumnEnabled: true,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-      ),
-      body: AppLayout(
-        appDrawerCurrentIndex: 3,
-        view: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.only(
-                bottom: 32,
-                top: 32,
-              ),
-              child: Align(
-                alignment: Alignment.center,
-                child: Text(
-                  'Remote Log Files',
-                  style: Theme.of(context).textTheme.headline2,
-                  textAlign: TextAlign.center,
-                ),
+        FloatingActionButtonPosition(
+          floatingActionButton: FloatingActionButton.extended(
+            backgroundColor: this._uploadFloatingActionButtonOnPressed == null
+                ? DARK_GREY
+                : Theme.of(context).accentColor,
+            icon: Icon(
+              Icons.cloud_download,
+              color: Colors.white,
+            ),
+            label: Text(
+              'Download',
+              style: TextStyle(
+                fontSize: 20,
+                color: Colors.white,
               ),
             ),
-            Center(
-              child: StorageObjectTableHeader(
-                this._currentDirectory,
-                this._credentials?.bucket,
-                this._navigateToDirectory,
-                this._setAllCheckboxes,
-                optionsColumnEnabled: true,
-                rootDirectorySeparator: '/',
-              ),
-            ),
-            Expanded(
-              child: Center(
-                child: StorageObjectTable(
-                  this._navigateToDirectory,
-                  this._onSelectionOfStorageObjectsChanged,
-                  this._storageObjects,
-                  optionsColumnEnabled: true,
-                ),
-              ),
-            ),
-          ],
+            onPressed: this._uploadFloatingActionButtonOnPressed,
+          ),
         ),
-      ),
+      ],
     );
   }
 }

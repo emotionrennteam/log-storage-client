@@ -1,14 +1,15 @@
-import 'package:emotion/views/dashboard_view.dart';
+import 'package:emotion/utils/locator.dart';
 import 'package:emotion/utils/constants.dart' as constants;
 import 'package:emotion/utils/constants.dart';
+import 'package:emotion/widgets/app_layout.dart';
 import 'package:flutter/material.dart';
 
 void main() {
+  setupLocator();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -72,7 +73,7 @@ class MyApp extends StatelessWidget {
         ),
         unselectedWidgetColor: Colors.white,
       ),
-      home: DashboardView(),
+      home: AppLayout(),
     );
   }
 }

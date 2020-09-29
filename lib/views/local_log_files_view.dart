@@ -6,7 +6,7 @@ import 'package:emotion/utils/constants.dart';
 import 'package:emotion/utils/app_settings.dart';
 import 'package:emotion/utils/minio_manager.dart';
 import 'package:emotion/utils/utils.dart';
-import 'package:emotion/widgets/app_drawer.dart';
+import 'package:emotion/widgets/floating_action_button_position.dart';
 import 'package:emotion/widgets/storage_object_table.dart';
 import 'package:emotion/widgets/storage_object_table_header.dart';
 import 'package:emotion/widgets/upload_progress_toast.dart';
@@ -16,8 +16,6 @@ import 'package:flutter/rendering.dart';
 import 'package:path/path.dart' as path;
 
 class LocalLogFilesView extends StatefulWidget {
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-
   LocalLogFilesView({Key key}) : super(key: key);
 
   @override
@@ -135,7 +133,7 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
 
   /// A [FloatingActionButton] for triggering the upload of log files.
   /// This button is automatically disabled when an upload is in progress.
-  Widget _uploadFAB() {
+  FloatingActionButton _uploadFAB() {
     return FloatingActionButton.extended(
       /// During upload, the FAB is disabled
       onPressed: this._uploadFiles,
@@ -158,82 +156,58 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: widget._scaffoldKey,
-      floatingActionButton: this._uploadFAB(),
-      body: Stack(
-        children: <Widget>[
-          Column(
-            children: [
+    return Stack(
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(
+                  bottom: 32,
+                  top: 32,
+                ),
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Local Log Files',
+                    style: Theme.of(context).textTheme.headline2,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              Center(
+                child: StorageObjectTableHeader(
+                  this._currentDirectory != null
+                      ? path.relative(this._currentDirectory.path,
+                          from: this._monitoredDirectory.path)
+                      : '',
+                  '',
+                  this._navigateToDirectory,
+                  (_) {},
+                ),
+              ),
               Expanded(
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    AppDrawer(2),
-                    Expanded(
-                      child: Container(
-                        // color: Color.fromRGBO(26, 26, 26, 1),
-                        color: Theme.of(context).canvasColor,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 64,
-                        ),
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Padding(
-                                padding: EdgeInsets.only(
-                                  bottom: 32,
-                                  top: 32,
-                                ),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'Local Log Files',
-                                    style:
-                                        Theme.of(context).textTheme.headline2,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                              Center(
-                                child: StorageObjectTableHeader(
-                                  this._currentDirectory != null
-                                      ? path.relative(
-                                          this._currentDirectory.path,
-                                          from: this._monitoredDirectory.path)
-                                      : '',
-                                  '',
-                                  this._navigateToDirectory,
-                                  (_) {},
-                                ),
-                              ),
-                              Expanded(
-                                child: Container(
-                                  child: StorageObjectTable(
-                                    this._navigateToDirectory,
-                                    (_) => {},
-                                    this._storageObjects,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                child: Container(
+                  child: StorageObjectTable(
+                    this._navigateToDirectory,
+                    (_) => {},
+                    this._storageObjects,
+                  ),
                 ),
               ),
             ],
           ),
-          this._progressStreamController != null
-              ? UploadProgressToast(this._progress)
-              : SizedBox(),
-        ],
-      ),
+        ),
+        FloatingActionButtonPosition(
+          floatingActionButton: this._uploadFAB(),
+        ),
+        this._progressStreamController != null
+            ? UploadProgressToast(this._progress)
+            : SizedBox(),
+      ],
     );
   }
 }

@@ -91,7 +91,7 @@ class _DashboardViewState extends State<DashboardView>
     });
   }
 
-  Widget _infoWidget(String title, String highlightedContent,
+  Widget _textPanel(String title, String highlightedContent,
       {Color titleColor = LIGHT_GREY,
       Color highlightedContentColor = Colors.white}) {
     return Padding(
@@ -133,8 +133,8 @@ class _DashboardViewState extends State<DashboardView>
     );
   }
 
-  Widget _storageConnectionWidget() {
-    return Container(
+  Widget _storageConnectionPanel() {
+    return AnimatedContainer(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
@@ -147,102 +147,103 @@ class _DashboardViewState extends State<DashboardView>
             offset: Offset(0, 3),
           ),
         ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: AnimatedContainer(
-        duration: Duration(seconds: 1),
         color: this._connectionError ? DARK_RED : Theme.of(context).accentColor,
-        child: Material(
-          type: MaterialType.transparency,
-          child: InkWell(
-            splashColor: Colors.white,
-            onTap: () {
-              this._checkStorageConnection();
-            },
-            child: Stack(
-              children: [
-                Padding(
-                  padding: EdgeInsets.fromLTRB(40, 20, 30, 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Storage Connection',
-                            style: TextStyle(
-                              color: TEXT_COLOR,
-                              fontWeight: FontWeight.w300,
-                              fontSize: 20,
-                            ),
-                            overflow: TextOverflow.ellipsis,
+      ),
+      duration: Duration(seconds: 1),
+      child: Material(
+        type: MaterialType.transparency,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          splashColor: Colors.white,
+          onTap: () {
+            this._checkStorageConnection();
+          },
+          child: Stack(
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(40, 20, 30, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Storage Connection',
+                          style: TextStyle(
+                            color: TEXT_COLOR,
+                            fontWeight: FontWeight.w300,
+                            fontSize: 20,
                           ),
-                          SizedBox(
-                            width: 32,
-                          ),
-                          new AnimatedBuilder(
-                            animation: this._animationController,
-                            builder: (context, widget) {
-                              return new Transform.rotate(
-                                angle: this._animationController.value * 6.3,
-                                child: widget,
-                              );
-                            },
-                            child: Icon(
-                              Icons.refresh,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: AnimatedOpacity(
-                          duration: Duration(seconds: 1),
-                          curve: Curves.easeOutCirc,
-                          opacity:
-                              this._animationController.isAnimating ? 1.0 : 0.0,
-                          child: Text(
-                            this._connectionError ? 'ERROR' : 'SUCCESS',
-                            style: TextStyle(
-                              color: TEXT_COLOR,
-                              fontWeight: FontWeight.w400,
-                              fontSize: 30,
-                            ),
-                            textAlign: TextAlign.center,
-                            overflow: TextOverflow.ellipsis,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(
+                          width: 32,
+                        ),
+                        new AnimatedBuilder(
+                          animation: this._animationController,
+                          builder: (context, widget) {
+                            return new Transform.rotate(
+                              angle: this._animationController.value * 6.3,
+                              child: widget,
+                            );
+                          },
+                          child: Icon(
+                            Icons.refresh,
+                            color: Colors.white,
                           ),
                         ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: AnimatedOpacity(
+                        duration: Duration(seconds: 1),
+                        curve: Curves.easeOutCirc,
+                        opacity:
+                            this._animationController.isAnimating ? 1.0 : 0.0,
+                        child: Text(
+                          this._connectionError ? 'ERROR' : 'SUCCESS',
+                          style: TextStyle(
+                            color: TEXT_COLOR,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 30,
+                          ),
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      this._connectionErrorMessage != null
-                          ? Padding(
-                              padding: EdgeInsets.only(top: 10),
-                              child: Text(
-                                this._connectionErrorMessage,
-                                style: TextStyle(
-                                  color: TEXT_COLOR,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 15,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 3,
+                    ),
+                    this._connectionErrorMessage != null
+                        ? Padding(
+                            padding: EdgeInsets.only(top: 10),
+                            child: Text(
+                              this._connectionErrorMessage,
+                              style: TextStyle(
+                                color: TEXT_COLOR,
+                                fontWeight: FontWeight.w400,
+                                fontSize: 15,
                               ),
-                            )
-                          : SizedBox(height: 50),
-                    ],
-                  ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 3,
+                            ),
+                          )
+                        : SizedBox(height: 50),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _configurationWidget(BuildContext context) {
+  Widget _configurationPanel(BuildContext context) {
     return Container(
       height: 120,
       child: Material(
@@ -254,19 +255,19 @@ class _DashboardViewState extends State<DashboardView>
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Expanded(
-                child: this._infoWidget('Bucket', this._bucket),
+                child: this._textPanel('Bucket', this._bucket),
               ),
               VerticalDivider(color: DARK_GREY),
               Expanded(
-                child: this._infoWidget('Endpoint', this._endpoint),
+                child: this._textPanel('Endpoint', this._endpoint),
               ),
               VerticalDivider(color: DARK_GREY),
               Expanded(
-                child: this._infoWidget('Port', this.port.toString()),
+                child: this._textPanel('Port', this.port.toString()),
               ),
               VerticalDivider(color: DARK_GREY),
               Expanded(
-                child: this._infoWidget('TLS', this._useTLS.toString(),
+                child: this._textPanel('TLS', this._useTLS.toString(),
                     highlightedContentColor: this._useTLS
                         ? Theme.of(context).accentColor
                         : LIGHT_RED),
@@ -278,7 +279,7 @@ class _DashboardViewState extends State<DashboardView>
     );
   }
 
-  Widget _bucketsAndRegionWidget(BuildContext context) {
+  Widget _bucketsAndRegionPanel(BuildContext context) {
     var bucketsString = '';
     if (this._buckets == null || this._buckets.isEmpty) {
       bucketsString = '-';
@@ -348,7 +349,7 @@ class _DashboardViewState extends State<DashboardView>
               SizedBox(
                 height: 16,
               ),
-              this._infoWidget('Region', this._region),
+              this._textPanel('Region', this._region),
             ],
           ),
         ),
@@ -370,11 +371,11 @@ class _DashboardViewState extends State<DashboardView>
         itemCount: 3,
         itemBuilder: (BuildContext context, int index) {
           if (index == 0) {
-            return this._configurationWidget(context);
+            return this._configurationPanel(context);
           } else if (index == 1) {
-            return this._storageConnectionWidget();
+            return this._storageConnectionPanel();
           } else if (index == 2) {
-            return this._bucketsAndRegionWidget(context);
+            return this._bucketsAndRegionPanel(context);
           }
           return SizedBox();
         },

@@ -149,6 +149,7 @@ Future<void> downloadObjectsFromRemoteStorage(
   }
 
   // TODO: improve by adding a stream for the download progress
+  // TODO: handle OS Error: Permission denied when trying to download to dir without sufficient permissions
   _downloadStorageObjects(storageObjectsToDownload, downloadDirectory,
       currentDirectory, minio, credentials);
 }

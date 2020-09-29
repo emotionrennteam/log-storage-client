@@ -49,8 +49,8 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
             List<bool>.generate(storageObjects.length, (index) => false);
       });
     }).catchError((error) {
-      widget._scaffoldKey.currentState.hideCurrentSnackBar();
-      widget._scaffoldKey.currentState.showSnackBar(
+      Scaffold.of(context).hideCurrentSnackBar();
+      Scaffold.of(context).showSnackBar(
         getSnackBar(
           'Failed to list objects. Error: $error',
           true,
@@ -84,8 +84,8 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
 
         Directory downloadDirectory = Directory(downloadPath);
         if (!downloadDirectory.existsSync()) {
-          widget._scaffoldKey.currentState.hideCurrentSnackBar();
-          widget._scaffoldKey.currentState.showSnackBar(
+          Scaffold.of(context).hideCurrentSnackBar();
+          Scaffold.of(context).showSnackBar(
             getSnackBar(
               'The selected download directory "$downloadPath" could not be found.',
               true,
@@ -107,13 +107,13 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
           this._currentDirectory,
           remoteStorageObjectsToDownload,
         ).then((_) {
-          widget._scaffoldKey.currentState.hideCurrentSnackBar();
-          widget._scaffoldKey.currentState.showSnackBar(
+          Scaffold.of(context).hideCurrentSnackBar();
+          Scaffold.of(context).showSnackBar(
             getSnackBar('Download completed.', false),
           );
         }).catchError((error) {
-          widget._scaffoldKey.currentState.hideCurrentSnackBar();
-          widget._scaffoldKey.currentState.showSnackBar(
+          Scaffold.of(context).hideCurrentSnackBar();
+          Scaffold.of(context).showSnackBar(
             getSnackBar(error.toString(), true),
           );
           return;

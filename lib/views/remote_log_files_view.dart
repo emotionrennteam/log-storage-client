@@ -13,14 +13,14 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-class RemoteLogFilesPage extends StatefulWidget {
+class RemoteLogFilesView extends StatefulWidget {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
-  State<StatefulWidget> createState() => _RemoteLogFilesPageState();
+  State<StatefulWidget> createState() => _RemoteLogFilesViewState();
 }
 
-class _RemoteLogFilesPageState extends State<RemoteLogFilesPage> {
+class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
   List<bool> _selectedStorageObjects = List<bool>.generate(0, (index) => false);
   List<StorageObject> _storageObjects = new List();
   Function _uploadFloatingActionButtonOnPressed;

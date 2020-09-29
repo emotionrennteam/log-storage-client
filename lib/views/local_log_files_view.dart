@@ -15,16 +15,16 @@ import 'package:flutter/rendering.dart';
 
 import 'package:path/path.dart' as path;
 
-class LocalLogFilesPage extends StatefulWidget {
+class LocalLogFilesView extends StatefulWidget {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  LocalLogFilesPage({Key key}) : super(key: key);
+  LocalLogFilesView({Key key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => new _LocalLogFilesPageState();
+  State<StatefulWidget> createState() => new _LocalLogFilesViewState();
 }
 
-class _LocalLogFilesPageState extends State<LocalLogFilesPage> {
+class _LocalLogFilesViewState extends State<LocalLogFilesView> {
   StreamController<double> _progressStreamController;
   bool _uploadInProgress = false;
   double _progress = 0.0;

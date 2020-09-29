@@ -1,7 +1,7 @@
-import 'package:emotion/pages/dashboard_view.dart';
-import 'package:emotion/pages/local_log_files_page.dart';
-import 'package:emotion/pages/remote_log_files_page.dart';
-import 'package:emotion/pages/settings_view.dart';
+import 'package:emotion/views/dashboard_view.dart';
+import 'package:emotion/views/local_log_files_view.dart';
+import 'package:emotion/views/remote_log_files_view.dart';
+import 'package:emotion/views/settings_view.dart';
 import 'package:emotion/utils/constants.dart' as constants;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -23,12 +23,12 @@ class AppDrawer extends StatelessWidget {
     new AppDrawerItem(
       'Local Log Files',
       FontAwesomeIcons.solidFolder,
-      LocalLogFilesPage(),
+      LocalLogFilesView(),
     ),
     new AppDrawerItem(
       'Remote Log Files',
       FontAwesomeIcons.cloud,
-      RemoteLogFilesPage(),
+      RemoteLogFilesView(),
     ),
     new AppDrawerItem(
       'Settings',

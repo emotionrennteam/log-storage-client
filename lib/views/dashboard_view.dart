@@ -111,7 +111,9 @@ class _DashboardViewState extends State<DashboardView>
             ),
             overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(height: 10),
+          SizedBox(
+            height: 10,
+          ),
           Align(
             alignment: highlightedContent != null
                 ? Alignment.centerLeft
@@ -315,7 +317,9 @@ class _DashboardViewState extends State<DashboardView>
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(
+                      height: 3,
+                    ),
                     Container(
                       child: ListTile(
                         contentPadding: EdgeInsets.zero,

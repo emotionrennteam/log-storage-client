@@ -1,4 +1,4 @@
-import 'package:emotion/pages/dashboard_view.dart';
+import 'package:emotion/views/dashboard_view.dart';
 import 'package:emotion/utils/constants.dart' as constants;
 import 'package:emotion/utils/constants.dart';
 import 'package:flutter/material.dart';

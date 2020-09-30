@@ -4,6 +4,7 @@ import 'package:log_storage_client/utils/constants.dart' as constants;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:log_storage_client/utils/progress_service.dart';
 
 class AppDrawer extends StatefulWidget {
   final List<AppDrawerItem> appDrawerItems = [
@@ -42,6 +43,29 @@ class AppDrawer extends StatefulWidget {
 
 class _AppDrawerState extends State<AppDrawer> {
   String _activeRouteName = DashboardRoute;
+  double _progressValue = 0.0;
+  bool _isInProgress = false;
+  String _processName;
+
+  @override
+  initState() {
+    super.initState();
+    locator<ProgressService>().getProgressValueStream().listen((progressValue) {
+      setState(() {
+        this._progressValue = progressValue;
+      });
+    });
+    locator<ProgressService>().getIsInProgressStream().listen((inProgress) {
+      setState(() {
+        this._isInProgress = inProgress;
+      });
+    });
+    locator<ProgressService>().getProcessNameStream().listen((processName) {
+      setState(() {
+        this._processName = processName;
+      });
+    });
+  }
 
   List<Widget> _buildAppDrawerItems(BuildContext context) {
     final appDrawerItems = List<Widget>();
@@ -117,13 +141,121 @@ class _AppDrawerState extends State<AppDrawer> {
     return appDrawerItems;
   }
 
+  Widget _progressPanel() {
+    return AnimatedPositioned(
+      curve: Curves.easeOutCubic,
+      bottom: this._isInProgress ? 0 : -100,
+      duration: Duration(
+        milliseconds: this._isInProgress ? 100 : 1000,
+      ),
+      left: 0,
+      child: Container(
+        width: 310,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(7),
+            topRight: Radius.circular(7),
+          ),
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+              color: Theme.of(context).canvasColor,
+              blurRadius: 20,
+              spreadRadius: 0,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Material(
+          elevation: 10,
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          color: Theme.of(context).primaryColor,
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 16,
+                    ),
+                    child: Text(
+                      this._progressValue == 1.0
+                          ? '${this._processName} Completed'
+                          : '${this._processName} In Progress...',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w300,
+                        color: constants.TEXT_COLOR,
+                        fontSize: 19,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.only(right: 16),
+                      child: Text(
+                        this._progressValue != null
+                            ? '${(this._progressValue * 100).round()} %'
+                            : '',
+                        textAlign: TextAlign.right,
+                        style: Theme.of(context).accentTextTheme.headline5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(7),
+                        boxShadow: [
+                          BoxShadow(
+                            color:
+                                Theme.of(context).accentColor.withOpacity(0.0),
+                            blurRadius: 10,
+                            spreadRadius: 5,
+                            offset: Offset(0, 0),
+                          ),
+                        ],
+                      ),
+                      height: 7,
+                      child: LinearProgressIndicator(
+                        backgroundColor:
+                            Theme.of(context).canvasColor.withOpacity(0.5),
+                        value: this._progressValue,
+                        valueColor: AlwaysStoppedAnimation(
+                          Theme.of(context).accentColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 300,
-      color: Theme.of(context).primaryColor,
-      child: ListView(
-        children: this._buildAppDrawerItems(context),
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: Theme.of(context).primaryColor,
+      ),
+      width: 310,
+      child: Stack(
+        children: [
+          ListView(
+            children: this._buildAppDrawerItems(context),
+          ),
+          this._progressPanel(),
+        ],
       ),
     );
   }

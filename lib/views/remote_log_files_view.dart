@@ -14,8 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 class RemoteLogFilesView extends StatefulWidget {
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-
   @override
   State<StatefulWidget> createState() => _RemoteLogFilesViewState();
 }
@@ -107,10 +105,10 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
           this._currentDirectory,
           remoteStorageObjectsToDownload,
         ).then((_) {
-          Scaffold.of(context).hideCurrentSnackBar();
-          Scaffold.of(context).showSnackBar(
-            getSnackBar('Download completed.', false),
-          );
+          // Scaffold.of(context).hideCurrentSnackBar();
+          // Scaffold.of(context).showSnackBar(
+          //   getSnackBar('Download completed.', false),
+          // );
         }).catchError((error) {
           Scaffold.of(context).hideCurrentSnackBar();
           Scaffold.of(context).showSnackBar(

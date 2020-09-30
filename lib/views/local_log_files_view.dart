@@ -1,15 +1,13 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:log_storage_client/models/storage_object.dart';
-import 'package:log_storage_client/utils/constants.dart';
 import 'package:log_storage_client/utils/app_settings.dart';
+import 'package:log_storage_client/utils/constants.dart';
 import 'package:log_storage_client/utils/minio_manager.dart';
 import 'package:log_storage_client/utils/utils.dart';
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';
 import 'package:log_storage_client/widgets/storage_object_table.dart';
 import 'package:log_storage_client/widgets/storage_object_table_header.dart';
-import 'package:log_storage_client/widgets/upload_progress_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -23,9 +21,7 @@ class LocalLogFilesView extends StatefulWidget {
 }
 
 class _LocalLogFilesViewState extends State<LocalLogFilesView> {
-  StreamController<double> _progressStreamController;
   bool _uploadInProgress = false;
-  double _progress = 0.0;
 
   List<FileSystemEntity> _fileSystemEntities = [];
   Directory _monitoredDirectory;
@@ -41,7 +37,6 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
 
   @override
   void dispose() {
-    this._progressStreamController?.close();
     super.dispose();
   }
 
@@ -86,39 +81,14 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
   }
 
   void _uploadFiles() async {
+    // TODO: adapt and use ProgressService to check whether an upload is already in progress
     if (this._uploadInProgress) return;
-    if (mounted) {
-      setState(() {
-        this._progressStreamController = StreamController<double>();
-        _uploadInProgress = true;
-      });
-    }
-    final streamSubscription =
-        this._progressStreamController.stream.listen((progress) {
-      if (mounted) {
-        setState(() {
-          this._progress = progress;
-        });
-      }
-    });
     var credentials = await getStorageConnectionCredentials();
     await uploadFileSystemEntities(
       credentials,
       this._fileSystemEntities,
       this._monitoredDirectory,
-      this._progressStreamController,
     );
-
-    Future.delayed(Duration(seconds: 5), () {
-      if (mounted) {
-        setState(() {
-          streamSubscription.cancel();
-          this._progressStreamController.close();
-          this._progressStreamController = null;
-          this._uploadInProgress = false;
-        });
-      }
-    });
 
     final uploadTriggerFile = File(
       path.join(
@@ -204,9 +174,6 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
         FloatingActionButtonPosition(
           floatingActionButton: this._uploadFAB(),
         ),
-        this._progressStreamController != null
-            ? UploadProgressToast(this._progress)
-            : SizedBox(),
       ],
     );
   }

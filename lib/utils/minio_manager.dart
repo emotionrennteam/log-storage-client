@@ -7,6 +7,8 @@ import 'package:log_storage_client/models/storage_connection_credentials.dart';
 import 'package:log_storage_client/models/storage_object.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:log_storage_client/utils/locator.dart';
+import 'package:log_storage_client/utils/progress_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:minio/minio.dart';
 import 'package:minio/models.dart';
@@ -148,10 +150,21 @@ Future<void> downloadObjectsFromRemoteStorage(
     throw Exception('The given bucket "${credentials.bucket}" doesn\'t exist.');
   }
 
-  // TODO: improve by adding a stream for the download progress
+  ProgressService progressService = locator<ProgressService>();
+  progressService.startProgressStream('Download', true);
+  // Delay download for 1 second so that the download progress animation can pop-up.
+  await Future.delayed(Duration(seconds: 1));
+
   // TODO: handle OS Error: Permission denied when trying to download to dir without sufficient permissions
-  _downloadStorageObjects(storageObjectsToDownload, downloadDirectory,
-      currentDirectory, minio, credentials);
+  await _downloadStorageObjects(
+    storageObjectsToDownload,
+    downloadDirectory,
+    currentDirectory,
+    minio,
+    credentials,
+  );
+
+  progressService.endProgressStream();
 }
 
 /// Uploads all files listed in [List<FileSystemEntity>] to Minio.
@@ -162,18 +175,22 @@ Future<void> downloadObjectsFromRemoteStorage(
 /// Emits upload progress events through the [StreamController]. The values to
 /// depict the upload progress are within the range of 0 and 1.
 Future<void> uploadFileSystemEntities(
-    StorageConnectionCredentials credentials,
-    List<FileSystemEntity> fileSystemEntities,
-    Directory localBaseDirectory,
-    StreamController<double> progressController) async {
+  StorageConnectionCredentials credentials,
+  List<FileSystemEntity> fileSystemEntities,
+  Directory localBaseDirectory,
+) async {
+  ProgressService progressService = locator<ProgressService>();
+
   try {
-    progressController.add(0.0);
+    final progressStreamSink =
+        progressService.startProgressStream('Upload', false);
+    progressStreamSink.add(0.0);
 
     final minio = _initializeClient(credentials);
     int iteration = 0;
 
     for (final fsEntity in fileSystemEntities) {
-      progressController.add(iteration / fileSystemEntities.length);
+      progressStreamSink.add(iteration / fileSystemEntities.length);
       iteration++;
       // Only files must be synced to Minio. Minio does automatically create folders
       // when a file path contains forward slashes.
@@ -193,9 +210,11 @@ Future<void> uploadFileSystemEntities(
             .catchError((error) {});
       }
     }
-    progressController.add(1.0);
+    progressStreamSink.add(1.0);
+    progressService.endProgressStream();
   } on Exception catch (e) {
     // TODO: error handling
+    progressService.endProgressStream();
     debugPrint('Exception: ${e.toString()}');
   }
 }
@@ -225,21 +244,21 @@ String _getCompatibleMinioPath(
 
 /// Entry point for triggering the recursive download of all [StorageObject] in
 /// the given list (files + directories).
-void _downloadStorageObjects(
+Future<void> _downloadStorageObjects(
   List<StorageObject> storageObjects,
   Directory downloadDirectory,
   String currentDirectory,
   Minio minio,
   StorageConnectionCredentials credentials,
-) {
+) async {
   for (StorageObject storageObject in storageObjects) {
     // Create directories (don't download because MinIO comes without the abstraction of directories).
     if (storageObject.isDirectory) {
-      _downloadDirectoryStorageObject(storageObject, downloadDirectory,
+      await _downloadDirectoryStorageObject(storageObject, downloadDirectory,
           currentDirectory, credentials, minio);
     } else {
       // Download files
-      _downloadFileStorageObject(storageObject, downloadDirectory,
+      await _downloadFileStorageObject(storageObject, downloadDirectory,
           currentDirectory, credentials, minio);
     }
   }
@@ -252,7 +271,7 @@ void _downloadStorageObjects(
 /// MinIO because MinIO doesn't come with the concept of directories.
 /// Triggers the download of all child [StorageObject]s (files
 /// and directories).
-void _downloadDirectoryStorageObject(
+Future<void> _downloadDirectoryStorageObject(
   StorageObject directoryStorageObject,
   Directory downloadDirectory,
   String currentDirectory,
@@ -270,7 +289,7 @@ void _downloadDirectoryStorageObject(
 
   final childStorageObjects = await listObjectsInRemoteStorage(credentials,
       path: directoryStorageObject.name);
-  _downloadStorageObjects(
+  await _downloadStorageObjects(
     childStorageObjects,
     downloadDirectory,
     currentDirectory,
@@ -281,7 +300,7 @@ void _downloadDirectoryStorageObject(
 
 /// Downloads a single [StorageObject] (file) from MinIO and stores it in the given
 /// [downloadDirectory] as file on the local file system.
-void _downloadFileStorageObject(
+Future<void> _downloadFileStorageObject(
   StorageObject fileStorageObject,
   Directory downloadDirectory,
   String currentDirectory,

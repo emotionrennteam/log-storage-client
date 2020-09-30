@@ -6,14 +6,14 @@ import 'package:flutter/material.dart';
 
 /// Defines the layout of this app consisting of an app drawer on the left side
 /// and the content on the right side.
-/// 
+///
 /// The hierarchy looks like this:
 ///   .
 ///   ├── MaterialApp
 ///   │   ├── AppLayout
 ///   │   │   ├── AppDrawer
 ///   │   │   ├── ViewWidget (e.g. dashboard or settings view)
-/// 
+///
 /// The view widgets (dashboard, local / remote log files, settings) are switched
 /// using Flutter's built-in Navigator. This way, the [AppDrawer] widget will never
 /// be re-initialized. We need to prevent re-initialization of this widget because

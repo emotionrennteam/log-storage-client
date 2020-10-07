@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:log_storage_client/models/download_upload_error.dart';
 import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/utils/navigation_service.dart';
 import 'package:log_storage_client/utils/constants.dart' as constants;
@@ -5,6 +8,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:log_storage_client/utils/progress_service.dart';
+import 'package:log_storage_client/widgets/download_upload_error_dialog.dart';
+import 'package:log_storage_client/widgets/emotion_design_button.dart';
 
 class AppDrawer extends StatefulWidget {
   final List<AppDrawerItem> appDrawerItems = [
@@ -46,6 +51,8 @@ class _AppDrawerState extends State<AppDrawer> {
   double _progressValue = 0.0;
   bool _isInProgress = false;
   String _processName;
+  List<DownloadUploadError> _errors = new List();
+  Function _dialogSetState;
 
   @override
   initState() {
@@ -64,6 +71,19 @@ class _AppDrawerState extends State<AppDrawer> {
       setState(() {
         this._processName = processName;
       });
+    });
+    locator<ProgressService>().getErrorMessagesStream().listen((error) {
+      if (this._dialogSetState != null) {
+        this._dialogSetState(() {
+          setState(() {
+            _errors.add(error);
+          });
+        });
+      } else {
+        setState(() {
+          _errors.add(error);
+        });
+      }
     });
   }
 
@@ -141,6 +161,27 @@ class _AppDrawerState extends State<AppDrawer> {
     return appDrawerItems;
   }
 
+  void _showDownloadUploadDetailsDialog() async {
+    await showCupertinoModalPopup(
+      context: context,
+      filter: ImageFilter.blur(
+        sigmaX: 2,
+        sigmaY: 2,
+      ),
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setState) {
+          // This additional setState() function is required to update the dialog's content.
+          this._dialogSetState = setState;
+          return DownloadUploadErrorDialog(
+            this._errors,
+            () => this._errors = List(),
+          );
+        });
+      },
+    );
+    this._dialogSetState = null;
+  }
+
   Widget _progressPanel() {
     return AnimatedPositioned(
       curve: Curves.easeOutCubic,
@@ -181,8 +222,8 @@ class _AppDrawerState extends State<AppDrawer> {
                     ),
                     child: Text(
                       this._progressValue == 1.0
-                          ? '${this._processName} Completed'
-                          : '${this._processName} In Progress...',
+                          ? '${this._processName != null ? this._processName : ''} Completed'
+                          : '${this._processName != null ? this._processName : ''} In Progress...',
                       style: TextStyle(
                         fontWeight: FontWeight.w300,
                         color: constants.TEXT_COLOR,
@@ -253,6 +294,19 @@ class _AppDrawerState extends State<AppDrawer> {
         children: [
           ListView(
             children: this._buildAppDrawerItems(context),
+          ),
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 100),
+              child: EmotionDesignButton(
+                child: Text(
+                  'Details',
+                  style: Theme.of(context).textTheme.button,
+                ),
+                onPressed: this._showDownloadUploadDetailsDialog,
+              ),
+            ),
           ),
           this._progressPanel(),
         ],

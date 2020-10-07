@@ -1,9 +1,13 @@
 import 'dart:async';
 
+import 'package:log_storage_client/models/download_upload_error.dart';
+
 class ProgressService {
   StreamController<double> _progressValueController = StreamController();
   StreamController<bool> _isInProgressController = StreamController();
   StreamController<String> _processNameController = StreamController();
+  StreamController<DownloadUploadError> _errorMessagesController =
+      StreamController();
 
   /// For creating progress events.
   ///
@@ -45,5 +49,15 @@ class ProgressService {
   /// Stream that emits events with the name of the currently active process (e.g. 'Download' or 'Upload').
   Stream<String> getProcessNameStream() {
     return this._processNameController?.stream;
+  }
+
+  /// Sink for emitting error messages (e.g. listing files that couldn't be uploaded).
+  StreamSink<DownloadUploadError> getErrorMessagesSink() {
+    return this._errorMessagesController?.sink;
+  }
+
+  /// Stream that emits error messages (e.g. listing files that couldn't be uploaded).
+  Stream<DownloadUploadError> getErrorMessagesStream() {
+    return this._errorMessagesController?.stream;
   }
 }

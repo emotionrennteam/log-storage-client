@@ -3,6 +3,7 @@ library minio_manager;
 import 'dart:async';
 import 'dart:io';
 
+import 'package:log_storage_client/models/download_upload_error.dart';
 import 'package:log_storage_client/models/storage_connection_credentials.dart';
 import 'package:log_storage_client/models/storage_object.dart';
 import 'package:flutter/cupertino.dart';
@@ -205,9 +206,19 @@ Future<void> uploadFileSystemEntities(
         final fileName = _getCompatibleMinioPath(fsEntity, localBaseDirectory);
         await minio
             .putObject(credentials.bucket, fileName, stream, fileSizeInBytes)
-            .then((value) {})
-            // TODO: error handling
-            .catchError((error) {});
+            .then((value) {
+          debugPrint('successfully uploaded. File: ${fsEntity.path}');
+        }).catchError((error) {
+          progressService.getErrorMessagesSink().add(DownloadUploadError(
+              _removeCurrentDirectoryPrefixFromFilePath(
+                fsEntity.path,
+                localBaseDirectory.path,
+              ),
+              error.toString(),
+              DateTime.now()));
+          // TODO: error handling
+          debugPrint('failed to upload file ${fsEntity.path}. Error: $error');
+        });
       }
     }
     progressStreamSink.add(1.0);
@@ -278,8 +289,8 @@ Future<void> _downloadDirectoryStorageObject(
   StorageConnectionCredentials credentials,
   Minio minio,
 ) async {
-  var directoryName = _removeCurrentDirectoryPrefixFromStorageObject(
-      directoryStorageObject, currentDirectory);
+  var directoryName = _removeCurrentDirectoryPrefixFromFilePath(
+      directoryStorageObject.name, currentDirectory);
   Directory(
     p.join(
       downloadDirectory.path,
@@ -311,8 +322,8 @@ Future<void> _downloadFileStorageObject(
       await minio.getObject(credentials.bucket, fileStorageObject.name);
   var bytes = await objectByteStream.toBytes();
 
-  var objectName = _removeCurrentDirectoryPrefixFromStorageObject(
-      fileStorageObject, currentDirectory);
+  var objectName = _removeCurrentDirectoryPrefixFromFilePath(
+      fileStorageObject.name, currentDirectory);
 
   try {
     // TODO: async or sync file creation?
@@ -332,12 +343,12 @@ Future<void> _downloadFileStorageObject(
 /// of the remote storage (e.g. '/file/') and we now want to download a file. The
 /// downloaded file should not be downloaded to $DOWNLOAD_DIR/file/my-file.txt but
 /// instead to $DOWNLOAD_DIR/my-file.txt
-String _removeCurrentDirectoryPrefixFromStorageObject(
-  StorageObject storageObject,
+String _removeCurrentDirectoryPrefixFromFilePath(
+  String filePath,
   String currentDirectory,
 ) {
   if (currentDirectory.isNotEmpty && currentDirectory != path.separator) {
-    return storageObject.name.substring(currentDirectory.length);
+    return filePath.substring(currentDirectory.length);
   }
-  return storageObject.name;
+  return filePath;
 }

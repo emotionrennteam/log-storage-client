@@ -1,6 +1,6 @@
-#application-name: "emotion" # Uncomment to modify this value.
-#executable-name: "emotion" # Uncomment to modify this value. Only lowercase a-z, numbers, underscores and no spaces
-#package-name: "emotion" # Uncomment to modify this value. Only lowercase a-z, numbers and no underscores or spaces
+#application-name: "log_storage_client" # Uncomment to modify this value.
+#executable-name: "log_storage_client" # Uncomment to modify this value. Only lowercase a-z, numbers, underscores and no spaces
+#package-name: "logstorageclient" # Uncomment to modify this value. Only lowercase a-z, numbers and no underscores or spaces
 license: "" # MANDATORY: Fill in your SPDX license name: https://spdx.org/licenses
 target: lib/main_desktop.dart
 # opengl: "none" # Uncomment this line if you have trouble with your OpenGL driver (https://github.com/go-flutter-desktop/go-flutter/issues/272)

@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:log_storage_client/widgets/emotion_design_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Builds the widget for displaying the list of [StorageObject]s as a table.
@@ -127,8 +128,7 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
                     right: 24,
                   ),
                   actions: <Widget>[
-                    FlatButton(
-                      color: Theme.of(context).canvasColor,
+                    EmotionDesignButton(
                       child: Text(
                         'No',
                         style: Theme.of(context).textTheme.button,
@@ -136,20 +136,8 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      padding: EdgeInsets.symmetric(
-                        vertical: 20,
-                        horizontal: 30,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28.0),
-                        side: BorderSide(
-                          color: Color.fromRGBO(40, 40, 40, 1),
-                          width: 2,
-                        ),
-                      ),
                     ),
-                    FlatButton(
-                      color: Theme.of(context).canvasColor,
+                    EmotionDesignButton(
                       child: Text(
                         'Yes',
                         style: TextStyle(
@@ -171,17 +159,6 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
                         });
                         Navigator.of(context).pop();
                       },
-                      padding: EdgeInsets.symmetric(
-                        vertical: 20,
-                        horizontal: 30,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28.0),
-                        side: BorderSide(
-                          color: Color.fromRGBO(40, 40, 40, 1),
-                          width: 2,
-                        ),
-                      ),
                     ),
                   ],
                 );

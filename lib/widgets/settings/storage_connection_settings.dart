@@ -2,6 +2,7 @@ import 'package:log_storage_client/models/storage_connection_credentials.dart';
 import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/minio_manager.dart';
 import 'package:log_storage_client/utils/utils.dart';
+import 'package:log_storage_client/widgets/emotion_design_button.dart';
 import 'package:log_storage_client/widgets/settings/setting_panel.dart';
 import 'package:log_storage_client/widgets/settings/textfield_setting.dart';
 import 'package:flutter/material.dart';
@@ -180,7 +181,7 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
         Divider(color: Colors.transparent),
         Align(
           alignment: Alignment.centerLeft,
-          child: FlatButton(
+          child: EmotionDesignButton(
             child: Text(
               'Test Connection',
               style: Theme.of(context).textTheme.button,
@@ -214,14 +215,6 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
                 !connectionSucceeded.item1,
               ));
             },
-            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 30),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(28.0),
-              side: BorderSide(
-                color: Color.fromRGBO(40, 40, 40, 1),
-                width: 2,
-              ),
-            ),
           ),
         ),
       ],

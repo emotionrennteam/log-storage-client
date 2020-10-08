@@ -21,6 +21,8 @@ samples, guidance on mobile development, and a full API reference.
 * [Desktop app - Settings by Kirill Kalita](https://dribbble.com/shots/7090778-Desktop-app-Settings)
   ![](https://cdn.dribbble.com/users/1256370/screenshots/7090778/media/e08226c870383ae934c26e1b79253212.png)
 
+* Mockup for displaying upload/download errors
+   ![](./mockupDownloadUploadErrors.png)
 
 ## Development
 

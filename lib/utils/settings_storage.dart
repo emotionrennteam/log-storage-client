@@ -1,26 +1,24 @@
 /// Library that abstracts the storage for storing settings of different types ([int], [String], and [bool]).
-///
-/// The current implementation doesn't use the famous library "shared_preferences"
-/// because of its incompatibility with Microsoft Windows. Instead, we have to rely on the
-/// library "cross_local_storage" until the pull request https://github.com/flutter/plugins/pull/2631
-/// has been merged. This plugin stores settings in the local JSON file "preferences.json".
 library settings_storage;
 
-import 'package:cross_local_storage/cross_local_storage.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-LocalStorageInterface _localStorageInterface;
+/// SharedPreferences stores the app's settings in different locations
+/// depending on the underlying OS:
+/// * Linux: ~/.local/share/centrallogstorageclient/shared_preferences.json
+SharedPreferences _sharedPreferences;
 
-Future<LocalStorageInterface> _getStorageReference() async {
+Future<SharedPreferences> _getStorageReference() async {
   try {
-    if (_localStorageInterface == null) {
-      _localStorageInterface = await LocalStorage.getInstance();
+    if (_sharedPreferences == null) {
+      _sharedPreferences = await SharedPreferences.getInstance();
     }
   } catch (e) {
     debugPrint(e.toString());
     // TODO: handle exception when preferences.json is malformed
   }
-  return _localStorageInterface;
+  return _sharedPreferences;
 }
 
 /// Persists a setting of type [String].

@@ -149,6 +149,6 @@ There are two different ways how to release this app for Windows.
 2. Build an executable (*.exe) for Windows and package it for msi (creates an installer / one single file)
     ```bash
     hover init-packaging windows-msi
-    hover build windows-msi
+    hover build windows-msi --docker
     ```
     Output: `go/build/outputs/windows-msi/log_storage_client 0.1.1.msi`

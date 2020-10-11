@@ -6,7 +6,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// SharedPreferences stores the app's settings in different locations
 /// depending on the underlying OS:
-/// * Linux: ~/.local/share/centrallogstorageclient/shared_preferences.json
+/// * Linux: ~/.local/share/logstorageclient/shared_preferences.json
+/// * Windows:
+///   * C:\Users\$USER\AppData\Roaming\de.aalen.university.emotion.logstorageclient\emotion\shared_preferences.json
+///   Or:
+///   * C:\Users\$USER\AppData\Roaming\log_storage_client\shared_preferences.json
 SharedPreferences _sharedPreferences;
 
 Future<SharedPreferences> _getStorageReference() async {

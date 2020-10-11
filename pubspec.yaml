@@ -3,6 +3,8 @@ authors:
     - "Philipp Perez"
 description: A desktop app to upload and download log files to an S3-based object storage (MinIO).
 
+author: "Philipp Perez"
+
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev

@@ -26,6 +26,7 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
   List<FileSystemEntity> _fileSystemEntities = [];
   Directory _monitoredDirectory;
   List<StorageObject> _storageObjects = List();
+  Function _onUploadFabPressed;
 
   Directory _currentDirectory;
 
@@ -80,35 +81,15 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
     });
   }
 
-  void _uploadFiles() async {
-    // TODO: adapt and use ProgressService to check whether an upload is already in progress
-    if (this._uploadInProgress) return;
-    var credentials = await getStorageConnectionCredentials();
-    await uploadFileSystemEntities(
-      credentials,
-      this._fileSystemEntities,
-      this._monitoredDirectory,
-    );
-
-    final uploadTriggerFile = File(
-      path.join(
-        this._monitoredDirectory.path,
-        AUTO_UPLOAD_TRIGGER_FILE,
-      ),
-    );
-    if (uploadTriggerFile.existsSync()) {
-      uploadTriggerFile.deleteSync();
-    }
-  }
-
   /// A [FloatingActionButton] for triggering the upload of log files.
   /// This button is automatically disabled when an upload is in progress.
   FloatingActionButton _uploadFAB() {
     return FloatingActionButton.extended(
       /// During upload, the FAB is disabled
-      onPressed: this._uploadFiles,
-      backgroundColor:
-          this._uploadInProgress ? Colors.grey : Theme.of(context).accentColor,
+      onPressed: this._onUploadFabPressed,
+      backgroundColor: this._onUploadFabPressed == null
+          ? DARK_GREY
+          : Theme.of(context).accentColor,
       disabledElevation: 2,
       icon: Icon(
         Icons.cloud_upload,
@@ -122,6 +103,40 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
         ),
       ),
     );
+  }
+
+  void _onSelectionOfStorageObjectsChanged(
+      List<StorageObject> selectedStorageObjects) async {
+    // Disable FAB when no StorageObjects selected
+    if (selectedStorageObjects.isEmpty) {
+      setState(() {
+        this._onUploadFabPressed = null;
+      });
+      return;
+    }
+    setState(() {
+      this._onUploadFabPressed = () async {
+        // TODO: adapt and use ProgressService to check whether an upload is already in progress
+        if (this._uploadInProgress) return;
+
+        var credentials = await getStorageConnectionCredentials();
+        await uploadObjectsToRemoteStorage(
+          credentials,
+          selectedStorageObjects,
+          this._monitoredDirectory,
+        );
+
+        final uploadTriggerFile = File(
+          path.join(
+            this._monitoredDirectory.path,
+            AUTO_UPLOAD_TRIGGER_FILE,
+          ),
+        );
+        if (uploadTriggerFile.existsSync()) {
+          uploadTriggerFile.deleteSync();
+        }
+      };
+    });
   }
 
   @override
@@ -163,7 +178,7 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
                 child: Container(
                   child: StorageObjectTable(
                     this._navigateToDirectory,
-                    (_) => {},
+                    this._onSelectionOfStorageObjectsChanged,
                     this._storageObjects,
                   ),
                 ),

@@ -21,7 +21,8 @@ class StorageObjectTable extends StatefulWidget {
   final List<StorageObject> storageObjects;
 
   /// Callback function to be called when the selection (checkboxes) has changed.
-  final Function(List<bool>) onSelectionChangedCallback;
+  /// The given list contains all [StorageObject]s which the user selected.
+  final Function(List<StorageObject>) onSelectionChangedCallback;
 
   /// Callback function to be called when the user want to navigate up or down
   /// in the hierarchy of directories.
@@ -216,8 +217,13 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
                   onChanged: (bool newValue) {
                     setState(() {
                       this._selectedStorageObjects[index] = newValue;
-                      widget.onSelectionChangedCallback(
-                          this._selectedStorageObjects);
+                      final selectedStorageObjects = List<StorageObject>();
+                      for (var i = 0; i < widget.storageObjects.length; i++) {
+                        if (this._selectedStorageObjects[i]) {
+                          selectedStorageObjects.add(widget.storageObjects[i]);
+                        }
+                      }
+                      widget.onSelectionChangedCallback(selectedStorageObjects);
                     });
                   },
                 ),

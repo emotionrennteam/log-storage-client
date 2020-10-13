@@ -19,9 +19,8 @@ class RemoteLogFilesView extends StatefulWidget {
 }
 
 class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
-  List<bool> _selectedStorageObjects = List<bool>.generate(0, (index) => false);
   List<StorageObject> _storageObjects = new List();
-  Function _uploadFloatingActionButtonOnPressed;
+  Function _onDownloadFabPressed;
   StorageConnectionCredentials _credentials;
   String _currentDirectory = '';
 
@@ -43,8 +42,6 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
     ).then((storageObjects) {
       setState(() {
         this._storageObjects = storageObjects;
-        this._selectedStorageObjects =
-            List<bool>.generate(storageObjects.length, (index) => false);
       });
     }).catchError((error) {
       Scaffold.of(context).hideCurrentSnackBar();
@@ -59,21 +56,17 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
 
   /// Enables or disables the [FloatingActionButton] for downloading objects
   /// when at least one object has been selected.
-  void _onSelectionOfStorageObjectsChanged(List<bool> selectedStorageObjects) {
-    this._selectedStorageObjects = selectedStorageObjects;
-
-    final selectCount = selectedStorageObjects.where((s) => s).length;
-
+  void _onSelectionOfStorageObjectsChanged(List<StorageObject> selectedStorageObjects) {
     // Disable the FAB when no files are selected
-    if (selectCount == 0) {
+    if (selectedStorageObjects.isEmpty) {
       setState(() {
-        this._uploadFloatingActionButtonOnPressed = null;
+        this._onDownloadFabPressed = null;
       });
       return;
     }
 
     setState(() {
-      this._uploadFloatingActionButtonOnPressed = () async {
+      this._onDownloadFabPressed = () async {
         String downloadPath = await FilePicker.platform.getDirectoryPath();
         // Path is null or empty when user didn't select a directory but closed the dialog.
         if (downloadPath == null || downloadPath.isEmpty) {
@@ -91,19 +84,13 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
           );
           return;
         }
-        List<StorageObject> remoteStorageObjectsToDownload = List();
-        this._selectedStorageObjects.asMap().forEach((index, selected) {
-          if (selected) {
-            remoteStorageObjectsToDownload.add(this._storageObjects[index]);
-          }
-        });
 
         // TODO: doesn't catch exceptions
         downloadObjectsFromRemoteStorage(
           this._credentials,
           downloadDirectory,
           this._currentDirectory,
-          remoteStorageObjectsToDownload,
+          selectedStorageObjects,
         ).then((_) {
           // Scaffold.of(context).hideCurrentSnackBar();
           // Scaffold.of(context).showSnackBar(
@@ -199,7 +186,7 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
         ),
         FloatingActionButtonPosition(
           floatingActionButton: FloatingActionButton.extended(
-            backgroundColor: this._uploadFloatingActionButtonOnPressed == null
+            backgroundColor: this._onDownloadFabPressed == null
                 ? DARK_GREY
                 : Theme.of(context).accentColor,
             icon: Icon(
@@ -213,7 +200,7 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
                 color: Colors.white,
               ),
             ),
-            onPressed: this._uploadFloatingActionButtonOnPressed,
+            onPressed: this._onDownloadFabPressed,
           ),
         ),
       ],

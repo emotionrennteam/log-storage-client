@@ -168,16 +168,17 @@ Future<void> downloadObjectsFromRemoteStorage(
   progressService.endProgressStream();
 }
 
-/// Uploads all files listed in [List<FileSystemEntity>] to Minio.
+/// Recursively uploads all storage objects listed in [List<StorageObject>] and their
+/// children (files in sub-directories) to Minio.
 ///
 /// Directories are not directly uploaded as Minio automatically creates folders
 /// whenever a file path contains forward slashes.
 /// The parameter [localBaseDirectory] is required to extract relative file paths.
 /// Emits upload progress events through the [StreamController]. The values to
 /// depict the upload progress are within the range of 0 and 1.
-Future<void> uploadFileSystemEntities(
+Future<void> uploadObjectsToRemoteStorage(
   StorageConnectionCredentials credentials,
-  List<FileSystemEntity> fileSystemEntities,
+  List<StorageObject> storageObjectsToUpload,
   Directory localBaseDirectory,
 ) async {
   ProgressService progressService = locator<ProgressService>();
@@ -190,17 +191,16 @@ Future<void> uploadFileSystemEntities(
     final minio = _initializeClient(credentials);
     int iteration = 0;
 
-    for (final fsEntity in fileSystemEntities) {
-      progressStreamSink.add(iteration / fileSystemEntities.length);
+    final fsEntitiesToUpload =
+        _recursivelyListFileSystemEntities(storageObjectsToUpload);
+
+    for (final fsEntity in fsEntitiesToUpload) {
+      progressStreamSink.add(iteration / fsEntitiesToUpload.length);
       iteration++;
+
       // Only files must be synced to Minio. Minio does automatically create folders
       // when a file path contains forward slashes.
       if (fsEntity is File) {
-        if (!fsEntity.existsSync()) {
-          // TODO: error handling
-          debugPrint('File doesn\'t exist');
-          continue;
-        }
         Stream<List<int>> stream = fsEntity.openRead();
         final fileSizeInBytes = fsEntity.lengthSync();
         final fileName = _getCompatibleMinioPath(fsEntity, localBaseDirectory);
@@ -228,6 +228,32 @@ Future<void> uploadFileSystemEntities(
     progressService.endProgressStream();
     debugPrint('Exception: ${e.toString()}');
   }
+}
+
+/// Traverses the given [List<StorageObject>] and recursively lists
+/// all corresponding files, directories, and symlinks in all (sub-)
+/// directories.
+///
+/// Returns a [List<FileSystemEntity>] which contains all files,
+/// directories, and symlinks.
+List<FileSystemEntity> _recursivelyListFileSystemEntities(
+    List<StorageObject> storageObjects) {
+  final recursiveFileSystemEntities = List<FileSystemEntity>();
+
+  storageObjects.forEach((StorageObject storageObject) {
+    if (storageObject.isDirectory) {
+      final fsEntity = Directory(storageObject.name);
+      recursiveFileSystemEntities.add(fsEntity);
+      recursiveFileSystemEntities.addAll(
+        fsEntity.listSync(recursive: true, followLinks: true),
+      );
+    } else {
+      final fsEntity = File(storageObject.name);
+      recursiveFileSystemEntities.add(fsEntity);
+    }
+  });
+
+  return recursiveFileSystemEntities;
 }
 
 /// Transforms the path of the given [FileSystemEntity] into a relative path

@@ -3,7 +3,7 @@ library minio_manager;
 import 'dart:async';
 import 'dart:io';
 
-import 'package:log_storage_client/models/download_upload_error.dart';
+import 'package:log_storage_client/models/file_transfer_exception.dart';
 import 'package:log_storage_client/models/storage_connection_credentials.dart';
 import 'package:log_storage_client/models/storage_object.dart';
 import 'package:flutter/cupertino.dart';
@@ -75,8 +75,10 @@ Future<Tuple4<bool, String, String, List<Bucket>>> validateConnection(
 /// Returns a list of [StorageObject]s which represent directories
 /// and files in Minio.
 Future<List<StorageObject>> listObjectsInRemoteStorage(
-    StorageConnectionCredentials credentials,
-    {String path = ''}) async {
+  StorageConnectionCredentials credentials, {
+  String path = '',
+  bool recursive = false,
+}) async {
   final minio = _initializeClient(credentials);
   bool bucketExists = await minio.bucketExists(credentials.bucket);
   if (!bucketExists) {
@@ -84,7 +86,7 @@ Future<List<StorageObject>> listObjectsInRemoteStorage(
   }
 
   List<ListObjectsChunk> objectsChunks = await minio
-      .listObjects(credentials.bucket, prefix: path, recursive: false)
+      .listObjects(credentials.bucket, prefix: path, recursive: recursive)
       .toList();
   List<StorageObject> storageObjects = List();
 
@@ -122,7 +124,7 @@ Future<String> shareObjectFromRemoteStorage(
   );
 }
 
-/// Irreversibly deletes the specified [StorageObject].
+/// Irreversibly deletes the specified [StorageObject] from the remote storage system.
 Future<void> deleteObjectFromRemoteStorage(
   StorageObject storageObject,
   StorageConnectionCredentials credentials,
@@ -135,7 +137,8 @@ Future<void> deleteObjectFromRemoteStorage(
   await minio.removeObject(credentials.bucket, storageObject.name);
 }
 
-/// Downloads all objects in the given list of [StorageObject]s to the given [downloadDirectory].
+/// Recursively downloads all storage objects in the given [List<StorageObject>] and their
+/// children (files in sub-directories) to the given [downloadDirectory].
 ///
 /// [StorageObject]s which are actually directories cannot be downloaded and will simply be created
 /// as a directory on the local hard drive.
@@ -152,23 +155,63 @@ Future<void> downloadObjectsFromRemoteStorage(
   }
 
   ProgressService progressService = locator<ProgressService>();
-  progressService.startProgressStream('Download', true);
+  final progressStreamSink = progressService.startProgressStream('Download');
+
   // Delay download for 1 second so that the download progress animation can pop-up.
   await Future.delayed(Duration(seconds: 1));
 
-  // TODO: handle OS Error: Permission denied when trying to download to dir without sufficient permissions
-  await _downloadStorageObjects(
-    storageObjectsToDownload,
-    downloadDirectory,
-    currentDirectory,
-    minio,
-    credentials,
-  );
+  try {
+    final recursiveStorageObjectsToDownload =
+        await _recursivelyListOnRemoteStorage(
+      storageObjectsToDownload,
+      credentials,
+    );
 
-  progressService.endProgressStream();
+    int i = 0;
+    for (StorageObject storageObject in recursiveStorageObjectsToDownload) {
+      progressStreamSink.add(i++ / recursiveStorageObjectsToDownload.length);
+
+      if (storageObject.isDirectory) {
+        try {
+          final directoryName = _removeCurrentDirectoryPrefixFromFilePath(
+              storageObject.name, currentDirectory);
+          Directory(p.join(downloadDirectory.path, directoryName)).createSync();
+        } on Exception catch (e) {
+          progressService.getErrorMessagesSink().add(
+                DownloadException(e.toString(), storageObject.name),
+              );
+          debugPrint(
+              'failed to create directory ${storageObject.name}. Error: $e');
+        }
+      } else {
+        await _downloadFileStorageObject(
+          storageObject,
+          downloadDirectory,
+          currentDirectory,
+          credentials,
+          minio,
+        ).catchError((e) {
+          if (e is DownloadException) {
+            progressService.getErrorMessagesSink().add(e);
+          } else {
+            progressService.getErrorMessagesSink().add(
+                  DownloadException(e.toString(), storageObject.name),
+                );
+          }
+          debugPrint(
+              'failed to download file ${storageObject.name}. Error: $e');
+        });
+      }
+    }
+  } on Exception catch (e) {
+    // TODO: error handling
+    debugPrint('Exception during download: ${e.toString()}');
+  } finally {
+    progressService.endProgressStream();
+  }
 }
 
-/// Recursively uploads all storage objects listed in [List<StorageObject>] and their
+/// Recursively uploads all storage objects in the given [List<StorageObject>] and their
 /// children (files in sub-directories) to Minio.
 ///
 /// Directories are not directly uploaded as Minio automatically creates folders
@@ -182,21 +225,19 @@ Future<void> uploadObjectsToRemoteStorage(
   Directory localBaseDirectory,
 ) async {
   ProgressService progressService = locator<ProgressService>();
+  final progressStreamSink = progressService.startProgressStream('Upload');
+
+  // Delay download for 1 second so that the upload progress animation can pop-up.
+  await Future.delayed(Duration(seconds: 1));
 
   try {
-    final progressStreamSink =
-        progressService.startProgressStream('Upload', false);
-    progressStreamSink.add(0.0);
-
     final minio = _initializeClient(credentials);
-    int iteration = 0;
-
     final fsEntitiesToUpload =
-        _recursivelyListFileSystemEntities(storageObjectsToUpload);
+        _recursivelyListOnLocalFileSystem(storageObjectsToUpload);
 
+    int i = 0;
     for (final fsEntity in fsEntitiesToUpload) {
-      progressStreamSink.add(iteration / fsEntitiesToUpload.length);
-      iteration++;
+      progressStreamSink.add(i++ / fsEntitiesToUpload.length);
 
       // Only files must be synced to Minio. Minio does automatically create folders
       // when a file path contains forward slashes.
@@ -209,34 +250,33 @@ Future<void> uploadObjectsToRemoteStorage(
             .then((value) {
           debugPrint('successfully uploaded. File: ${fsEntity.path}');
         }).catchError((error) {
-          progressService.getErrorMessagesSink().add(DownloadUploadError(
-              _removeCurrentDirectoryPrefixFromFilePath(
-                fsEntity.path,
-                localBaseDirectory.path,
-              ),
-              error.toString(),
-              DateTime.now()));
-          // TODO: error handling
+          progressService.getErrorMessagesSink().add(UploadException(
+                error.toString(),
+                _removeCurrentDirectoryPrefixFromFilePath(
+                  fsEntity.path,
+                  localBaseDirectory.path,
+                ),
+              ));
           debugPrint('failed to upload file ${fsEntity.path}. Error: $error');
         });
       }
     }
     progressStreamSink.add(1.0);
-    progressService.endProgressStream();
   } on Exception catch (e) {
     // TODO: error handling
+    debugPrint('Exception during upload: ${e.toString()}');
+  } finally {
     progressService.endProgressStream();
-    debugPrint('Exception: ${e.toString()}');
   }
 }
 
 /// Traverses the given [List<StorageObject>] and recursively lists
 /// all corresponding files, directories, and symlinks in all (sub-)
-/// directories.
+/// directories on the local file system.
 ///
 /// Returns a [List<FileSystemEntity>] which contains all files,
 /// directories, and symlinks.
-List<FileSystemEntity> _recursivelyListFileSystemEntities(
+List<FileSystemEntity> _recursivelyListOnLocalFileSystem(
     List<StorageObject> storageObjects) {
   final recursiveFileSystemEntities = List<FileSystemEntity>();
 
@@ -254,6 +294,32 @@ List<FileSystemEntity> _recursivelyListFileSystemEntities(
   });
 
   return recursiveFileSystemEntities;
+}
+
+/// Traverses the given [List<StorageObject>] and recursively lists
+/// all corresponding files in all (sub-)directories on the remote
+/// storage system.
+///
+/// Returns a [List<StorageObject>] which contains all files.
+Future<List<StorageObject>> _recursivelyListOnRemoteStorage(
+    List<StorageObject> storageObjects,
+    StorageConnectionCredentials credentials) async {
+  final recursiveStorageObjects = List<StorageObject>();
+
+  for (StorageObject storageObject in storageObjects) {
+    recursiveStorageObjects.add(storageObject);
+
+    if (storageObject.isDirectory) {
+      final childs = await listObjectsInRemoteStorage(
+        credentials,
+        path: storageObject.name,
+        recursive: true,
+      );
+      recursiveStorageObjects.addAll(childs);
+    }
+  }
+
+  return recursiveStorageObjects;
 }
 
 /// Transforms the path of the given [FileSystemEntity] into a relative path
@@ -279,62 +345,6 @@ String _getCompatibleMinioPath(
   return relativePath;
 }
 
-/// Entry point for triggering the recursive download of all [StorageObject] in
-/// the given list (files + directories).
-Future<void> _downloadStorageObjects(
-  List<StorageObject> storageObjects,
-  Directory downloadDirectory,
-  String currentDirectory,
-  Minio minio,
-  StorageConnectionCredentials credentials,
-) async {
-  for (StorageObject storageObject in storageObjects) {
-    // Create directories (don't download because MinIO comes without the abstraction of directories).
-    if (storageObject.isDirectory) {
-      await _downloadDirectoryStorageObject(storageObject, downloadDirectory,
-          currentDirectory, credentials, minio);
-    } else {
-      // Download files
-      await _downloadFileStorageObject(storageObject, downloadDirectory,
-          currentDirectory, credentials, minio);
-    }
-  }
-}
-
-/// Recursively mirrors a directory and all its child files and directories
-/// from MinIO and stores it on the local file system.
-///
-/// Directories itself are created directly and not downloaded from
-/// MinIO because MinIO doesn't come with the concept of directories.
-/// Triggers the download of all child [StorageObject]s (files
-/// and directories).
-Future<void> _downloadDirectoryStorageObject(
-  StorageObject directoryStorageObject,
-  Directory downloadDirectory,
-  String currentDirectory,
-  StorageConnectionCredentials credentials,
-  Minio minio,
-) async {
-  var directoryName = _removeCurrentDirectoryPrefixFromFilePath(
-      directoryStorageObject.name, currentDirectory);
-  Directory(
-    p.join(
-      downloadDirectory.path,
-      directoryName,
-    ),
-  ).createSync();
-
-  final childStorageObjects = await listObjectsInRemoteStorage(credentials,
-      path: directoryStorageObject.name);
-  await _downloadStorageObjects(
-    childStorageObjects,
-    downloadDirectory,
-    currentDirectory,
-    minio,
-    credentials,
-  );
-}
-
 /// Downloads a single [StorageObject] (file) from MinIO and stores it in the given
 /// [downloadDirectory] as file on the local file system.
 Future<void> _downloadFileStorageObject(
@@ -344,22 +354,16 @@ Future<void> _downloadFileStorageObject(
   StorageConnectionCredentials credentials,
   Minio minio,
 ) async {
-  var objectByteStream =
-      await minio.getObject(credentials.bucket, fileStorageObject.name);
-  var bytes = await objectByteStream.toBytes();
-
-  var objectName = _removeCurrentDirectoryPrefixFromFilePath(
-      fileStorageObject.name, currentDirectory);
-
   try {
-    // TODO: async or sync file creation?
+    var objectByteStream =
+        await minio.getObject(credentials.bucket, fileStorageObject.name);
+    var bytes = await objectByteStream.toBytes();
+    var objectName = _removeCurrentDirectoryPrefixFromFilePath(
+        fileStorageObject.name, currentDirectory);
+
     File(p.join(downloadDirectory.path, objectName)).writeAsBytesSync(bytes);
-  } on FileSystemException catch (e) {
-    throw new Exception(
-        'Failed to download file to "${e.path}". Reason: ${e.osError}');
   } on Exception catch (e) {
-    // TODO: handle error
-    debugPrint('Failed to download file. Reason: $e');
+    throw new DownloadException(e.toString(), fileStorageObject.name);
   }
 }
 

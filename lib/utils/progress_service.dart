@@ -1,30 +1,26 @@
 import 'dart:async';
-
-import 'package:log_storage_client/models/download_upload_error.dart';
+import 'package:log_storage_client/models/file_transfer_exception.dart';
 
 class ProgressService {
   StreamController<double> _progressValueController = StreamController();
   StreamController<bool> _isInProgressController = StreamController();
   StreamController<String> _processNameController = StreamController();
-  StreamController<DownloadUploadError> _errorMessagesController =
+  StreamController<FileTransferException> _errorMessagesController =
       StreamController();
 
   /// For creating progress events.
   ///
   /// The parameter [processName] is displayed on the progress panel next to the
-  /// progress value. The parameter [indeterminateProgress] determines the progress
-  /// mode of the [LinearProgressIndicator]. Indeterminate progress indicators do
-  /// not have a specific value at each point in time and instead indicate that
-  /// progress is being made without indicating how much progress remains.
-  StreamSink<double> startProgressStream(
-    String processName,
-    bool indeterminateProgress,
-  ) {
+  /// progress value, e.g. "Upload" or "Download".
+  StreamSink<double> startProgressStream(String processName) {
     this._processNameController.sink.add(processName);
-    if (indeterminateProgress) {
-      this._progressValueController.sink.add(null);
-    }
     this._isInProgressController.sink.add(true);
+
+    // Adding "null" to the progressValueController will make the progress indicator
+    // show an indeterminate progress. Indeterminate progress indicators do
+    // not have a specific value at each point in time and instead indicate that
+    // progress is being made without indicating how much progress remains.
+    this._progressValueController.sink.add(null);
 
     return this._progressValueController.sink;
   }
@@ -52,12 +48,12 @@ class ProgressService {
   }
 
   /// Sink for emitting error messages (e.g. listing files that couldn't be uploaded).
-  StreamSink<DownloadUploadError> getErrorMessagesSink() {
+  StreamSink<FileTransferException> getErrorMessagesSink() {
     return this._errorMessagesController?.sink;
   }
 
   /// Stream that emits error messages (e.g. listing files that couldn't be uploaded).
-  Stream<DownloadUploadError> getErrorMessagesStream() {
+  Stream<FileTransferException> getErrorMessagesStream() {
     return this._errorMessagesController?.stream;
   }
 }

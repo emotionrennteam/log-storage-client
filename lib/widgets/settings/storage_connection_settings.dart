@@ -1,5 +1,6 @@
 import 'package:log_storage_client/models/storage_connection_credentials.dart';
 import 'package:log_storage_client/utils/app_settings.dart';
+import 'package:log_storage_client/utils/constants.dart';
 import 'package:log_storage_client/utils/minio_manager.dart';
 import 'package:log_storage_client/utils/utils.dart';
 import 'package:log_storage_client/widgets/emotion_design_button.dart';
@@ -33,6 +34,7 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
   final _bucketFocusNode = FocusNode();
   bool _tlsEnabled = false;
   bool _isTlsTooltipVisible = false;
+  bool _connectionTestInProgress = false;
 
   @override
   void initState() {
@@ -182,11 +184,38 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
         Align(
           alignment: Alignment.centerLeft,
           child: EmotionDesignButton(
-            child: Text(
-              'Test Connection',
-              style: Theme.of(context).textTheme.button,
+            verticalPadding: 17,
+            child: Wrap(
+              spacing: 10,
+              verticalDirection: VerticalDirection.down,
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              runAlignment: WrapAlignment.center,
+              children: [
+                AnimatedContainer(
+                  duration: Duration(milliseconds: 100),
+                  height: 24,
+                  width: this._connectionTestInProgress ? 24 : 0,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation(DARK_GREY),
+                    value: this._connectionTestInProgress ? null : 0,
+                  ),
+                ),
+                Text(
+                  'Test Connection',
+                  style: Theme.of(context).textTheme.button,
+                ),
+              ],
             ),
             onPressed: () async {
+              setState(() {
+                this._connectionTestInProgress = true;
+              });
+              
+              // Delay connection test by 0.5s so that the animated progress indicator can pop-up in the meantime
+              await Future.delayed(Duration(milliseconds: 500));
+
               int port = 0;
               try {
                 port = int.parse(widget.portController.text);
@@ -196,6 +225,9 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
                   'The specified port must be a numerical value, e.g. 80 or 443.',
                   true,
                 ));
+                setState(() {
+                  this._connectionTestInProgress = false;
+                });
                 return;
               }
               var credentials = new StorageConnectionCredentials(
@@ -214,6 +246,9 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
                     : 'Connection error: ${connectionSucceeded.item2}',
                 !connectionSucceeded.item1,
               ));
+              setState(() {
+                this._connectionTestInProgress = false;
+              });
             },
           ),
         ),

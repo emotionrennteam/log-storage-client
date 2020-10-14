@@ -1,16 +1,20 @@
 import 'package:intl/intl.dart';
-import 'package:path/path.dart' as path;
+import 'package:path/path.dart' as p;
 
 class StorageObject {
   final bool isDirectory;
   final DateTime lastModified;
-  final String name;
+  final String path;
   final int sizeInBytes;
 
   final DateFormat _format = DateFormat('dd.MM.yyyy HH:mm');
 
-  StorageObject(this.name,
-      {this.isDirectory = false, this.lastModified, this.sizeInBytes = 0});
+  StorageObject(
+    this.path, {
+    this.isDirectory = false,
+    this.lastModified,
+    this.sizeInBytes = 0,
+  });
 
   /// Transforms the object's size into a human readable format.
   /// Returns the size of the object + the unit concatenated as a [String],
@@ -46,6 +50,6 @@ class StorageObject {
   /// Returns the basename, that is the name of the current directory or file
   /// without the full / absolute path.
   String getBasename() {
-    return path.basename(this.name);
+    return p.basename(this.path);
   }
 }

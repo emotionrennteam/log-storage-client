@@ -120,7 +120,7 @@ Future<String> shareObjectFromRemoteStorage(
   }
   return await minio.presignedGetObject(
     credentials.bucket,
-    storageObject.name,
+    storageObject.path,
   );
 }
 
@@ -134,7 +134,7 @@ Future<void> deleteObjectFromRemoteStorage(
   if (storageObject.isDirectory) {
     throw new UnimplementedError();
   }
-  await minio.removeObject(credentials.bucket, storageObject.name);
+  await minio.removeObject(credentials.bucket, storageObject.path);
 }
 
 /// Recursively downloads all storage objects in the given [List<StorageObject>] and their
@@ -174,14 +174,14 @@ Future<void> downloadObjectsFromRemoteStorage(
       if (storageObject.isDirectory) {
         try {
           final directoryName = _removeCurrentDirectoryPrefixFromFilePath(
-              storageObject.name, currentDirectory);
+              storageObject.path, currentDirectory);
           Directory(p.join(downloadDirectory.path, directoryName)).createSync();
         } on Exception catch (e) {
           progressService.getErrorMessagesSink().add(
-                DownloadException(e.toString(), storageObject.name),
+                DownloadException(e.toString(), storageObject.path),
               );
           debugPrint(
-              'failed to create directory ${storageObject.name}. Error: $e');
+              'failed to create directory ${storageObject.path}. Error: $e');
         }
       } else {
         await _downloadFileStorageObject(
@@ -195,11 +195,11 @@ Future<void> downloadObjectsFromRemoteStorage(
             progressService.getErrorMessagesSink().add(e);
           } else {
             progressService.getErrorMessagesSink().add(
-                  DownloadException(e.toString(), storageObject.name),
+                  DownloadException(e.toString(), storageObject.path),
                 );
           }
           debugPrint(
-              'failed to download file ${storageObject.name}. Error: $e');
+              'failed to download file ${storageObject.path}. Error: $e');
         });
       }
     }
@@ -282,13 +282,13 @@ List<FileSystemEntity> _recursivelyListOnLocalFileSystem(
 
   storageObjects.forEach((StorageObject storageObject) {
     if (storageObject.isDirectory) {
-      final fsEntity = Directory(storageObject.name);
+      final fsEntity = Directory(storageObject.path);
       recursiveFileSystemEntities.add(fsEntity);
       recursiveFileSystemEntities.addAll(
         fsEntity.listSync(recursive: true, followLinks: true),
       );
     } else {
-      final fsEntity = File(storageObject.name);
+      final fsEntity = File(storageObject.path);
       recursiveFileSystemEntities.add(fsEntity);
     }
   });
@@ -312,7 +312,7 @@ Future<List<StorageObject>> _recursivelyListOnRemoteStorage(
     if (storageObject.isDirectory) {
       final childs = await listObjectsInRemoteStorage(
         credentials,
-        path: storageObject.name,
+        path: storageObject.path,
         recursive: true,
       );
       recursiveStorageObjects.addAll(childs);
@@ -356,14 +356,14 @@ Future<void> _downloadFileStorageObject(
 ) async {
   try {
     var objectByteStream =
-        await minio.getObject(credentials.bucket, fileStorageObject.name);
+        await minio.getObject(credentials.bucket, fileStorageObject.path);
     var bytes = await objectByteStream.toBytes();
     var objectName = _removeCurrentDirectoryPrefixFromFilePath(
-        fileStorageObject.name, currentDirectory);
+        fileStorageObject.path, currentDirectory);
 
     File(p.join(downloadDirectory.path, objectName)).writeAsBytesSync(bytes);
   } on Exception catch (e) {
-    throw new DownloadException(e.toString(), fileStorageObject.name);
+    throw new DownloadException(e.toString(), fileStorageObject.path);
   }
 }
 

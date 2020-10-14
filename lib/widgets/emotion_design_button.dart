@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 class EmotionDesignButton extends StatelessWidget {
   final Widget child;
   final Function onPressed;
+  final double verticalPadding;
+
   /// Defaults to the theme's canvas color.
   final Color color;
 
@@ -11,6 +13,7 @@ class EmotionDesignButton extends StatelessWidget {
     @required this.child,
     @required this.onPressed,
     this.color,
+    this.verticalPadding = 20,
   });
 
   @override
@@ -22,7 +25,10 @@ class EmotionDesignButton extends StatelessWidget {
 
     return FlatButton(
       child: this.child,
-      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+      padding: EdgeInsets.symmetric(
+        vertical: this.verticalPadding,
+        horizontal: 30,
+      ),
       color: color,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(28.0),

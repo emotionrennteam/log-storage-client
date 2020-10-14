@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:log_storage_client/models/download_upload_error.dart';
+import 'package:log_storage_client/models/file_transfer_exception.dart';
 import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/utils/navigation_service.dart';
 import 'package:log_storage_client/utils/constants.dart' as constants;
@@ -8,8 +8,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:log_storage_client/utils/progress_service.dart';
-import 'package:log_storage_client/widgets/download_upload_error_dialog.dart';
 import 'package:log_storage_client/widgets/emotion_design_button.dart';
+import 'package:log_storage_client/widgets/file_transfer_error_dialog.dart';
 
 class AppDrawer extends StatefulWidget {
   final List<AppDrawerItem> appDrawerItems = [
@@ -51,7 +51,7 @@ class _AppDrawerState extends State<AppDrawer> {
   double _progressValue = 0.0;
   bool _isInProgress = false;
   String _processName;
-  List<DownloadUploadError> _errors = new List();
+  List<FileTransferException> _errors = new List();
   Function _dialogSetState;
 
   @override
@@ -161,7 +161,7 @@ class _AppDrawerState extends State<AppDrawer> {
     return appDrawerItems;
   }
 
-  void _showDownloadUploadDetailsDialog() async {
+  void _showFileTransferErrorDialog() async {
     await showCupertinoModalPopup(
       context: context,
       filter: ImageFilter.blur(
@@ -172,7 +172,7 @@ class _AppDrawerState extends State<AppDrawer> {
         return StatefulBuilder(builder: (context, setState) {
           // This additional setState() function is required to update the dialog's content.
           this._dialogSetState = setState;
-          return DownloadUploadErrorDialog(
+          return FileTransferErrorDialog(
             this._errors,
             () => this._errors = List(),
           );
@@ -304,7 +304,7 @@ class _AppDrawerState extends State<AppDrawer> {
                   'Details',
                   style: Theme.of(context).textTheme.button,
                 ),
-                onPressed: this._showDownloadUploadDetailsDialog,
+                onPressed: this._showFileTransferErrorDialog,
               ),
             ),
           ),

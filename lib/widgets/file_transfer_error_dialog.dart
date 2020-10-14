@@ -1,12 +1,12 @@
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:log_storage_client/models/download_upload_error.dart';
+import 'package:log_storage_client/models/file_transfer_exception.dart';
 import 'package:log_storage_client/utils/constants.dart';
 import 'package:log_storage_client/widgets/emotion_design_button.dart';
 
-class DownloadUploadErrorDialog extends StatelessWidget {
-  final List<DownloadUploadError> errors;
+class FileTransferErrorDialog extends StatelessWidget {
+  final List<FileTransferException> errors;
   final Function clearErrorsCallback;
 
   final DateFormat _dateFormat = DateFormat('HH:mm');
@@ -15,7 +15,7 @@ class DownloadUploadErrorDialog extends StatelessWidget {
   /// An [AlertDialog] that displays upload or download errors in a scrollable [ListView].
   /// Each row contains the timestamp, the path to the file, and the reason / exception
   /// why the upload respectively download has failed.
-  DownloadUploadErrorDialog(this.errors, this.clearErrorsCallback);
+  FileTransferErrorDialog(this.errors, this.clearErrorsCallback);
 
   @override
   Widget build(BuildContext context) {
@@ -33,11 +33,15 @@ class DownloadUploadErrorDialog extends StatelessWidget {
       actionsPadding: EdgeInsets.only(right: 20, bottom: 20),
       actions: [
         EmotionDesignButton(
+          verticalPadding: 17,
           child: Row(
             children: [
-              Icon(
-                Icons.clear,
-                color: LIGHT_RED,
+              Padding(
+                padding: EdgeInsets.only(right: 5),
+                child: Icon(
+                  Icons.clear,
+                  color: LIGHT_RED,
+                ),
               ),
               Text(
                 'Clear Errors',
@@ -63,7 +67,7 @@ class DownloadUploadErrorDialog extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ],
-      title: Text('Download & Upload Errors'),
+      title: Text('File Transfer Errors'),
       backgroundColor: Theme.of(context).primaryColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(7),
@@ -105,14 +109,14 @@ class DownloadUploadErrorDialog extends StatelessWidget {
                     Container(
                       width: 370,
                       child: Text(
-                        this.errors[index].filePath,
+                        this.errors[index].path,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 3,
                       ),
                     ),
                     Expanded(
                       child: Text(
-                        this.errors[index].errorMessage,
+                        this.errors[index].toString(),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 3,
                       ),

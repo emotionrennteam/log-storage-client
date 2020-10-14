@@ -148,19 +148,20 @@ Future<void> downloadObjectsFromRemoteStorage(
   String currentDirectory,
   List<StorageObject> storageObjectsToDownload,
 ) async {
-  final minio = _initializeClient(credentials);
-  bool bucketExists = await minio.bucketExists(credentials.bucket);
-  if (!bucketExists) {
-    throw Exception('The given bucket "${credentials.bucket}" doesn\'t exist.');
-  }
-
   ProgressService progressService = locator<ProgressService>();
   final progressStreamSink = progressService.startProgressStream('Download');
-
+  
   // Delay download for 1 second so that the download progress animation can pop-up.
   await Future.delayed(Duration(seconds: 1));
 
   try {
+    final minio = _initializeClient(credentials);
+    bool bucketExists = await minio.bucketExists(credentials.bucket);
+    if (!bucketExists) {
+      throw Exception(
+          'The given bucket "${credentials.bucket}" doesn\'t exist.');
+    }
+
     final recursiveStorageObjectsToDownload =
         await _recursivelyListOnRemoteStorage(
       storageObjectsToDownload,

@@ -268,7 +268,7 @@ class _DashboardViewState extends State<DashboardView>
               VerticalDivider(color: DARK_GREY),
               Expanded(
                 child: this._textPanel('TLS', this._useTLS.toString(),
-                    highlightedContentColor: this._useTLS
+                    highlightedContentColor: (this._useTLS != null) && (this._useTLS)
                         ? Theme.of(context).accentColor
                         : LIGHT_RED),
               ),

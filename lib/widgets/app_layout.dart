@@ -34,7 +34,6 @@ class _AppLayoutState extends State<AppLayout> {
   Widget build(BuildContext context) {
     return Builder(
       builder: (context) => Scaffold(
-        // backgroundColor: Color.fromRGBO(26, 26, 26, 1),
         backgroundColor: Theme.of(context).canvasColor,
         body: Row(
           mainAxisSize: MainAxisSize.max,

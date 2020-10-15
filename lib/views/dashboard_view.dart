@@ -1,9 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:log_storage_client/models/storage_connection_credentials.dart';
 import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/constants.dart';
 import 'package:log_storage_client/utils/minio_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:log_storage_client/utils/utils.dart';
 import 'package:minio/models.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
@@ -42,6 +44,14 @@ class _DashboardViewState extends State<DashboardView>
         });
       }
       this._checkStorageConnection(credentials: credentials);
+    }).catchError((error) {
+      setState(() {
+        this._connectionError = true;
+        this._connectionErrorMessage = error.toString();
+      });
+      Scaffold.of(context).showSnackBar(
+        getSnackBar(error.toString(), true),
+      );
     });
 
     this._animationController = AnimationController(
@@ -58,36 +68,37 @@ class _DashboardViewState extends State<DashboardView>
 
   void _checkStorageConnection(
       {StorageConnectionCredentials credentials}) async {
-    this._animationController.forward();
-
-    // Reset animation controller after 1 second so that the user can click on the
-    // refresh icon again and the animation will restart.
-    Future.delayed(
-      Duration(seconds: 1),
-      () {
-        if (mounted) this._animationController.reset();
-      },
-    );
-
     if (credentials == null) {
-      credentials = await getStorageConnectionCredentials();
+      this._animationController.forward();
+      Future.delayed(Duration(seconds: 1), () {
+        if (mounted) this._animationController.reset();
+      });
+      return;
     }
+
+    this._animationController.repeat();
     validateConnection(credentials).then((result) {
-      if (mounted) {
-        setState(() {
-          this._connectionError = !result.item1;
-          this._connectionErrorMessage = result.item2;
-          this._region = result.item3;
-          this._buckets = result.item4;
-        });
-      }
+      Future.delayed(Duration(seconds: 1), () {
+        if (mounted) {
+          this._animationController.reset();
+          setState(() {
+            this._connectionError = !result.item1;
+            this._connectionErrorMessage = result.item2;
+            this._region = result.item3;
+            this._buckets = result.item4;
+          });
+        }
+      });
     }).catchError((error) {
-      if (mounted) {
-        setState(() {
-          this._connectionError = true;
-          this._connectionErrorMessage = (error as Exception).toString();
-        });
-      }
+      Future.delayed(Duration(seconds: 1), () {
+        if (mounted) {
+          this._animationController.reset();
+          setState(() {
+            this._connectionError = true;
+            this._connectionErrorMessage = (error as Exception).toString();
+          });
+        }
+      });
     });
   }
 
@@ -268,9 +279,10 @@ class _DashboardViewState extends State<DashboardView>
               VerticalDivider(color: DARK_GREY),
               Expanded(
                 child: this._textPanel('TLS', this._useTLS.toString(),
-                    highlightedContentColor: (this._useTLS != null) && (this._useTLS)
-                        ? Theme.of(context).accentColor
-                        : LIGHT_RED),
+                    highlightedContentColor:
+                        (this._useTLS != null) && (this._useTLS)
+                            ? Theme.of(context).accentColor
+                            : LIGHT_RED),
               ),
             ],
           ),

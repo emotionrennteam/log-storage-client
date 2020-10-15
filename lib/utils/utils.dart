@@ -24,8 +24,12 @@ String getParentForPath(String currentPath, String pathSeparator) {
 /// Depending on [isErrorMessage], the SnackBar includes an additional
 /// label with the text 'SUCCESS' or 'ERROR' in green respectively red
 /// color.
-SnackBar getSnackBar(String message, bool isErrorMessage, {SnackBarAction snackBarAction}) {
+SnackBar getSnackBar(String message, bool isErrorMessage,
+    {SnackBarAction snackBarAction}) {
   return SnackBar(
+    duration: Duration(
+      seconds: isErrorMessage ? 10 : 4,
+    ),
     action: snackBarAction,
     content: Row(
       children: <Widget>[
@@ -47,6 +51,7 @@ SnackBar getSnackBar(String message, bool isErrorMessage, {SnackBarAction snackB
                       ),
                     ],
                   ),
+                  maxLines: 2,
                 ),
               )
             : SizedBox(),

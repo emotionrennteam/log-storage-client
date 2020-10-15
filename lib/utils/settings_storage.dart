@@ -2,6 +2,7 @@
 library settings_storage;
 
 import 'package:flutter/foundation.dart';
+import 'package:log_storage_client/models/malformed_app_settings_exception.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// SharedPreferences stores the app's settings in different locations
@@ -14,13 +15,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 SharedPreferences _sharedPreferences;
 
 Future<SharedPreferences> _getStorageReference() async {
-  try {
-    if (_sharedPreferences == null) {
-      _sharedPreferences = await SharedPreferences.getInstance();
-    }
-  } catch (e) {
-    debugPrint(e.toString());
-    // TODO: handle exception when preferences.json is malformed
+  if (_sharedPreferences == null) {
+    _sharedPreferences = await SharedPreferences.getInstance().catchError((e) {
+      debugPrint(e.toString());
+      if (e is FormatException) {
+        var errorMsg =
+            'Failed to read application settings from file "shared_preferences.json". Please fix the configuration file. Error: ${e.message}';
+        throw new MalformedAppSettingsException(errorMsg);
+      } else {
+        throw e;
+      }
+    });
   }
   return _sharedPreferences;
 }

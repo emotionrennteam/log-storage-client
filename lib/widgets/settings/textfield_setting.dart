@@ -8,10 +8,17 @@ class TextFieldSetting extends StatefulWidget {
   final FocusNode nextFocusNode;
   final String tooltipMessage;
   final bool isValueNumerical;
+  final bool isObscured;
 
-  TextFieldSetting(this.title, this.hintText, this.controller,
-      this.nextFocusNode, this.tooltipMessage,
-      {this.isValueNumerical = false});
+  TextFieldSetting(
+    this.title,
+    this.hintText,
+    this.controller,
+    this.nextFocusNode,
+    this.tooltipMessage, {
+    this.isValueNumerical = false,
+    this.isObscured = false,
+  });
 
   @override
   State<StatefulWidget> createState() => _TextFieldSettingState();
@@ -41,12 +48,6 @@ class _TextFieldSettingState extends State<TextFieldSetting> {
             controller: widget.controller,
             cursorColor: Colors.white,
             decoration: InputDecoration(
-              // suffix: IconButton(
-              //   padding: EdgeInsets.all(0),
-              //   icon: Icon(Icons.visibility),
-              //   onPressed: () {
-              //   },
-              // ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: const BorderRadius.all(
                   const Radius.circular(28.0),
@@ -80,7 +81,7 @@ class _TextFieldSettingState extends State<TextFieldSetting> {
             keyboardType: widget.isValueNumerical
                 ? TextInputType.number
                 : TextInputType.text,
-            obscureText: false,
+            obscureText: widget.isObscured,
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w400,

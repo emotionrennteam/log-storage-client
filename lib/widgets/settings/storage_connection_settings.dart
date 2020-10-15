@@ -141,7 +141,7 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           'The name of the location of the MinIO server\ne.g. "us-east-1".',
         ),
         Divider(color: Colors.transparent),
-                TextFieldSetting(
+        TextFieldSetting(
           'Bucket',
           'logs',
           widget.bucketController,
@@ -155,14 +155,17 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           widget.accessKeyController,
           this._secretKeyFocusNode,
           'The access key is like  a user-id that\nuniquely identifies your account.',
+          isObscured: true,
         ),
         Divider(color: Colors.transparent),
         TextFieldSetting(
-            'Secret Key',
-            '0tZn+7QQCxphpHwTm6/dC3LpP5JGIbYl6PK8Sy79R+P2 ...',
-            widget.secretKeyController,
-            this._bucketFocusNode,
-            'The secret key is the password to your\naccount.'),
+          'Secret Key',
+          '0tZn+7QQCxphpHwTm6/dC3LpP5JGIbYl6PK8Sy79R+P2 ...',
+          widget.secretKeyController,
+          this._bucketFocusNode,
+          'The secret key is the password to your\naccount.',
+          isObscured: true,
+        ),
         Divider(color: Colors.transparent),
         MouseRegion(
           onEnter: (_) => setState(() {

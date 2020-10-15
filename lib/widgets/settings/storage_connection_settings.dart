@@ -138,7 +138,7 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           'eu-central-1',
           widget.regionController,
           this._regionFocusNode,
-          'The name of the location of the MinIO server\ne.g. "us-east-1".',
+          'The name of the location of the MinIO server\ne.g. "eu-central-1". This property is required so\nthat MinIO can locate where your data is stored\nat. The default value is "us-east-1".',
         ),
         Divider(color: Colors.transparent),
         TextFieldSetting(

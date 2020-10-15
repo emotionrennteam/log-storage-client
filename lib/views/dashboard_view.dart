@@ -1,4 +1,6 @@
+import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 import 'package:log_storage_client/models/storage_connection_credentials.dart';
 import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/constants.dart';
@@ -18,15 +20,17 @@ class DashboardView extends StatefulWidget {
 
 class _DashboardViewState extends State<DashboardView>
     with SingleTickerProviderStateMixin {
+  AnimationController _animationController;
   String _bucket;
-  List<Bucket> _buckets;
+  List<Bucket> _availableBuckets;
+  ScrollController _bucketsScrollController = ScrollController();
+  final DateFormat _bucketsCreationDateformat = DateFormat.yMMMMd('en_US');
   bool _connectionError = true;
   String _connectionErrorMessage;
   String _endpoint;
   int port;
   String _region;
   bool _useTLS = false;
-  AnimationController _animationController;
 
   @override
   initState() {
@@ -85,7 +89,7 @@ class _DashboardViewState extends State<DashboardView>
             this._connectionError = !result.item1;
             this._connectionErrorMessage = result.item2;
             this._region = result.item3;
-            this._buckets = result.item4;
+            this._availableBuckets = result.item4;
           });
         }
       });
@@ -297,18 +301,21 @@ class _DashboardViewState extends State<DashboardView>
     );
   }
 
-  Widget _bucketsAndRegionPanel(BuildContext context) {
-    var bucketsString = '';
-    if (this._buckets == null || this._buckets.isEmpty) {
-      bucketsString = '-';
-    } else {
-      for (var i = 0; i < this._buckets.length; i++) {
-        bucketsString += this._buckets[i].name;
-        if (i != this._buckets.length - 1) {
-          bucketsString += ', ';
-        }
-      }
-    }
+  Widget _bucketsPanel(BuildContext context) {
+    // Jumps to the bottom after 200 milliseconds and then scrolls back
+    // to the top. Goal: show the user that the list of buckets is scrollable.
+    Future.delayed(Duration(milliseconds: 200), () {
+      _bucketsScrollController.jumpTo(
+        _bucketsScrollController.position.maxScrollExtent,
+      );
+      Future.delayed(Duration(milliseconds: 50), () {
+        _bucketsScrollController.animateTo(
+          _bucketsScrollController.position.minScrollExtent,
+          duration: Duration(milliseconds: 800),
+          curve: Curves.easeOutCubic,
+        );
+      });
+    });
 
     return Container(
       child: Material(
@@ -339,21 +346,50 @@ class _DashboardViewState extends State<DashboardView>
                       height: 3,
                     ),
                     Container(
-                      child: ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(
-                          bucketsString,
-                          style: TextStyle(
-                            color: TEXT_COLOR,
-                            fontWeight: FontWeight.w400,
-                            fontSize: 30,
-                          ),
-                          textAlign: (this._buckets != null &&
-                                  this._buckets.isNotEmpty)
-                              ? TextAlign.left
-                              : TextAlign.center,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
+                      height: this._availableBuckets == null
+                          ? 100
+                          : this._availableBuckets.length <= 5
+                              ? 100
+                              : 300,
+                      child: DraggableScrollbar.rrect(
+                        controller: _bucketsScrollController,
+                        backgroundColor: DARK_GREY,
+                        heightScrollThumb: 40,
+                        child: ListView.builder(
+                          controller: _bucketsScrollController,
+                          padding: EdgeInsets.only(right: 20),
+                          itemCount:
+                              this._availableBuckets != null ? this._availableBuckets.length : 0,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: Text(
+                                this._availableBuckets[index].name,
+                                style: TextStyle(
+                                  color: TEXT_COLOR,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 20,
+                                ),
+                                textAlign: (this._availableBuckets != null &&
+                                        this._availableBuckets.isNotEmpty)
+                                    ? TextAlign.left
+                                    : TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
+                              ),
+                              trailing: Text(
+                                'created on ' +
+                                    this._bucketsCreationDateformat.format(
+                                          this._availableBuckets[index].creationDate,
+                                        ),
+                                style: TextStyle(
+                                  color: TEXT_COLOR.withAlpha(150),
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -363,7 +399,23 @@ class _DashboardViewState extends State<DashboardView>
               SizedBox(
                 height: 16,
               ),
-              Divider(color: DARK_GREY),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _regionPanel() {
+    return Container(
+      child: Material(
+        borderRadius: BorderRadius.circular(10),
+        color: Theme.of(context).primaryColor,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(20, 20, 20, 50),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
               SizedBox(
                 height: 16,
               ),
@@ -383,27 +435,34 @@ class _DashboardViewState extends State<DashboardView>
         vertical: 42,
       ),
       child: StaggeredGridView.countBuilder(
-        crossAxisCount: 4,
+        crossAxisCount: 6,
         crossAxisSpacing: 32,
         mainAxisSpacing: 32,
-        itemCount: 3,
+        itemCount: 4,
         itemBuilder: (BuildContext context, int index) {
           if (index == 0) {
             return this._configurationPanel(context);
           } else if (index == 1) {
             return this._storageConnectionPanel();
           } else if (index == 2) {
-            return this._bucketsAndRegionPanel(context);
+            return this._regionPanel();
+          } else if (index == 3) {
+            return this._bucketsPanel(context);
           }
           return SizedBox();
         },
         staggeredTileBuilder: (int index) {
           if (index == 0) {
-            return StaggeredTile.fit(4);
+            return StaggeredTile.fit(6);
           } else if (index == 1) {
-            return StaggeredTile.fit(2);
+            return StaggeredTile.fit(3);
           } else if (index == 2) {
-            return StaggeredTile.fit(2);
+            return StaggeredTile.fit(3);
+          } else if (index == 3) {
+            if (MediaQuery.of(context).size.width > 1500) {
+              return StaggeredTile.fit(4);
+            }
+            return StaggeredTile.fit(6);
           }
           return StaggeredTile.count(1, 1);
         },

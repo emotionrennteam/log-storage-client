@@ -216,7 +216,7 @@ class _DashboardViewState extends State<DashboardView>
                         duration: Duration(seconds: 1),
                         curve: Curves.easeOutCirc,
                         opacity:
-                            this._animationController.isAnimating ? 1.0 : 0.0,
+                            this._animationController.isAnimating ? 0.0 : 1.0,
                         child: Text(
                           this._connectionError ? 'ERROR' : 'SUCCESS',
                           style: TextStyle(
@@ -229,21 +229,27 @@ class _DashboardViewState extends State<DashboardView>
                         ),
                       ),
                     ),
-                    this._connectionErrorMessage != null
-                        ? Padding(
-                            padding: EdgeInsets.only(top: 10),
-                            child: Text(
-                              this._connectionErrorMessage,
-                              style: TextStyle(
-                                color: TEXT_COLOR,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 15,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 3,
-                            ),
-                          )
-                        : SizedBox(height: 50),
+                    Padding(
+                      padding: EdgeInsets.only(top: 10),
+                      child: AnimatedOpacity(
+                        duration: Duration(seconds: 1),
+                        curve: Curves.easeOutCirc,
+                        opacity:
+                            this._animationController.isAnimating ? 0.0 : 1.0,
+                        child: Text(
+                          this._connectionErrorMessage != null
+                              ? this._connectionErrorMessage
+                              : '\n',
+                          style: TextStyle(
+                            color: TEXT_COLOR,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 15,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 3,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),

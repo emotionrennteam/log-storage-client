@@ -5,28 +5,33 @@ import 'package:flutter/foundation.dart';
 import 'package:log_storage_client/models/malformed_app_settings_exception.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Fetches an instance of [SharedPreferences].
+///
 /// SharedPreferences stores the app's settings in different locations
 /// depending on the underlying OS:
 /// * Linux: ~/.local/share/logstorageclient/shared_preferences.json
 /// * Windows:
-///   * C:\Users\$USER\AppData\Roaming\de.aalen.university.emotion.logstorageclient\emotion\shared_preferences.json
-///   Or:
-///   * C:\Users\$USER\AppData\Roaming\log_storage_client\shared_preferences.json
-SharedPreferences _sharedPreferences;
-
+///   * C:\Users\$USER\AppData\Roaming\de.aalen.university.emotion.
+///     logstorageclient\emotion\shared_preferences.json
+///   * C:\Users\$USER\AppData\Roaming\log_storage_client\
+///     shared_preferences.json
+/// Is implemented as a singleton so that we reduce disk read operations
+/// to an absolute minimum. This way, the file shared_preferences.json is
+/// read only once from disk. With the parameter [forceReload] you can force
+/// to reload the settings file, e.g. when the file has been modified
+/// outside of this application.
 Future<SharedPreferences> _getStorageReference() async {
-  if (_sharedPreferences == null) {
-    _sharedPreferences = await SharedPreferences.getInstance().catchError((e) {
-      debugPrint(e.toString());
-      if (e is FormatException) {
-        var errorMsg =
-            'Failed to read application settings from file "shared_preferences.json". Please fix the configuration file. Error: ${e.message}';
-        throw new MalformedAppSettingsException(errorMsg);
-      } else {
-        throw e;
-      }
-    });
-  }
+  final _sharedPreferences =
+      await SharedPreferences.getInstance().catchError((e) {
+    debugPrint(e.toString());
+    if (e is FormatException) {
+      var errorMsg =
+          'Failed to read application settings from file "shared_preferences.json". Please fix the configuration file. Error: ${e.message}';
+      throw new MalformedAppSettingsException(errorMsg);
+    } else {
+      throw e;
+    }
+  });
   return _sharedPreferences;
 }
 

@@ -13,7 +13,7 @@ const String SettingsRoute = 'settings';
 
 /// Implements the navigation to different views using named routes with no page transition animation.
 /// 
-/// The implementation of this service class is base on this tutorial:
+/// The implementation of this service class is based on this tutorial:
 /// https://medium.com/flutter-community/layout-templates-and-basic-navigation-in-flutter-web-2e283edd5204
 class NavigationService {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();

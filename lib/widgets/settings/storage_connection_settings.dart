@@ -10,11 +10,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class StorageConnectionSettings extends StatefulWidget {
+  final accessKeyController = TextEditingController();
+  final bucketController = TextEditingController();
   final endpointController = TextEditingController();
   final portController = TextEditingController();
-  final accessKeyController = TextEditingController();
+  final regionController = TextEditingController();
   final secretKeyController = TextEditingController();
-  final bucketController = TextEditingController();
 
   final _StorageConnectionSettingsState _state =
       new _StorageConnectionSettingsState();
@@ -28,10 +29,11 @@ class StorageConnectionSettings extends StatefulWidget {
 }
 
 class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
-  final _portFocusNode = FocusNode();
   final _accessKeyFocusNode = FocusNode();
-  final _secretKeyFocusNode = FocusNode();
   final _bucketFocusNode = FocusNode();
+  final _portFocusNode = FocusNode();
+  final _regionFocusNode = FocusNode();
+  final _secretKeyFocusNode = FocusNode();
   bool _tlsEnabled = false;
   bool _isTlsTooltipVisible = false;
   bool _connectionTestInProgress = false;
@@ -44,14 +46,25 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
 
   @override
   void dispose() {
-    this._portFocusNode.dispose();
     this._accessKeyFocusNode.dispose();
-    this._secretKeyFocusNode.dispose();
     this._bucketFocusNode.dispose();
+    this._portFocusNode.dispose();
+    this._regionFocusNode.dispose();
+    this._secretKeyFocusNode.dispose();
     super.dispose();
   }
 
   void _readSettings() async {
+    getMinioAccessKey().then(
+      (value) => setState(() {
+        widget.accessKeyController.text = value;
+      }),
+    );
+    getMinioBucket().then(
+      (value) => setState(() {
+        widget.bucketController.text = value;
+      }),
+    );
     getMinioEndpoint().then(
       (value) => setState(() {
         widget.endpointController.text = value;
@@ -62,9 +75,9 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
         if (value != null) widget.portController.text = value.toString();
       }),
     );
-    getMinioAccessKey().then(
+    getMinioRegion().then(
       (value) => setState(() {
-        widget.accessKeyController.text = value;
+        widget.regionController.text = value;
       }),
     );
     getMinioSecretKey().then(
@@ -77,11 +90,6 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
         if (value != null) {
           this._tlsEnabled = value;
         }
-      }),
-    );
-    getMinioBucket().then(
-      (value) => setState(() {
-        widget.bucketController.text = value;
       }),
     );
   }
@@ -112,7 +120,7 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           '10.11.0.18',
           widget.endpointController,
           this._portFocusNode,
-          'The hostname or IP address of the MinIO\nserver (without port and scheme).',
+          'The hostname or IP address of the MinIO\nserver (without port and scheme). For\nconnecting to S3 from Amazon Web\nServices please use "s3.amazonaws.com".',
         ),
         Divider(color: Colors.transparent),
         // TODO: validate user input and ensure that it's a string
@@ -123,6 +131,22 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           this._accessKeyFocusNode,
           'The TCP/IP port number for the MinIO server.\nTypically port 80 for HTTP and 443 for HTTPS.',
           isValueNumerical: true,
+        ),
+        Divider(color: Colors.transparent),
+        TextFieldSetting(
+          'Region',
+          'eu-central-1',
+          widget.regionController,
+          this._regionFocusNode,
+          'The name of the location of the MinIO server\ne.g. "us-east-1".',
+        ),
+        Divider(color: Colors.transparent),
+                TextFieldSetting(
+          'Bucket',
+          'logs',
+          widget.bucketController,
+          null,
+          'The name of the bucket in MinIO. A bucket is\nthe uppermost storage unit in MinIO (root).\nBuckets can store files and directories.',
         ),
         Divider(color: Colors.transparent),
         TextFieldSetting(
@@ -139,14 +163,6 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
             widget.secretKeyController,
             this._bucketFocusNode,
             'The secret key is the password to your\naccount.'),
-        Divider(color: Colors.transparent),
-        TextFieldSetting(
-          'Bucket',
-          'logs',
-          widget.bucketController,
-          null,
-          'The name of the bucket in MinIO. A bucket is\nthe uppermost storage unit in MinIO (root).\nBuckets can store files and directories.',
-        ),
         Divider(color: Colors.transparent),
         MouseRegion(
           onEnter: (_) => setState(() {
@@ -212,7 +228,7 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
               setState(() {
                 this._connectionTestInProgress = true;
               });
-              
+
               // Delay connection test by 0.5s so that the animated progress indicator can pop-up in the meantime
               await Future.delayed(Duration(milliseconds: 500));
 
@@ -233,9 +249,10 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
               var credentials = new StorageConnectionCredentials(
                 widget.endpointController.text,
                 port,
+                widget.regionController.text,
+                widget.bucketController.text,
                 widget.accessKeyController.text,
                 widget.secretKeyController.text,
-                widget.bucketController.text,
                 this._tlsEnabled,
               );
               final connectionSucceeded = await validateConnection(credentials);

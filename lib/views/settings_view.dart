@@ -66,9 +66,10 @@ class _SettingsViewState extends State<SettingsView> {
               final savingSucceeded = await saveAllSettings(
                 _storageConnectionsWidget.endpointController.text,
                 _storageConnectionsWidget.portController.text,
+                _storageConnectionsWidget.regionController.text,
+                _storageConnectionsWidget.bucketController.text,
                 _storageConnectionsWidget.accessKeyController.text,
                 _storageConnectionsWidget.secretKeyController.text,
-                _storageConnectionsWidget.bucketController.text,
                 _storageConnectionsWidget.getTlsEnabled(),
                 _logFileSettingsWidget.logFileDirectoryController.text,
                 _logFileSettingsWidget.getAutoUploadEnabled(),

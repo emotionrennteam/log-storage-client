@@ -20,6 +20,7 @@ Minio _initializeClient(StorageConnectionCredentials credentials) {
   return Minio(
     endPoint: credentials.endpoint,
     port: credentials.port,
+    region: credentials.region,
     useSSL: credentials.tlsEnabled,
     accessKey: credentials.accessKey,
     secretKey: credentials.secretKey,
@@ -361,7 +362,7 @@ Future<void> _downloadFileStorageObject(
     var bytes = await objectByteStream.toBytes();
     var objectName = _removeCurrentDirectoryPrefixFromFilePath(
         fileStorageObject.path, currentDirectory);
-
+    // TODO: ensure that parent directory exists
     File(p.join(downloadDirectory.path, objectName)).writeAsBytesSync(bytes);
   } on Exception catch (e) {
     throw new DownloadException(e.toString(), fileStorageObject.path);

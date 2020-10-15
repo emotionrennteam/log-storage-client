@@ -10,15 +10,17 @@ const String _MINIO_ACCESS_KEY = 'MINIO_ACCESS_KEY';
 const String _MINIO_BUCKET = 'MINIO_BUCKET';
 const String _MINIO_ENDPOINT = 'MINIO_ENDPOINT';
 const String _MINIO_PORT = 'MINIO_PORT';
+const String _MINIO_REGION = 'MINIO_REGION';
 const String _MINIO_SECRET_KEY = 'MINIO_SECRET_KEY';
 const String _MINIO_TLS_ENABLED = 'MINIO_TLS_ENABLED';
 
 Future<bool> saveAllSettings(
   String endpoint,
   String port,
+  String region,
+  String bucket,
   String accessKey,
   String secretKey,
-  String bucket,
   bool tlsEnabled,
   String logFileDirectoryPath,
   bool autoUploadEnabled,
@@ -33,9 +35,10 @@ Future<bool> saveAllSettings(
     List<bool> responses = await Future.wait([
       setMinioEndpoint(endpoint),
       setMinioPort(portAsInt),
+      setMinioRegion(region),
+      setMinioBucket(bucket),
       setMinioAccessKey(accessKey),
       setMinioSecretKey(secretKey),
-      setMinioBucket(bucket),
       setMinioTlsEnabled(tlsEnabled),
       setLogFileDirectoryPath(logFileDirectoryPath),
       setAutoUploadEnabled(autoUploadEnabled),
@@ -48,18 +51,20 @@ Future<bool> saveAllSettings(
 }
 
 Future<StorageConnectionCredentials> getStorageConnectionCredentials() async {
-  var endpoint = await getMinioEndpoint();
-  var port = await getMinioPort();
-  var accessKey = await getMinioAccessKey();
-  var secretKey = await getMinioSecretKey();
-  var bucket = await getMinioBucket();
-  var tlsEnabled = await getMinioTlsEnabled();
+  final endpoint = await getMinioEndpoint();
+  final port = await getMinioPort();
+  final region = await getMinioRegion();
+  final bucket = await getMinioBucket();
+  final accessKey = await getMinioAccessKey();
+  final secretKey = await getMinioSecretKey();
+  final tlsEnabled = await getMinioTlsEnabled();
   return new StorageConnectionCredentials(
     endpoint,
     port,
+    region,
+    bucket,
     accessKey,
     secretKey,
-    bucket,
     tlsEnabled,
   );
 }
@@ -98,6 +103,14 @@ Future<String> getMinioAccessKey() async {
 
 Future<bool> setMinioSecretKey(String secretKey) async {
   return await setStringSetting(_MINIO_SECRET_KEY, secretKey);
+}
+
+Future<String> getMinioRegion() async {
+  return await getStringSetting(_MINIO_REGION);
+}
+
+Future<bool> setMinioRegion(String region) async {
+  return await setStringSetting(_MINIO_REGION, region);
 }
 
 Future<String> getMinioSecretKey() async {

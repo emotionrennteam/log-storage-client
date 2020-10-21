@@ -191,13 +191,20 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
               ),
               Expanded(
                 child: Center(
-                  child: StorageObjectTable(
-                    this._navigateToDirectory,
-                    this._onSelectionOfStorageObjectsChanged,
-                    this._storageObjects,
-                    this._allStorageObjectsSelected,
-                    optionsColumnEnabled: true,
-                  ),
+                  child: this._storageObjects == null
+                      ? Container(
+                          child: LinearProgressIndicator(
+                            backgroundColor: Colors.transparent,
+                          ),
+                          width: 200,
+                        )
+                      : StorageObjectTable(
+                          this._navigateToDirectory,
+                          this._onSelectionOfStorageObjectsChanged,
+                          this._storageObjects,
+                          this._allStorageObjectsSelected,
+                          optionsColumnEnabled: true,
+                        ),
                 ),
               ),
             ],

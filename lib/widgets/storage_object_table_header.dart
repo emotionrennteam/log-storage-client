@@ -22,11 +22,16 @@ class StorageObjectTableHeader extends StatefulWidget {
   /// e.g. foward or backslash.
   final String rootDirectorySeparator;
 
+  /// Determines whether the checkbox for selecting / deselecting all [StorageObject]s
+  /// is checked.
+  final bool allStorageObjectsSelected;
+
   StorageObjectTableHeader(
       this.currentDirectory,
       this.rootDirectory,
       this.onNavigateToParentDirectoryCallback,
       this.onSelectDeselectAllCallback,
+      this.allStorageObjectsSelected,
       {this.optionsColumnEnabled = false,
       this.rootDirectorySeparator});
 
@@ -37,6 +42,14 @@ class StorageObjectTableHeader extends StatefulWidget {
 class _StorageObjectTableHeaderState extends State<StorageObjectTableHeader> {
   bool _allStorageObjectsSelected = false;
   final TextStyle _textStyle = const TextStyle(color: Colors.white);
+
+  @override
+  void didUpdateWidget(covariant StorageObjectTableHeader oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    /// Update checkbox for selecting / deselecting all storage objects
+    /// whenever the parent widget has been updated (from externally).
+    this._allStorageObjectsSelected = widget.allStorageObjectsSelected;
+  }
 
   @override
   Widget build(BuildContext context) {

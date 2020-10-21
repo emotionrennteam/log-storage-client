@@ -28,10 +28,16 @@ class StorageObjectTable extends StatefulWidget {
   /// in the hierarchy of directories.
   final Function(String path) onNavigateToDirectoryCallback;
 
+  /// Determines whether the checkbox for all [StorageObject]s is checked / unchecked.
+  final bool allStorageObjectsSelected;
+
   final _state = _StorageObjectTableState();
 
-  StorageObjectTable(this.onNavigateToDirectoryCallback,
-      this.onSelectionChangedCallback, this.storageObjects,
+  StorageObjectTable(
+      this.onNavigateToDirectoryCallback,
+      this.onSelectionChangedCallback,
+      this.storageObjects,
+      this.allStorageObjectsSelected,
       {this.optionsColumnEnabled = false});
 
   // /// Sets the checkboxes for all [StorageObject]s to the given value
@@ -44,7 +50,6 @@ class StorageObjectTable extends StatefulWidget {
 }
 
 class _StorageObjectTableState extends State<StorageObjectTable> {
-  int _lastCountOfStorageObjects = 0;
   List<bool> _selectedStorageObjects;
   List<String> _storageObjectOptions = ['Delete', 'Share'];
   TextStyle _textStyle = const TextStyle(color: Colors.white);
@@ -52,26 +57,28 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
   @override
   void initState() {
     super.initState();
-    this._selectedStorageObjects = List<bool>.generate(
-      widget.storageObjects.length,
-      (index) => false,
-    );
+    this._initializeCheckboxes(widget.allStorageObjectsSelected);
   }
 
-  /// Initializes the checkboxes for all [StorageObject]s with [false]
-  /// so that they're unchecked.
-  ///
-  /// The if-statement ensures that the initialization is repeated
-  /// when the count of [StorageObject]s has changed, e.g. files have
-  /// been loaded lazily or the current directory has changed.
-  void _initializeCheckboxes() {
-    if (widget.storageObjects.length != this._lastCountOfStorageObjects) {
-      this._lastCountOfStorageObjects = widget.storageObjects.length;
-      this._selectedStorageObjects = List<bool>.generate(
-        widget.storageObjects.length,
-        (index) => false,
-      );
+  @override
+  void didUpdateWidget(covariant StorageObjectTable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    /// Update checkboxes for selecting / deselecting storage objects
+    /// whenever the parent widget has been updated (from externally).
+    if (oldWidget.allStorageObjectsSelected !=
+            widget.allStorageObjectsSelected ||
+        oldWidget.storageObjects?.length != widget.storageObjects?.length) {
+      this._initializeCheckboxes(widget.allStorageObjectsSelected);
     }
+  }
+
+  /// Initializes the checkboxes for all [StorageObject]s with [allSelected]
+  /// so that they're unchecked respectively checked.
+  void _initializeCheckboxes(bool allSelected) {
+    this._selectedStorageObjects = List<bool>.generate(
+      widget.storageObjects.length,
+      (index) => allSelected,
+    );
   }
 
   /// Builds a [PopupMenuButton] with the options to delete or share the
@@ -122,7 +129,7 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
                   elevation: 20,
                   title: Text('Delete File'),
                   content: Text(
-                    'Do you really want to delete ${storageObject.name}?\nThis action can\'t be undone.',
+                    'Do you really want to delete ${storageObject.path}?\nThis action can\'t be undone.',
                   ),
                   contentPadding: EdgeInsets.fromLTRB(24, 20, 24, 10),
                   buttonPadding: EdgeInsets.only(
@@ -154,7 +161,7 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
                         ).then((_) {
                           Scaffold.of(this.context).hideCurrentSnackBar();
                           Scaffold.of(this.context).showSnackBar(getSnackBar(
-                            'Successfully deleted ${storageObject.name}.',
+                            'Successfully deleted ${storageObject.path}.',
                             false,
                           ));
                         });
@@ -190,8 +197,6 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
 
   @override
   Widget build(BuildContext context) {
-    this._initializeCheckboxes();
-
     return ListView.separated(
       itemCount: widget.storageObjects.length,
       padding: EdgeInsets.only(bottom: 100),
@@ -236,7 +241,7 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
                   child: GestureDetector(
                     onTap: widget.storageObjects[index].isDirectory
                         ? () => widget.onNavigateToDirectoryCallback(
-                              widget.storageObjects[index].name,
+                              widget.storageObjects[index].path,
                             )
                         : null,
                     child: Row(

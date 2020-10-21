@@ -23,6 +23,7 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
   Function _onDownloadFabPressed;
   StorageConnectionCredentials _credentials;
   String _currentDirectory = '';
+  bool _allStorageObjectsSelected = false;
 
   @override
   void initState() {
@@ -36,27 +37,37 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
   }
 
   void _loadStorageObjects() {
+    setState(() {
+      this._storageObjects = null;
+      this._allStorageObjectsSelected = false;
+    });
+
     listObjectsInRemoteStorage(
       this._credentials,
       path: this._currentDirectory,
     ).then((storageObjects) {
-      setState(() {
-        this._storageObjects = storageObjects;
-      });
+      if (mounted) {
+        setState(() {
+          this._storageObjects = storageObjects;
+        });
+      }
     }).catchError((error) {
-      Scaffold.of(context).hideCurrentSnackBar();
-      Scaffold.of(context).showSnackBar(
-        getSnackBar(
-          'Failed to list objects. Error: $error',
-          true,
-        ),
-      );
+      if (mounted) {
+        Scaffold.of(context).hideCurrentSnackBar();
+        Scaffold.of(context).showSnackBar(
+          getSnackBar(
+            'Failed to list objects. Error: $error',
+            true,
+          ),
+        );
+      }
     });
   }
 
   /// Enables or disables the [FloatingActionButton] for downloading objects
   /// when at least one object has been selected.
-  void _onSelectionOfStorageObjectsChanged(List<StorageObject> selectedStorageObjects) {
+  void _onSelectionOfStorageObjectsChanged(
+      List<StorageObject> selectedStorageObjects) {
     // Disable the FAB when no files are selected
     if (selectedStorageObjects.isEmpty) {
       setState(() {
@@ -113,10 +124,6 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
     });
   }
 
-  void _setAllCheckboxes(bool selected) {
-    // TODO: implementation
-  }
-
   /// Changes the currently displayed directory to the given parameter [absolutePath].
   ///
   /// If the parameter [absolutePath] is set to [null], then the current directory
@@ -135,6 +142,16 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
       });
     }
     this._loadStorageObjects();
+    this._onSelectionOfStorageObjectsChanged(List.empty());
+  }
+
+  void _onSelectDeselectAllStorageObjects(bool allSelected) {
+    setState(() {
+      this._allStorageObjectsSelected = allSelected;
+    });
+    this._onSelectionOfStorageObjectsChanged(
+      allSelected ? this._storageObjects : List.empty(),
+    );
   }
 
   @override
@@ -166,7 +183,8 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
                   this._currentDirectory,
                   this._credentials?.bucket,
                   this._navigateToDirectory,
-                  this._setAllCheckboxes,
+                  this._onSelectDeselectAllStorageObjects,
+                  this._allStorageObjectsSelected,
                   optionsColumnEnabled: true,
                   rootDirectorySeparator: '/',
                 ),
@@ -177,6 +195,7 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
                     this._navigateToDirectory,
                     this._onSelectionOfStorageObjectsChanged,
                     this._storageObjects,
+                    this._allStorageObjectsSelected,
                     optionsColumnEnabled: true,
                   ),
                 ),

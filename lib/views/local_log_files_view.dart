@@ -27,6 +27,7 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
   Directory _monitoredDirectory;
   List<StorageObject> _storageObjects = List();
   Function _onUploadFabPressed;
+  bool _allStorageObjectsSelected = false;
 
   Directory _currentDirectory;
 
@@ -55,7 +56,7 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
         this._currentDirectory = Directory(absolutePath);
       });
     }
-    _loadStorageObjects();
+    this._loadStorageObjects();
   }
 
   void _init() async {
@@ -66,19 +67,25 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
   }
 
   void _loadStorageObjects() {
+    setState(() {
+      this._storageObjects = null;
+      this._allStorageObjectsSelected = false;
+    });
     _fileSystemEntities = this._currentDirectory.listSync(recursive: false);
 
-    setState(() {
-      this._storageObjects = this._fileSystemEntities.map((e) {
-        final stats = e.statSync();
-        return new StorageObject(
-          e.path,
-          isDirectory: e is Directory,
-          lastModified: stats.modified,
-          sizeInBytes: stats.size,
-        );
-      }).toList();
-    });
+    if (mounted) {
+      setState(() {
+        this._storageObjects = this._fileSystemEntities.map((e) {
+          final stats = e.statSync();
+          return new StorageObject(
+            e.path,
+            isDirectory: e is Directory,
+            lastModified: stats.modified,
+            sizeInBytes: stats.size,
+          );
+        }).toList();
+      });
+    }
   }
 
   /// A [FloatingActionButton] for triggering the upload of log files.
@@ -139,6 +146,15 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
     });
   }
 
+  void _onSelectDeselectAllStorageObjects(bool allSelected) {
+    setState(() {
+      this._allStorageObjectsSelected = allSelected;
+    });
+    this._onSelectionOfStorageObjectsChanged(
+      allSelected ? this._storageObjects : List.empty(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -171,7 +187,8 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
                       : '',
                   '',
                   this._navigateToDirectory,
-                  (_) {},
+                  this._onSelectDeselectAllStorageObjects,
+                  this._allStorageObjectsSelected,
                 ),
               ),
               Expanded(
@@ -180,6 +197,7 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
                     this._navigateToDirectory,
                     this._onSelectionOfStorageObjectsChanged,
                     this._storageObjects,
+                    this._allStorageObjectsSelected,
                   ),
                 ),
               ),

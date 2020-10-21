@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:log_storage_client/models/file_transfer_exception.dart';
+import 'package:log_storage_client/utils/constants.dart';
 import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/utils/navigation_service.dart';
 import 'package:log_storage_client/utils/constants.dart' as constants;
@@ -8,7 +9,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:log_storage_client/utils/progress_service.dart';
-import 'package:log_storage_client/widgets/emotion_design_button.dart';
 import 'package:log_storage_client/widgets/file_transfer_error_dialog.dart';
 
 class AppDrawer extends StatefulWidget {
@@ -161,6 +161,7 @@ class _AppDrawerState extends State<AppDrawer> {
     return appDrawerItems;
   }
 
+  /// Opens a [FileTransferErrorDialog] to list file transfer errors (upload & download).
   void _showFileTransferErrorDialog() async {
     await showCupertinoModalPopup(
       context: context,
@@ -182,7 +183,13 @@ class _AppDrawerState extends State<AppDrawer> {
     this._dialogSetState = null;
   }
 
-  Widget _progressPanel() {
+  /// A widget that visualizes the current upload/download progress using a
+  /// [LinearProgressIndicator], shows percentage of completion, and a name
+  /// for the currently active file transfer ("Upload" respectively "Download").
+  /// 
+  /// This widget automatically positions itself out of the app's view after
+  /// the file transfer completed.
+  Widget _progressVisualization() {
     return AnimatedPositioned(
       curve: Curves.easeOutCubic,
       bottom: this._isInProgress ? 0 : -100,
@@ -282,6 +289,83 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
+  /// Returns a button which shows whether there are any file transfer
+  /// errors (upload/download errors).
+  /// 
+  /// The button automatically changes its color from green to red when at
+  /// least one file transfer error occurred. The button is automatically
+  /// disabled when there are no file transfer errors.
+  Widget _fileTransferErrorButton() {
+    return Align(
+      alignment: Alignment.bottomLeft,
+      child: Padding(
+        padding: EdgeInsets.only(bottom: this._isInProgress ? 100 : 30),
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 10,
+          ),
+          child: Container(
+            height: 50,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(7),
+              boxShadow: [
+                BoxShadow(
+                  color: this._errors == null || this._errors.length == 0
+                      ? Theme.of(context).accentColor.withOpacity(0.5)
+                      : LIGHT_RED,
+                  blurRadius: 30,
+                  spreadRadius: 0,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Material(
+              borderRadius: BorderRadius.circular(7),
+              color: this._errors == null || this._errors.length == 0
+                  ? Theme.of(context).accentColor
+                  : LIGHT_RED,
+              child: InkWell(
+                splashColor: this._errors == null || this._errors.length == 0
+                    ? Theme.of(context).accentColor
+                    : LIGHT_RED,
+                highlightColor: Colors.transparent,
+                onTap: this._errors == null || this._errors.length == 0
+                    ? null
+                    : _showFileTransferErrorDialog,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 30,
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Icon(
+                          Icons.warning_amber_rounded,
+                          color: TEXT_COLOR,
+                          size: 30,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      '${this._errors.length} File Transfer Error${this._errors.length == 1 ? "" : "s"}',
+                      style: Theme.of(context).textTheme.headline6,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -295,20 +379,8 @@ class _AppDrawerState extends State<AppDrawer> {
           ListView(
             children: this._buildAppDrawerItems(context),
           ),
-          Align(
-            alignment: Alignment.bottomLeft,
-            child: Padding(
-              padding: EdgeInsets.only(bottom: 100),
-              child: EmotionDesignButton(
-                child: Text(
-                  'Details',
-                  style: Theme.of(context).textTheme.button,
-                ),
-                onPressed: this._showFileTransferErrorDialog,
-              ),
-            ),
-          ),
-          this._progressPanel(),
+          this._fileTransferErrorButton(),
+          this._progressVisualization(),
         ],
       ),
     );

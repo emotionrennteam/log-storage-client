@@ -181,6 +181,11 @@ class _AppDrawerState extends State<AppDrawer> {
       },
     );
     this._dialogSetState = null;
+    
+    setState(() {
+      // Dummy to ensure that the UI refreshes after the user has clicked the "Clear Errors"
+      // button of the FileTransferErrorDialog and closed the dialog.
+    });
   }
 
   /// A widget that visualizes the current upload/download progress using a

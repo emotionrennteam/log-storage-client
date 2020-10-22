@@ -3,10 +3,13 @@ import 'package:log_storage_client/models/file_transfer_exception.dart';
 
 class ProgressService {
   StreamController<double> _progressValueController = StreamController();
-  StreamController<bool> _isInProgressController = StreamController();
+  StreamController<bool> _isInProgressController = StreamController.broadcast();
   StreamController<String> _processNameController = StreamController();
   StreamController<FileTransferException> _errorMessagesController =
       StreamController();
+
+  /// This bool value is used to store the latest value of the [_isInProgressController].
+  bool _lastestValueOfIsInProgress = false;
 
   /// For creating progress events.
   ///
@@ -15,6 +18,7 @@ class ProgressService {
   StreamSink<double> startProgressStream(String processName) {
     this._processNameController.sink.add(processName);
     this._isInProgressController.sink.add(true);
+    this._lastestValueOfIsInProgress = true;
 
     // Adding "null" to the progressValueController will make the progress indicator
     // show an indeterminate progress. Indeterminate progress indicators do
@@ -29,6 +33,7 @@ class ProgressService {
     this._progressValueController.sink.add(1.0);
     Future.delayed(Duration(seconds: 5), () {
       this._isInProgressController.sink.add(false);
+      this._lastestValueOfIsInProgress = false;
     });
   }
 
@@ -41,6 +46,17 @@ class ProgressService {
   Stream<bool> getIsInProgressStream() {
     return this._isInProgressController?.stream;
   }
+
+  /// Getter to retrieve the latest info whether a file transfer
+  /// is currently in progress.
+  /// 
+  /// This getter function somehow represents a duplicate because
+  /// it emits the latest value of [_isInProgressController].
+  /// Nevertheless, this getter is required because when listening
+  /// to a stream, one cannot read the latest value and therefore
+  /// new listeners cannot reliably determine whether a file transfer
+  /// is in progress. 
+  bool isInProgress() => this._lastestValueOfIsInProgress;
 
   /// Stream that emits events with the name of the currently active process (e.g. 'Download' or 'Upload').
   Stream<String> getProcessNameStream() {

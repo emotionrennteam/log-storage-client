@@ -4,7 +4,9 @@ import 'package:log_storage_client/models/storage_connection_credentials.dart';
 import 'package:log_storage_client/models/storage_object.dart';
 import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/constants.dart';
+import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/utils/minio_manager.dart';
+import 'package:log_storage_client/utils/progress_service.dart';
 import 'package:log_storage_client/utils/utils.dart';
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';
 import 'package:log_storage_client/widgets/storage_object_table.dart';
@@ -20,10 +22,12 @@ class RemoteLogFilesView extends StatefulWidget {
 
 class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
   List<StorageObject> _storageObjects = new List();
+  List<StorageObject> _selectedStorageObjects = new List();
   Function _onDownloadFabPressed;
   StorageConnectionCredentials _credentials;
   String _currentDirectory = '';
   bool _allStorageObjectsSelected = false;
+  bool _fileTransferIsInProgress = false;
 
   @override
   void initState() {
@@ -32,6 +36,18 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
       this._credentials = cred;
       if (mounted) {
         this._loadStorageObjects();
+      }
+    });
+
+    ProgressService progressService = locator<ProgressService>();
+    setState(() {
+      this._fileTransferIsInProgress = progressService.isInProgress();
+    });
+    progressService.getIsInProgressStream().listen((isInProgress) {
+      if (isInProgress != this._fileTransferIsInProgress) {
+        setState(() {
+          this._fileTransferIsInProgress = isInProgress;
+        });
       }
     });
   }
@@ -64,12 +80,73 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
     });
   }
 
-  /// Enables or disables the [FloatingActionButton] for downloading objects
-  /// when at least one object has been selected.
+  /// Changes the currently displayed directory to the given parameter [absolutePath].
+  ///
+  /// If the parameter [absolutePath] is set to [null], then the current directory
+  /// will be set to parent directory of the current directory (navigate up in the
+  /// hierarchy of directories).
+  void _navigateToDirectory(String absolutePath) {
+    // Navigate to parent in the directory tree
+    if (absolutePath == null) {
+      setState(() {
+        this._currentDirectory = getParentForPath(this._currentDirectory, '/');
+      });
+    } else {
+      // Navigate to child in the directory tree
+      setState(() {
+        this._currentDirectory = absolutePath;
+      });
+    }
+    this._loadStorageObjects();
+    this._onSelectionOfStorageObjectsChanged(List.empty());
+  }
+
   void _onSelectionOfStorageObjectsChanged(
       List<StorageObject> selectedStorageObjects) {
-    // Disable the FAB when no files are selected
-    if (selectedStorageObjects.isEmpty) {
+    setState(() {
+      this._selectedStorageObjects = selectedStorageObjects;
+    });
+  }
+
+  void _onSelectDeselectAllStorageObjects(bool allSelected) {
+    setState(() {
+      this._allStorageObjectsSelected = allSelected;
+      this._selectedStorageObjects =
+          allSelected ? this._storageObjects : List.empty();
+    });
+  }
+
+  FloatingActionButton _downloadFAB() {
+    _enableDisableFloatingActionButton();
+
+    return FloatingActionButton.extended(
+      backgroundColor: this._onDownloadFabPressed == null
+          ? DARK_GREY
+          : Theme.of(context).accentColor,
+      icon: Icon(
+        Icons.cloud_download,
+        color: Colors.white,
+      ),
+      label: Text(
+        'Download',
+        style: TextStyle(
+          fontSize: 20,
+          color: Colors.white,
+        ),
+      ),
+      mouseCursor: this._onDownloadFabPressed == null
+          ? SystemMouseCursors.forbidden
+          : SystemMouseCursors.click,
+      onPressed: this._onDownloadFabPressed,
+    );
+  }
+  /// Enables or disables the [FloatingActionButton] depending on
+  /// the count of currently selected [StorageObject]s and whether
+  /// another file transfer is already in progress.
+  void _enableDisableFloatingActionButton() {
+    if (this._fileTransferIsInProgress ||
+        this._selectedStorageObjects == null ||
+        this._selectedStorageObjects.isEmpty) {
       setState(() {
         this._onDownloadFabPressed = null;
       });
@@ -101,7 +178,7 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
           this._credentials,
           downloadDirectory,
           this._currentDirectory,
-          selectedStorageObjects,
+          this._selectedStorageObjects,
         ).then((_) {
           // Scaffold.of(context).hideCurrentSnackBar();
           // Scaffold.of(context).showSnackBar(
@@ -122,36 +199,6 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
         // });
       };
     });
-  }
-
-  /// Changes the currently displayed directory to the given parameter [absolutePath].
-  ///
-  /// If the parameter [absolutePath] is set to [null], then the current directory
-  /// will be set to parent directory of the current directory (navigate up in the
-  /// hierarchy of directories).
-  void _navigateToDirectory(String absolutePath) {
-    // Navigate to parent in the directory tree
-    if (absolutePath == null) {
-      setState(() {
-        this._currentDirectory = getParentForPath(this._currentDirectory, '/');
-      });
-    } else {
-      // Navigate to child in the directory tree
-      setState(() {
-        this._currentDirectory = absolutePath;
-      });
-    }
-    this._loadStorageObjects();
-    this._onSelectionOfStorageObjectsChanged(List.empty());
-  }
-
-  void _onSelectDeselectAllStorageObjects(bool allSelected) {
-    setState(() {
-      this._allStorageObjectsSelected = allSelected;
-    });
-    this._onSelectionOfStorageObjectsChanged(
-      allSelected ? this._storageObjects : List.empty(),
-    );
   }
 
   @override
@@ -211,23 +258,7 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
           ),
         ),
         FloatingActionButtonPosition(
-          floatingActionButton: FloatingActionButton.extended(
-            backgroundColor: this._onDownloadFabPressed == null
-                ? DARK_GREY
-                : Theme.of(context).accentColor,
-            icon: Icon(
-              Icons.cloud_download,
-              color: Colors.white,
-            ),
-            label: Text(
-              'Download',
-              style: TextStyle(
-                fontSize: 20,
-                color: Colors.white,
-              ),
-            ),
-            onPressed: this._onDownloadFabPressed,
-          ),
+          floatingActionButton: this._downloadFAB(),
         ),
       ],
     );

@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:log_storage_client/models/storage_object.dart';
 import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/constants.dart';
+import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/utils/minio_manager.dart';
+import 'package:log_storage_client/utils/progress_service.dart';
 import 'package:log_storage_client/utils/utils.dart';
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';
 import 'package:log_storage_client/widgets/storage_object_table.dart';
@@ -21,13 +23,13 @@ class LocalLogFilesView extends StatefulWidget {
 }
 
 class _LocalLogFilesViewState extends State<LocalLogFilesView> {
-  bool _uploadInProgress = false;
-
   List<FileSystemEntity> _fileSystemEntities = [];
   Directory _monitoredDirectory;
   List<StorageObject> _storageObjects = List();
+  List<StorageObject> _selectedStorageObjects;
   Function _onUploadFabPressed;
   bool _allStorageObjectsSelected = false;
+  bool _fileTransferIsInProgress = false;
 
   Directory _currentDirectory;
 
@@ -64,6 +66,18 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
     this._monitoredDirectory = new Directory(logFileDirectory);
     this._currentDirectory = this._monitoredDirectory;
     _loadStorageObjects();
+
+    ProgressService progressService = locator<ProgressService>();
+    setState(() {
+      this._fileTransferIsInProgress = progressService.isInProgress();
+    });
+    progressService.getIsInProgressStream().listen((isInProgress) {
+      if (isInProgress != this._fileTransferIsInProgress) {
+        setState(() {
+          this._fileTransferIsInProgress = isInProgress;
+        });
+      }
+    });
   }
 
   void _loadStorageObjects() {
@@ -89,11 +103,12 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
   }
 
   /// A [FloatingActionButton] for triggering the upload of log files.
-  /// This button is automatically disabled when an upload is in progress.
+  /// This button is automatically disabled when an upload is in progress or no
+  /// files for upload have been selected.
   FloatingActionButton _uploadFAB() {
+    _enableDisableFloatingActionButton();
+
     return FloatingActionButton.extended(
-      /// During upload, the FAB is disabled
-      onPressed: this._onUploadFabPressed,
       backgroundColor: this._onUploadFabPressed == null
           ? DARK_GREY
           : Theme.of(context).accentColor,
@@ -109,27 +124,32 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
           color: Colors.white,
         ),
       ),
+      mouseCursor: this._onUploadFabPressed == null
+          ? SystemMouseCursors.forbidden
+          : SystemMouseCursors.click,
+      onPressed: this._onUploadFabPressed,
     );
   }
 
-  void _onSelectionOfStorageObjectsChanged(
-      List<StorageObject> selectedStorageObjects) async {
-    // Disable FAB when no StorageObjects selected
-    if (selectedStorageObjects.isEmpty) {
+  /// Enables or disables the [FloatingActionButton] depending on
+  /// the count of currently selected [StorageObject]s and whether
+  /// another file transfer is already in progress.
+  void _enableDisableFloatingActionButton() {
+    if (this._fileTransferIsInProgress ||
+        this._selectedStorageObjects == null ||
+        this._selectedStorageObjects.isEmpty) {
       setState(() {
         this._onUploadFabPressed = null;
       });
       return;
     }
+
     setState(() {
       this._onUploadFabPressed = () async {
-        // TODO: adapt and use ProgressService to check whether an upload is already in progress
-        if (this._uploadInProgress) return;
-
-        var credentials = await getStorageConnectionCredentials();
+        final credentials = await getStorageConnectionCredentials();
         await uploadObjectsToRemoteStorage(
           credentials,
-          selectedStorageObjects,
+          this._selectedStorageObjects,
           this._monitoredDirectory,
         );
 
@@ -146,13 +166,19 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
     });
   }
 
+  void _onSelectionOfStorageObjectsChanged(
+      List<StorageObject> selectedStorageObjects) {
+    setState(() {
+      this._selectedStorageObjects = selectedStorageObjects;
+    });
+  }
+
   void _onSelectDeselectAllStorageObjects(bool allSelected) {
     setState(() {
       this._allStorageObjectsSelected = allSelected;
+      this._selectedStorageObjects =
+          allSelected ? this._storageObjects : List.empty();
     });
-    this._onSelectionOfStorageObjectsChanged(
-      allSelected ? this._storageObjects : List.empty(),
-    );
   }
 
   @override

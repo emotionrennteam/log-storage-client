@@ -117,19 +117,19 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
         ),
         TextFieldSetting(
           'Endpoint',
-          '10.11.0.18',
+          's3.amazonaws.com',
           widget.endpointController,
           this._portFocusNode,
-          'The hostname or IP address of the MinIO\nserver (without port and scheme). For\nconnecting to S3 from Amazon Web\nServices please use "s3.amazonaws.com".',
+          'The hostname or IP address of the storage\nsystem (without port and scheme). For\nconnecting to S3 from Amazon Web\nServices please use "s3.amazonaws.com".',
         ),
         Divider(color: Colors.transparent),
         // TODO: validate user input and ensure that it's a string
         TextFieldSetting(
           'Port',
-          '9000',
+          '443',
           widget.portController,
           this._accessKeyFocusNode,
-          'The TCP/IP port number for the MinIO server.\nTypically port 80 for HTTP and 443 for HTTPS.',
+          'The TCP/IP port number for the storage system.\nTypically port 80 for HTTP and 443 for HTTPS.',
           isValueNumerical: true,
         ),
         Divider(color: Colors.transparent),
@@ -138,7 +138,7 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           'eu-central-1',
           widget.regionController,
           this._regionFocusNode,
-          'The name of the location of the MinIO server\ne.g. "eu-central-1". This property is required so\nthat MinIO can locate where your data is stored\nat. The default value is "us-east-1".',
+          'The name of the location where the bucket\nis stored e.g. "eu-central-1". This property is\nrequired so that the storage system can locate\nwhere your data is stored at. The default value\nis "us-east-1".',
         ),
         Divider(color: Colors.transparent),
         TextFieldSetting(
@@ -146,7 +146,7 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           'logs',
           widget.bucketController,
           null,
-          'The name of the bucket in MinIO. A bucket is\nthe uppermost storage unit in MinIO (root).\nBuckets can store files and directories.',
+          'The name of the bucket. A bucket is the\nuppermost storage unit in S3 storage systems\n(root). Buckets can store files and directories.',
         ),
         Divider(color: Colors.transparent),
         TextFieldSetting(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:log_storage_client/utils/constants.dart';
 
 class EmotionDesignButton extends StatelessWidget {
   final Widget child;
@@ -31,7 +32,7 @@ class EmotionDesignButton extends StatelessWidget {
       ),
       color: color,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(28.0),
+        borderRadius: BorderRadius.circular(BORDER_RADIUS_LARGE),
         side: BorderSide(
           color: Color.fromRGBO(40, 40, 40, 1),
           width: 2,

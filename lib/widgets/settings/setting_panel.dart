@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:log_storage_client/utils/constants.dart';
 
 class SettingPanel extends StatefulWidget {
   /// The title / name of the setting.
@@ -53,7 +54,7 @@ class _SettingPanelState extends State<SettingPanel> {
                 ),
                 decoration: BoxDecoration(
                   color: Theme.of(context).primaryColor,
-                  borderRadius: BorderRadius.circular(7),
+                  borderRadius: BorderRadius.circular(BORDER_RADIUS_SMALL),
                 ),
                 message: widget.tooltipMessage,
                 padding: EdgeInsets.all(12),

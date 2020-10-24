@@ -160,7 +160,7 @@ class _DashboardViewState extends State<DashboardView>
   Widget _storageConnectionPanel() {
     return AnimatedContainer(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(BORDER_RADIUS_MEDIUM),
         boxShadow: [
           BoxShadow(
             color: this._connectionError
@@ -177,7 +177,7 @@ class _DashboardViewState extends State<DashboardView>
       child: Material(
         type: MaterialType.transparency,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(BORDER_RADIUS_MEDIUM),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -277,7 +277,7 @@ class _DashboardViewState extends State<DashboardView>
     return Container(
       height: 140,
       child: Material(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(BORDER_RADIUS_MEDIUM),
         color: Theme.of(context).primaryColor,
         child: Padding(
           padding: EdgeInsets.all(30),
@@ -328,7 +328,7 @@ class _DashboardViewState extends State<DashboardView>
 
     return Container(
       child: Material(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(BORDER_RADIUS_MEDIUM),
         color: Theme.of(context).primaryColor,
         child: Padding(
           padding: EdgeInsets.all(20),
@@ -431,7 +431,7 @@ class _DashboardViewState extends State<DashboardView>
   Widget _regionPanel() {
     return Container(
       child: Material(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(BORDER_RADIUS_MEDIUM),
         color: Theme.of(context).primaryColor,
         child: Padding(
           padding: EdgeInsets.fromLTRB(20, 20, 20, 50),
@@ -452,7 +452,7 @@ class _DashboardViewState extends State<DashboardView>
   Widget _configurationValidationPanel() {
     return Container(
       child: Material(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(BORDER_RADIUS_MEDIUM),
         color: Theme.of(context).primaryColor,
         child: Padding(
           padding: EdgeInsets.fromLTRB(20, 20, 20, 50),

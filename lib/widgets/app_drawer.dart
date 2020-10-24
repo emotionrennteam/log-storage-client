@@ -100,7 +100,7 @@ class _AppDrawerState extends State<AppDrawer> {
           child: Container(
             height: 50,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(7),
+              borderRadius: BorderRadius.circular(BORDER_RADIUS_SMALL),
               boxShadow: [
                 BoxShadow(
                   color: this._activeRouteName == element.routeName
@@ -114,7 +114,7 @@ class _AppDrawerState extends State<AppDrawer> {
             ),
             clipBehavior: Clip.antiAlias,
             child: Material(
-              borderRadius: BorderRadius.circular(7),
+              borderRadius: BorderRadius.circular(BORDER_RADIUS_SMALL),
               color: this._activeRouteName == element.routeName
                   ? Theme.of(context).accentColor
                   : Colors.transparent,
@@ -206,8 +206,8 @@ class _AppDrawerState extends State<AppDrawer> {
         width: 310,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(7),
-            topRight: Radius.circular(7),
+            topLeft: Radius.circular(BORDER_RADIUS_SMALL),
+            topRight: Radius.circular(BORDER_RADIUS_SMALL),
           ),
           boxShadow: <BoxShadow>[
             BoxShadow(
@@ -263,7 +263,7 @@ class _AppDrawerState extends State<AppDrawer> {
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(7),
+                        borderRadius: BorderRadius.circular(BORDER_RADIUS_SMALL),
                         boxShadow: [
                           BoxShadow(
                             color:
@@ -314,7 +314,7 @@ class _AppDrawerState extends State<AppDrawer> {
           child: Container(
             height: 50,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(7),
+              borderRadius: BorderRadius.circular(BORDER_RADIUS_SMALL),
               boxShadow: [
                 BoxShadow(
                   color: this._errors == null || this._errors.length == 0
@@ -328,7 +328,7 @@ class _AppDrawerState extends State<AppDrawer> {
             ),
             clipBehavior: Clip.antiAlias,
             child: Material(
-              borderRadius: BorderRadius.circular(7),
+              borderRadius: BorderRadius.circular(BORDER_RADIUS_SMALL),
               color: this._errors == null || this._errors.length == 0
                   ? Theme.of(context).accentColor
                   : LIGHT_RED,

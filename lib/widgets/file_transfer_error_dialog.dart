@@ -69,9 +69,6 @@ class FileTransferErrorDialog extends StatelessWidget {
       ],
       title: Text('File Transfer Errors'),
       backgroundColor: Theme.of(context).primaryColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(7),
-      ),
       content: Container(
         clipBehavior: Clip.antiAlias,
         constraints: BoxConstraints(
@@ -79,7 +76,7 @@ class FileTransferErrorDialog extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: Theme.of(context).canvasColor,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(BORDER_RADIUS_MEDIUM),
         ),
         height: this.errors.length.toDouble() * 70,
         width: 800,

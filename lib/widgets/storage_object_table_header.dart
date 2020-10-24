@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:log_storage_client/utils/constants.dart';
 
 class StorageObjectTableHeader extends StatefulWidget {
   /// Callback function to be called when the user want to navigate up
@@ -46,6 +47,7 @@ class _StorageObjectTableHeaderState extends State<StorageObjectTableHeader> {
   @override
   void didUpdateWidget(covariant StorageObjectTableHeader oldWidget) {
     super.didUpdateWidget(oldWidget);
+
     /// Update checkbox for selecting / deselecting all storage objects
     /// whenever the parent widget has been updated (from externally).
     this._allStorageObjectsSelected = widget.allStorageObjectsSelected;
@@ -181,7 +183,9 @@ class _StorageObjectTableHeaderState extends State<StorageObjectTableHeader> {
         ],
       ),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(BORDER_RADIUS_MEDIUM),
+        ),
         color: Theme.of(context).accentColor,
         boxShadow: [
           BoxShadow(

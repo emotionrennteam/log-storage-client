@@ -1,3 +1,4 @@
+import 'package:log_storage_client/utils/constants.dart';
 import 'package:log_storage_client/widgets/settings/setting_panel.dart';
 import 'package:flutter/material.dart';
 
@@ -50,13 +51,13 @@ class _TextFieldSettingState extends State<TextFieldSetting> {
             decoration: InputDecoration(
               focusedBorder: OutlineInputBorder(
                 borderRadius: const BorderRadius.all(
-                  const Radius.circular(28.0),
+                  const Radius.circular(BORDER_RADIUS_LARGE),
                 ),
                 borderSide: BorderSide(color: Colors.transparent, width: 0.0),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: const BorderRadius.all(
-                  const Radius.circular(28.0),
+                  const Radius.circular(BORDER_RADIUS_LARGE),
                 ),
                 borderSide: BorderSide(color: Colors.transparent, width: 0.0),
               ),

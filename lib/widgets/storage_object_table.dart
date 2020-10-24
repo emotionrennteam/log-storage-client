@@ -40,11 +40,6 @@ class StorageObjectTable extends StatefulWidget {
       this.allStorageObjectsSelected,
       {this.optionsColumnEnabled = false});
 
-  // /// Sets the checkboxes for all [StorageObject]s to the given value
-  // /// so that they're all checked respectively unchecked.
-  // void setSelectionForAllStorageObjects(bool selected) =>
-  //     this._state._setSelectionForAllStorageObjects(selected);
-
   @override
   State<StatefulWidget> createState() => _state;
 }
@@ -63,8 +58,9 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
   @override
   void didUpdateWidget(covariant StorageObjectTable oldWidget) {
     super.didUpdateWidget(oldWidget);
-    /// Update checkboxes for selecting / deselecting storage objects
-    /// whenever the parent widget has been updated (from externally).
+
+    // Update checkboxes for selecting / deselecting storage objects
+    // whenever the parent widget has been updated (from externally).
     if (oldWidget.allStorageObjectsSelected !=
             widget.allStorageObjectsSelected ||
         oldWidget.storageObjects?.length != widget.storageObjects?.length) {
@@ -159,10 +155,19 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
                           storageObject,
                           credentials,
                         ).then((_) {
+                          setState(() {
+                            widget.storageObjects.remove(storageObject);
+                          });
                           Scaffold.of(this.context).hideCurrentSnackBar();
                           Scaffold.of(this.context).showSnackBar(getSnackBar(
                             'Successfully deleted ${storageObject.path}.',
                             false,
+                          ));
+                        }).catchError((error) {
+                          Scaffold.of(this.context).hideCurrentSnackBar();
+                          Scaffold.of(this.context).showSnackBar(getSnackBar(
+                            'Failed to delete ${storageObject.path}. Error: ${error.toString()}',
+                            true,
                           ));
                         });
                         Navigator.of(context).pop();

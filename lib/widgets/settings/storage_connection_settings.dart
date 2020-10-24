@@ -1,7 +1,7 @@
 import 'package:log_storage_client/models/storage_connection_credentials.dart';
 import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/constants.dart';
-import 'package:log_storage_client/utils/minio_manager.dart';
+import 'package:log_storage_client/utils/storage_manager.dart';
 import 'package:log_storage_client/utils/utils.dart';
 import 'package:log_storage_client/widgets/emotion_design_button.dart';
 import 'package:log_storage_client/widgets/settings/setting_panel.dart';
@@ -55,37 +55,37 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
   }
 
   void _readSettings() async {
-    getMinioAccessKey().then(
+    getStorageAccessKey().then(
       (value) => setState(() {
         widget.accessKeyController.text = value;
       }),
     );
-    getMinioBucket().then(
+    getStorageBucket().then(
       (value) => setState(() {
         widget.bucketController.text = value;
       }),
     );
-    getMinioEndpoint().then(
+    getStorageEndpoint().then(
       (value) => setState(() {
         widget.endpointController.text = value;
       }),
     );
-    getMinioPort().then(
+    getStoragePort().then(
       (value) => setState(() {
         if (value != null) widget.portController.text = value.toString();
       }),
     );
-    getMinioRegion().then(
+    getStorageRegion().then(
       (value) => setState(() {
         widget.regionController.text = value;
       }),
     );
-    getMinioSecretKey().then(
+    getStorageSecretKey().then(
       (value) => setState(() {
         widget.secretKeyController.text = value;
       }),
     );
-    getMinioTlsEnabled().then(
+    getStorageTlsEnabled().then(
       (value) => setState(() {
         if (value != null) {
           this._tlsEnabled = value;

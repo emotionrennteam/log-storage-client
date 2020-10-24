@@ -1,4 +1,4 @@
-library minio_manager;
+library storage_manager;
 
 import 'dart:async';
 import 'dart:io';
@@ -27,13 +27,14 @@ Minio _initializeClient(StorageConnectionCredentials credentials) {
   );
 }
 
-/// Checks whether the given credentials allow to connect to the MinIO storage system.
+/// Checks whether the given credentials allow to connect to the storage system.
 ///
-/// Returns a [Tuple4]. The first item contains a [bool] which [bool] is [true] upon
-/// successful connection to MinIO and otherwise false. If no successful connection
-/// could be established, then the second item contains an additional error message as
-/// a [String]. The third item contains the region of the MinIO server. The fourth item
-/// contains the [List] of buckets available at the MinIO server.
+/// Returns a [Tuple4]. The first item contains a [bool] which is [true] upon
+/// successful connection to the storage system and otherwise false. If no successful
+/// connection could be established, then the second item contains an additional error
+/// message as a [String]. The third item contains the (server) region of the bucket
+/// The fourth item contains a [List] of all available buckets on the storage system
+/// server.
 Future<Tuple4<bool, String, String, List<Bucket>>> validateConnection(
     StorageConnectionCredentials credentials) async {
   Minio minio;
@@ -71,10 +72,10 @@ Future<Tuple4<bool, String, String, List<Bucket>>> validateConnection(
   }
 }
 
-/// Asynchronically lists all objects in the given Minio bucket.
+/// Asynchronically lists all objects in the given bucket.
 ///
 /// Returns a list of [StorageObject]s which represent directories
-/// and files in Minio.
+/// and files in the storage system.
 Future<List<StorageObject>> listObjectsInRemoteStorage(
   StorageConnectionCredentials credentials, {
   String path = '',
@@ -107,7 +108,7 @@ Future<List<StorageObject>> listObjectsInRemoteStorage(
 }
 
 /// Creates a "presigned" (=shareable) link for downloading a [StorageObject] without
-/// needing to authenticate at MinIO (=> public link).
+/// needing to authenticate at the storage system (=> public link).
 ///
 /// Attention: in MinIO / S3, it is not possible to share directories. Only single files
 /// can be shared via a link. The created link / URL is valid for 7 days.
@@ -141,8 +142,8 @@ Future<void> deleteObjectFromRemoteStorage(
 /// Recursively downloads all storage objects in the given [List<StorageObject>] and their
 /// children (files in sub-directories) to the given [downloadDirectory].
 ///
-/// [StorageObject]s which are actually directories cannot be downloaded and will simply be created
-/// as a directory on the local hard drive.
+/// [StorageObject]s which are actually directories cannot be downloaded and will simply be
+/// created as a directory on the local hard drive.
 Future<void> downloadObjectsFromRemoteStorage(
   StorageConnectionCredentials credentials,
   Directory downloadDirectory,
@@ -214,9 +215,9 @@ Future<void> downloadObjectsFromRemoteStorage(
 }
 
 /// Recursively uploads all storage objects in the given [List<StorageObject>] and their
-/// children (files in sub-directories) to Minio.
+/// children (files in sub-directories) to the storage system.
 ///
-/// Directories are not directly uploaded as Minio automatically creates folders
+/// Directories are not directly uploaded as Minio / S3 automatically creates folders
 /// whenever a file path contains forward slashes.
 /// The parameter [localBaseDirectory] is required to extract relative file paths.
 /// Emits upload progress events through the [StreamController]. The values to
@@ -241,12 +242,12 @@ Future<void> uploadObjectsToRemoteStorage(
     for (final fsEntity in fsEntitiesToUpload) {
       progressStreamSink.add(i++ / fsEntitiesToUpload.length);
 
-      // Only files must be synced to Minio. Minio does automatically create folders
-      // when a file path contains forward slashes.
+      // Only files must be synced to the storage system. Minio / S3 automatically
+      // creates folders when a file path contains forward slashes.
       if (fsEntity is File) {
         Stream<List<int>> stream = fsEntity.openRead();
         final fileSizeInBytes = fsEntity.lengthSync();
-        final fileName = _getCompatibleMinioPath(fsEntity, localBaseDirectory);
+        final fileName = _getS3CompatiblePath(fsEntity, localBaseDirectory);
         await minio
             .putObject(credentials.bucket, fileName, stream, fileSizeInBytes)
             .then((value) {
@@ -325,7 +326,7 @@ Future<List<StorageObject>> _recursivelyListOnRemoteStorage(
 }
 
 /// Transforms the path of the given [FileSystemEntity] into a relative path
-/// that is compatible with Minio.
+/// that is compatible with S3.
 ///
 /// Removes the base path from the given [FileSystemEntity] so that it becomes a
 /// relative path, makes the path name POSIX conform (Windows backslashes
@@ -333,7 +334,7 @@ Future<List<StorageObject>> _recursivelyListOnRemoteStorage(
 /// by underscores, and removes the leading slash (required for Minio).
 ///
 /// Returns the relative path as a [String].
-String _getCompatibleMinioPath(
+String _getS3CompatiblePath(
     FileSystemEntity fileSystemEntity, Directory localBaseDirectory) {
   final relativePath = path
       .relative(fileSystemEntity.path, from: localBaseDirectory.path)
@@ -347,8 +348,8 @@ String _getCompatibleMinioPath(
   return relativePath;
 }
 
-/// Downloads a single [StorageObject] (file) from MinIO and stores it in the given
-/// [downloadDirectory] as file on the local file system.
+/// Downloads a single [StorageObject] (file) from the storage system and stores it
+/// in the given [downloadDirectory] as file on the local file system.
 Future<void> _downloadFileStorageObject(
   StorageObject fileStorageObject,
   Directory downloadDirectory,

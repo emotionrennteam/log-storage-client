@@ -4,7 +4,7 @@ import 'package:log_storage_client/models/storage_object.dart';
 import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/constants.dart';
 import 'package:log_storage_client/utils/locator.dart';
-import 'package:log_storage_client/utils/minio_manager.dart';
+import 'package:log_storage_client/utils/storage_manager.dart';
 import 'package:log_storage_client/utils/progress_service.dart';
 import 'package:log_storage_client/utils/utils.dart';
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';

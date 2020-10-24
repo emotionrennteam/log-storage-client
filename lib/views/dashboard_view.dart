@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:log_storage_client/models/storage_connection_credentials.dart';
 import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/constants.dart';
-import 'package:log_storage_client/utils/minio_manager.dart';
+import 'package:log_storage_client/utils/storage_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:log_storage_client/utils/utils.dart';
@@ -37,7 +37,7 @@ class _DashboardViewState extends State<DashboardView>
   initState() {
     super.initState();
 
-    getMinioBucket().then((String bucket) {
+    getStorageBucket().then((String bucket) {
       this._bucket = bucket == null || bucket.isEmpty ? '-' : bucket;
     });
     getStorageConnectionCredentials().then((credentials) {

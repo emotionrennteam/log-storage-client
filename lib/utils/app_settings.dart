@@ -6,13 +6,13 @@ import 'package:flutter/foundation.dart';
 
 const String _AUTO_UPLOAD_ENABLED = 'AUTO_UPLOAD_ENABLED';
 const String _LOG_FILE_DIRECTORY_PATH = 'LOG_FILE_DIRECTORY_PATH';
-const String _MINIO_ACCESS_KEY = 'MINIO_ACCESS_KEY';
-const String _MINIO_BUCKET = 'MINIO_BUCKET';
-const String _MINIO_ENDPOINT = 'MINIO_ENDPOINT';
-const String _MINIO_PORT = 'MINIO_PORT';
-const String _MINIO_REGION = 'MINIO_REGION';
-const String _MINIO_SECRET_KEY = 'MINIO_SECRET_KEY';
-const String _MINIO_TLS_ENABLED = 'MINIO_TLS_ENABLED';
+const String _STORAGE_ACCESS_KEY = 'STORAGE_ACCESS_KEY';
+const String _STORAGE_BUCKET = 'STORAGE_BUCKET';
+const String _STORAGE_ENDPOINT = 'STORAGE_ENDPOINT';
+const String _STORAGE_PORT = 'STORAGE_PORT';
+const String _STORAGE_REGION = 'STORAGE_REGION';
+const String _STORAGE_SECRET_KEY = 'STORAGE_SECRET_KEY';
+const String _STORAGE_TLS_ENABLED = 'STORAGE_TLS_ENABLED';
 
 Future<bool> saveAllSettings(
   String endpoint,
@@ -33,13 +33,13 @@ Future<bool> saveAllSettings(
   }
   try {
     List<bool> responses = await Future.wait([
-      setMinioEndpoint(endpoint),
-      setMinioPort(portAsInt),
-      setMinioRegion(region),
-      setMinioBucket(bucket),
-      setMinioAccessKey(accessKey),
-      setMinioSecretKey(secretKey),
-      setMinioTlsEnabled(tlsEnabled),
+      setStorageEndpoint(endpoint),
+      setStoragePort(portAsInt),
+      setStorageRegion(region),
+      setStorageBucket(bucket),
+      setStorageAccessKey(accessKey),
+      setStorageSecretKey(secretKey),
+      setStorageTlsEnabled(tlsEnabled),
       setLogFileDirectoryPath(logFileDirectoryPath),
       setAutoUploadEnabled(autoUploadEnabled),
     ]);
@@ -51,13 +51,13 @@ Future<bool> saveAllSettings(
 }
 
 Future<StorageConnectionCredentials> getStorageConnectionCredentials() async {
-  final endpoint = await getMinioEndpoint();
-  final port = await getMinioPort();
-  final region = await getMinioRegion();
-  final bucket = await getMinioBucket();
-  final accessKey = await getMinioAccessKey();
-  final secretKey = await getMinioSecretKey();
-  final tlsEnabled = await getMinioTlsEnabled();
+  final endpoint = await getStorageEndpoint();
+  final port = await getStoragePort();
+  final region = await getStorageRegion();
+  final bucket = await getStorageBucket();
+  final accessKey = await getStorageAccessKey();
+  final secretKey = await getStorageSecretKey();
+  final tlsEnabled = await getStorageTlsEnabled();
   return new StorageConnectionCredentials(
     endpoint,
     port,
@@ -69,60 +69,60 @@ Future<StorageConnectionCredentials> getStorageConnectionCredentials() async {
   );
 }
 
-Future<bool> setMinioBucket(String bucket) async {
-  return await setStringSetting(_MINIO_BUCKET, bucket);
+Future<bool> setStorageBucket(String bucket) async {
+  return await setStringSetting(_STORAGE_BUCKET, bucket);
 }
 
-Future<String> getMinioBucket() async {
-  return await getStringSetting(_MINIO_BUCKET);
+Future<String> getStorageBucket() async {
+  return await getStringSetting(_STORAGE_BUCKET);
 }
 
-Future<bool> setMinioEndpoint(String endpoint) async {
-  return await setStringSetting(_MINIO_ENDPOINT, endpoint);
+Future<bool> setStorageEndpoint(String endpoint) async {
+  return await setStringSetting(_STORAGE_ENDPOINT, endpoint);
 }
 
-Future<String> getMinioEndpoint() async {
-  return await getStringSetting(_MINIO_ENDPOINT);
+Future<String> getStorageEndpoint() async {
+  return await getStringSetting(_STORAGE_ENDPOINT);
 }
 
-Future<bool> setMinioPort(int port) async {
-  return await setIntSetting(_MINIO_PORT, port);
+Future<bool> setStoragePort(int port) async {
+  return await setIntSetting(_STORAGE_PORT, port);
 }
 
-Future<int> getMinioPort() async {
-  return await getIntSetting(_MINIO_PORT);
+Future<int> getStoragePort() async {
+  return await getIntSetting(_STORAGE_PORT);
 }
 
-Future<bool> setMinioAccessKey(String accessKey) async {
-  return await setStringSetting(_MINIO_ACCESS_KEY, accessKey);
+Future<bool> setStorageAccessKey(String accessKey) async {
+  return await setStringSetting(_STORAGE_ACCESS_KEY, accessKey);
 }
 
-Future<String> getMinioAccessKey() async {
-  return await getStringSetting(_MINIO_ACCESS_KEY);
+Future<String> getStorageAccessKey() async {
+  return await getStringSetting(_STORAGE_ACCESS_KEY);
 }
 
-Future<bool> setMinioSecretKey(String secretKey) async {
-  return await setStringSetting(_MINIO_SECRET_KEY, secretKey);
+Future<bool> setStorageSecretKey(String secretKey) async {
+  return await setStringSetting(_STORAGE_SECRET_KEY, secretKey);
 }
 
-Future<String> getMinioRegion() async {
-  return await getStringSetting(_MINIO_REGION);
+Future<String> getStorageRegion() async {
+  return await getStringSetting(_STORAGE_REGION);
 }
 
-Future<bool> setMinioRegion(String region) async {
-  return await setStringSetting(_MINIO_REGION, region);
+Future<bool> setStorageRegion(String region) async {
+  return await setStringSetting(_STORAGE_REGION, region);
 }
 
-Future<String> getMinioSecretKey() async {
-  return await getStringSetting(_MINIO_SECRET_KEY);
+Future<String> getStorageSecretKey() async {
+  return await getStringSetting(_STORAGE_SECRET_KEY);
 }
 
-Future<bool> setMinioTlsEnabled(bool enabled) async {
-  return await setBoolSetting(_MINIO_TLS_ENABLED, enabled);
+Future<bool> setStorageTlsEnabled(bool enabled) async {
+  return await setBoolSetting(_STORAGE_TLS_ENABLED, enabled);
 }
 
-Future<bool> getMinioTlsEnabled() async {
-  return await getBoolSetting(_MINIO_TLS_ENABLED);
+Future<bool> getStorageTlsEnabled() async {
+  return await getBoolSetting(_STORAGE_TLS_ENABLED);
 }
 
 Future<bool> setLogFileDirectoryPath(String logFileDirectoryPath) async {

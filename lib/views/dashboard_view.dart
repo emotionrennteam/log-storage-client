@@ -28,25 +28,30 @@ class _DashboardViewState extends State<DashboardView>
   bool _connectionError = true;
   String _connectionErrorMessage;
   String _endpoint;
-  int port;
+  String _port;
   String _region;
   bool _useTLS = false;
+  bool _connectionCredentialsAreValid;
 
   @override
   initState() {
     super.initState();
 
     getMinioBucket().then((String bucket) {
-      this._bucket = bucket;
+      this._bucket = bucket == null || bucket.isEmpty ? '-' : bucket;
     });
     getStorageConnectionCredentials().then((credentials) {
       if (mounted) {
         setState(() {
-          this._endpoint = credentials.endpoint;
-          this.port = credentials.port;
-          this._useTLS = credentials.tlsEnabled;
+          this._endpoint =
+              credentials.endpoint == null ? '-' : credentials.endpoint;
+          this._port =
+              credentials.port == null ? '-' : credentials.port.toString();
+          this._useTLS =
+              credentials.tlsEnabled == null ? false : credentials.tlsEnabled;
         });
       }
+      this._connectionCredentialsAreValid = credentials.isValid();
       this._checkStorageConnection(credentials: credentials);
     }).catchError((error) {
       setState(() {
@@ -132,16 +137,20 @@ class _DashboardViewState extends State<DashboardView>
             alignment: highlightedContent != null
                 ? Alignment.centerLeft
                 : Alignment.center,
-            child: Text(
-              highlightedContent != null ? highlightedContent : '-',
-              style: TextStyle(
-                color: highlightedContentColor,
-                fontWeight: FontWeight.w400,
-                fontSize: 30,
-              ),
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
-            ),
+            child: highlightedContent == null
+                ? CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(LIGHT_GREY),
+                  )
+                : Text(
+                    highlightedContent != null ? highlightedContent : '-',
+                    style: TextStyle(
+                      color: highlightedContentColor,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 30,
+                    ),
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                  ),
           ),
         ],
       ),
@@ -266,12 +275,12 @@ class _DashboardViewState extends State<DashboardView>
 
   Widget _configurationPanel(BuildContext context) {
     return Container(
-      height: 120,
+      height: 140,
       child: Material(
         borderRadius: BorderRadius.circular(10),
         color: Theme.of(context).primaryColor,
         child: Padding(
-          padding: EdgeInsets.all(20),
+          padding: EdgeInsets.all(30),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -284,7 +293,7 @@ class _DashboardViewState extends State<DashboardView>
               ),
               VerticalDivider(color: DARK_GREY),
               Expanded(
-                child: this._textPanel('Port', this.port.toString()),
+                child: this._textPanel('Port', this._port),
               ),
               VerticalDivider(color: DARK_GREY),
               Expanded(
@@ -351,47 +360,60 @@ class _DashboardViewState extends State<DashboardView>
                           : this._availableBuckets.length <= 5
                               ? 100
                               : 300,
-                      child: DraggableScrollbar.rrect(
-                        controller: _bucketsScrollController,
-                        backgroundColor: DARK_GREY,
-                        heightScrollThumb: 40,
-                        child: ListView.builder(
-                          controller: _bucketsScrollController,
-                          padding: EdgeInsets.only(right: 20),
-                          itemCount:
-                              this._availableBuckets != null ? this._availableBuckets.length : 0,
-                          itemBuilder: (context, index) {
-                            return ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              title: Text(
-                                this._availableBuckets[index].name,
-                                style: TextStyle(
-                                  color: TEXT_COLOR,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 20,
-                                ),
-                                textAlign: (this._availableBuckets != null &&
-                                        this._availableBuckets.isNotEmpty)
-                                    ? TextAlign.left
-                                    : TextAlign.center,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 2,
+                      child: this._availableBuckets == null
+                          ? Center(
+                              child: CircularProgressIndicator(
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(LIGHT_GREY),
                               ),
-                              trailing: Text(
-                                'created on ' +
-                                    this._bucketsCreationDateformat.format(
-                                          this._availableBuckets[index].creationDate,
-                                        ),
-                                style: TextStyle(
-                                  color: TEXT_COLOR.withAlpha(150),
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 20,
-                                ),
+                            )
+                          : DraggableScrollbar.rrect(
+                              controller: _bucketsScrollController,
+                              backgroundColor: DARK_GREY,
+                              heightScrollThumb: 40,
+                              child: ListView.builder(
+                                controller: _bucketsScrollController,
+                                padding: EdgeInsets.only(right: 20),
+                                itemCount: this._availableBuckets != null
+                                    ? this._availableBuckets.length
+                                    : 0,
+                                itemBuilder: (context, index) {
+                                  return ListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    title: Text(
+                                      this._availableBuckets[index].name,
+                                      style: TextStyle(
+                                        color: TEXT_COLOR,
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 20,
+                                      ),
+                                      textAlign: (this._availableBuckets !=
+                                                  null &&
+                                              this._availableBuckets.isNotEmpty)
+                                          ? TextAlign.left
+                                          : TextAlign.center,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 2,
+                                    ),
+                                    trailing: Text(
+                                      'created on ' +
+                                          this
+                                              ._bucketsCreationDateformat
+                                              .format(
+                                                this
+                                                    ._availableBuckets[index]
+                                                    .creationDate,
+                                              ),
+                                      style: TextStyle(
+                                        color: TEXT_COLOR.withAlpha(150),
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          },
-                        ),
-                      ),
+                            ),
                     ),
                   ],
                 ),
@@ -427,6 +449,30 @@ class _DashboardViewState extends State<DashboardView>
     );
   }
 
+  Widget _configurationValidationPanel() {
+    return Container(
+      child: Material(
+        borderRadius: BorderRadius.circular(10),
+        color: Theme.of(context).primaryColor,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(20, 20, 20, 50),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              SizedBox(
+                height: 16,
+              ),
+              this._textPanel(
+                'Valid Configuration',
+                this._connectionCredentialsAreValid.toString(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -438,7 +484,7 @@ class _DashboardViewState extends State<DashboardView>
         crossAxisCount: 6,
         crossAxisSpacing: 32,
         mainAxisSpacing: 32,
-        itemCount: 4,
+        itemCount: 5,
         itemBuilder: (BuildContext context, int index) {
           if (index == 0) {
             return this._configurationPanel(context);
@@ -448,6 +494,8 @@ class _DashboardViewState extends State<DashboardView>
             return this._regionPanel();
           } else if (index == 3) {
             return this._bucketsPanel(context);
+          } else if (index == 4) {
+            return this._configurationValidationPanel();
           }
           return SizedBox();
         },
@@ -463,6 +511,8 @@ class _DashboardViewState extends State<DashboardView>
               return StaggeredTile.fit(4);
             }
             return StaggeredTile.fit(6);
+          } else if (index == 4) {
+            return StaggeredTile.fit(2);
           }
           return StaggeredTile.count(1, 1);
         },

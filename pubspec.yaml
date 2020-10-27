@@ -28,7 +28,7 @@ dependencies:
   flutter:
     sdk: flutter
   intl: ^0.16.1
-  minio: ^0.1.8
+  minio: ^1.0.2-pre
   path: ^1.7.0
   shared_preferences: ^0.5.12
   file_picker: ^2.0.4

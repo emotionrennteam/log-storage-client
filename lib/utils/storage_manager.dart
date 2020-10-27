@@ -127,7 +127,7 @@ Future<String> shareObjectFromRemoteStorage(
 }
 
 /// Irreversibly deletes the specified [StorageObject] from the remote storage system.
-/// 
+///
 /// Can also delete directories by recursively deleting all child objects.
 Future<void> deleteObjectFromRemoteStorage(
   StorageObject storageObject,
@@ -367,13 +367,20 @@ Future<void> _downloadFileStorageObject(
   Minio minio,
 ) async {
   try {
-    var objectByteStream =
+    final objectByteStream =
         await minio.getObject(credentials.bucket, fileStorageObject.path);
-    var bytes = await objectByteStream.toBytes();
-    var objectName = _removeCurrentDirectoryPrefixFromFilePath(
+    final bytes = await objectByteStream.toBytes();
+    final objectName = _removeCurrentDirectoryPrefixFromFilePath(
         fileStorageObject.path, currentDirectory);
-    // TODO: ensure that parent directory exists
-    File(p.join(downloadDirectory.path, objectName)).writeAsBytesSync(bytes);
+    final filePath = p.join(downloadDirectory.path, objectName);
+
+    // Ensure that the file's parent directory exists
+    final parentDirectory = p.dirname(filePath);
+    if (!Directory(parentDirectory).existsSync()) {
+      Directory(parentDirectory).createSync();
+    }
+
+    File(filePath).writeAsBytesSync(bytes);
   } on Exception catch (e) {
     throw new DownloadException(e.toString(), fileStorageObject.path);
   }

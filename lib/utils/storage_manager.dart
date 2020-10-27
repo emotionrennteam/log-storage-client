@@ -127,16 +127,25 @@ Future<String> shareObjectFromRemoteStorage(
 }
 
 /// Irreversibly deletes the specified [StorageObject] from the remote storage system.
+/// 
+/// Can also delete directories by recursively deleting all child objects.
 Future<void> deleteObjectFromRemoteStorage(
   StorageObject storageObject,
   StorageConnectionCredentials credentials,
 ) async {
   final minio = _initializeClient(credentials);
-  // TODO: delete directories by removing objects recursively
   if (storageObject.isDirectory) {
-    throw new UnimplementedError();
+    final childObjects = await listObjectsInRemoteStorage(
+      credentials,
+      path: storageObject.path,
+      recursive: true,
+    );
+    final childObjectsPaths = childObjects.map((o) => o.path).toList();
+
+    minio.removeObjects(credentials.bucket, childObjectsPaths);
+  } else {
+    await minio.removeObject(credentials.bucket, storageObject.path);
   }
-  await minio.removeObject(credentials.bucket, storageObject.path);
 }
 
 /// Recursively downloads all storage objects in the given [List<StorageObject>] and their
@@ -152,7 +161,7 @@ Future<void> downloadObjectsFromRemoteStorage(
 ) async {
   ProgressService progressService = locator<ProgressService>();
   final progressStreamSink = progressService.startProgressStream('Download');
-  
+
   // Delay download for 1 second so that the download progress animation can pop-up.
   await Future.delayed(Duration(seconds: 1));
 

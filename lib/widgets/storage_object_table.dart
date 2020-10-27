@@ -12,6 +12,8 @@ import 'package:flutter/services.dart';
 import 'package:log_storage_client/widgets/emotion_design_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+enum PopupMenuOption { Delete, Share }
+
 /// Builds the widget for displaying the list of [StorageObject]s as a table.
 class StorageObjectTable extends StatefulWidget {
   /// Whether to display the last column with options to delete or share files.
@@ -46,7 +48,6 @@ class StorageObjectTable extends StatefulWidget {
 
 class _StorageObjectTableState extends State<StorageObjectTable> {
   List<bool> _selectedStorageObjects;
-  List<String> _storageObjectOptions = ['Delete', 'Share'];
   TextStyle _textStyle = const TextStyle(color: Colors.white);
 
   @override
@@ -85,10 +86,10 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
   /// and give download access to the specified file without having to
   /// authenticate (no credentials required).
   PopupMenuButton _popupMenuButtonForOptions(StorageObject storageObject) {
-    return PopupMenuButton<String>(
+    return PopupMenuButton<PopupMenuOption>(
       onSelected: (option) {
         getStorageConnectionCredentials().then((credentials) {
-          if (option == 'Share') {
+          if (option == PopupMenuOption.Share) {
             shareObjectFromRemoteStorage(
               storageObject,
               credentials,
@@ -112,7 +113,7 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
                 ));
               });
             });
-          } else if (option == 'Delete') {
+          } else if (option == PopupMenuOption.Delete) {
             showCupertinoModalPopup(
               context: context,
               filter: ImageFilter.blur(
@@ -123,7 +124,8 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
                 return AlertDialog(
                   backgroundColor: Theme.of(context).primaryColor,
                   elevation: 20,
-                  title: Text('Delete File'),
+                  title: Text(
+                      'Delete ${storageObject.isDirectory ? "Directory" : "File"}'),
                   content: Text(
                     'Do you really want to delete ${storageObject.path}?\nThis action can\'t be undone.',
                   ),
@@ -183,14 +185,18 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
       color: DARK_GREY,
       elevation: 20,
       itemBuilder: (BuildContext context) {
-        return _storageObjectOptions.map((String option) {
-          return PopupMenuItem(
+        return PopupMenuOption.values.map((PopupMenuOption option) {
+          // Disables sharing of directories (which is not possible in S3)
+          final enabled =
+              (!storageObject.isDirectory || option == PopupMenuOption.Delete);
+
+          return PopupMenuItem<PopupMenuOption>(
             value: option,
-            enabled: !storageObject.isDirectory,
+            enabled: enabled,
             child: Text(
-              option,
+              option.toString().split('.').last,
               style: TextStyle(
-                color: !storageObject.isDirectory ? TEXT_COLOR : LIGHT_GREY,
+                color: enabled ? TEXT_COLOR : LIGHT_GREY,
                 fontWeight: FontWeight.w400,
               ),
             ),

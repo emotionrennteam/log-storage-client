@@ -140,6 +140,7 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
       onPressed: this._onDownloadFabPressed,
     );
   }
+
   /// Enables or disables the [FloatingActionButton] depending on
   /// the count of currently selected [StorageObject]s and whether
   /// another file transfer is already in progress.
@@ -173,30 +174,17 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
           return;
         }
 
-        // TODO: doesn't catch exceptions
         downloadObjectsFromRemoteStorage(
           this._credentials,
           downloadDirectory,
           this._currentDirectory,
           this._selectedStorageObjects,
-        ).then((_) {
-          // Scaffold.of(context).hideCurrentSnackBar();
-          // Scaffold.of(context).showSnackBar(
-          //   getSnackBar('Download completed.', false),
-          // );
-        }).catchError((error) {
+        ).catchError((error) {
           Scaffold.of(context).hideCurrentSnackBar();
           Scaffold.of(context).showSnackBar(
             getSnackBar(error.toString(), true),
           );
-          return;
         });
-
-        // TODO: de-select all objects after download
-        // setState(() {
-        //   this._selectedStorageObjects =
-        //       List<bool>.generate(this._storageObjects.length, (_) => false);
-        // });
       };
     });
   }

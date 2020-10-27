@@ -181,7 +181,6 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
                 'If set to true, a TLS secured connection (HTTPS)\nis used instead of a plain-text connection (HTTP).',
                 this._isTlsTooltipVisible,
               ),
-              // TODO: add a FocusNode to the switch
               SwitchListTile(
                 autofocus: false,
                 value: this._tlsEnabled,

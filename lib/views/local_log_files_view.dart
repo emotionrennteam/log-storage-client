@@ -72,7 +72,7 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
       this._fileTransferIsInProgress = progressService.isInProgress();
     });
     progressService.getIsInProgressStream().listen((isInProgress) {
-      if (isInProgress != this._fileTransferIsInProgress) {
+      if (mounted && isInProgress != this._fileTransferIsInProgress) {
         setState(() {
           this._fileTransferIsInProgress = isInProgress;
         });

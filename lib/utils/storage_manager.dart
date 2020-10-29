@@ -142,7 +142,7 @@ Future<void> deleteObjectFromRemoteStorage(
     );
     final childObjectsPaths = childObjects.map((o) => o.path).toList();
 
-    minio.removeObjects(credentials.bucket, childObjectsPaths);
+    await minio.removeObjects(credentials.bucket, childObjectsPaths);
   } else {
     await minio.removeObject(credentials.bucket, storageObject.path);
   }

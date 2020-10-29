@@ -360,60 +360,63 @@ class _DashboardViewState extends State<DashboardView>
                           : this._availableBuckets.length <= 5
                               ? 100
                               : 300,
-                      child: this._availableBuckets == null
-                          ? Center(
-                              child: CircularProgressIndicator(
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(LIGHT_GREY),
-                              ),
-                            )
-                          : DraggableScrollbar.rrect(
+                      child: Stack(
+                        children: [
+                          this._availableBuckets == null
+                              ? Center(
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        LIGHT_GREY),
+                                  ),
+                                )
+                              : SizedBox(),
+                          DraggableScrollbar.rrect(
+                            controller: _bucketsScrollController,
+                            backgroundColor: DARK_GREY,
+                            heightScrollThumb: 40,
+                            child: ListView.builder(
                               controller: _bucketsScrollController,
-                              backgroundColor: DARK_GREY,
-                              heightScrollThumb: 40,
-                              child: ListView.builder(
-                                controller: _bucketsScrollController,
-                                padding: EdgeInsets.only(right: 20),
-                                itemCount: this._availableBuckets != null
-                                    ? this._availableBuckets.length
-                                    : 0,
-                                itemBuilder: (context, index) {
-                                  return ListTile(
-                                    contentPadding: EdgeInsets.zero,
-                                    title: Text(
-                                      this._availableBuckets[index].name,
-                                      style: TextStyle(
-                                        color: TEXT_COLOR,
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: 20,
-                                      ),
-                                      textAlign: (this._availableBuckets !=
-                                                  null &&
-                                              this._availableBuckets.isNotEmpty)
-                                          ? TextAlign.left
-                                          : TextAlign.center,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 2,
+                              padding: EdgeInsets.only(right: 20),
+                              itemCount: this._availableBuckets != null
+                                  ? this._availableBuckets.length
+                                  : 0,
+                              itemBuilder: (context, index) {
+                                return ListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  title: Text(
+                                    this._availableBuckets[index].name,
+                                    style: TextStyle(
+                                      color: TEXT_COLOR,
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 20,
                                     ),
-                                    trailing: Text(
-                                      'created on ' +
-                                          this
-                                              ._bucketsCreationDateformat
-                                              .format(
-                                                this
-                                                    ._availableBuckets[index]
-                                                    .creationDate,
-                                              ),
-                                      style: TextStyle(
-                                        color: TEXT_COLOR.withAlpha(150),
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: 20,
-                                      ),
+                                    textAlign: (this._availableBuckets !=
+                                                null &&
+                                            this._availableBuckets.isNotEmpty)
+                                        ? TextAlign.left
+                                        : TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
+                                  ),
+                                  trailing: Text(
+                                    'created on ' +
+                                        this._bucketsCreationDateformat.format(
+                                              this
+                                                  ._availableBuckets[index]
+                                                  .creationDate,
+                                            ),
+                                    style: TextStyle(
+                                      color: TEXT_COLOR.withAlpha(150),
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 20,
                                     ),
-                                  );
-                                },
-                              ),
+                                  ),
+                                );
+                              },
                             ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),

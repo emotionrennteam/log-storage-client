@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'E-Motion Rennteam',
       theme: ThemeData(
+        primarySwatch: Colors.blueGrey,
         primaryColor: Color.fromRGBO(32, 33, 37, 1),
         canvasColor: Color.fromRGBO(22, 23, 27, 1),
         accentColor: Color.fromRGBO(1, 176, 117, 1),

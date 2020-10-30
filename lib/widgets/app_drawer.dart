@@ -181,7 +181,7 @@ class _AppDrawerState extends State<AppDrawer> {
       },
     );
     this._dialogSetState = null;
-    
+
     setState(() {
       // Dummy to ensure that the UI refreshes after the user has clicked the "Clear Errors"
       // button of the FileTransferErrorDialog and closed the dialog.
@@ -191,7 +191,7 @@ class _AppDrawerState extends State<AppDrawer> {
   /// A widget that visualizes the current upload/download progress using a
   /// [LinearProgressIndicator], shows percentage of completion, and a name
   /// for the currently active file transfer ("Upload" respectively "Download").
-  /// 
+  ///
   /// This widget automatically positions itself out of the app's view after
   /// the file transfer completed.
   Widget _progressVisualization() {
@@ -263,7 +263,8 @@ class _AppDrawerState extends State<AppDrawer> {
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(BORDER_RADIUS_SMALL),
+                        borderRadius:
+                            BorderRadius.circular(BORDER_RADIUS_SMALL),
                         boxShadow: [
                           BoxShadow(
                             color:
@@ -296,74 +297,64 @@ class _AppDrawerState extends State<AppDrawer> {
 
   /// Returns a button which shows whether there are any file transfer
   /// errors (upload/download errors).
-  /// 
+  ///
   /// The button automatically changes its color from green to red when at
   /// least one file transfer error occurred. The button is automatically
   /// disabled when there are no file transfer errors.
   Widget _fileTransferErrorButton() {
-    return Align(
-      alignment: Alignment.bottomLeft,
-      child: Padding(
-        padding: EdgeInsets.only(bottom: this._isInProgress ? 100 : 30),
-        child: Padding(
-          padding: EdgeInsets.only(
-            left: 20,
-            right: 20,
-            top: 10,
-          ),
-          child: Container(
-            height: 50,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(BORDER_RADIUS_SMALL),
-              boxShadow: [
-                BoxShadow(
-                  color: this._errors == null || this._errors.length == 0
-                      ? Theme.of(context).accentColor.withOpacity(0.5)
-                      : LIGHT_RED,
-                  blurRadius: 30,
-                  spreadRadius: 0,
-                  offset: Offset(0, 3),
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20, 10, 20, 30),
+      child: Container(
+        height: 50,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(BORDER_RADIUS_SMALL),
+          boxShadow: [
+            BoxShadow(
+              color: this._errors == null || this._errors.length == 0
+                  ? Theme.of(context).accentColor.withOpacity(0.5)
+                  : LIGHT_RED,
+              blurRadius: 30,
+              spreadRadius: 0,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Material(
+          borderRadius: BorderRadius.circular(BORDER_RADIUS_SMALL),
+          color: this._errors == null || this._errors.length == 0
+              ? Theme.of(context).accentColor
+              : LIGHT_RED,
+          child: InkWell(
+            splashColor: this._errors == null || this._errors.length == 0
+                ? Theme.of(context).accentColor
+                : LIGHT_RED,
+            highlightColor: Colors.transparent,
+            onTap: this._errors == null || this._errors.length == 0
+                ? null
+                : _showFileTransferErrorDialog,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 30,
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.warning_amber_rounded,
+                      color: TEXT_COLOR,
+                      size: 30,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  '${this._errors.length} File Transfer Error${this._errors.length == 1 ? "" : "s"}',
+                  style: Theme.of(context).textTheme.headline6,
                 ),
               ],
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Material(
-              borderRadius: BorderRadius.circular(BORDER_RADIUS_SMALL),
-              color: this._errors == null || this._errors.length == 0
-                  ? Theme.of(context).accentColor
-                  : LIGHT_RED,
-              child: InkWell(
-                splashColor: this._errors == null || this._errors.length == 0
-                    ? Theme.of(context).accentColor
-                    : LIGHT_RED,
-                highlightColor: Colors.transparent,
-                onTap: this._errors == null || this._errors.length == 0
-                    ? null
-                    : _showFileTransferErrorDialog,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 30,
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: Icon(
-                          Icons.warning_amber_rounded,
-                          color: TEXT_COLOR,
-                          size: 30,
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      '${this._errors.length} File Transfer Error${this._errors.length == 1 ? "" : "s"}',
-                      style: Theme.of(context).textTheme.headline6,
-                    ),
-                  ],
-                ),
-              ),
             ),
           ),
         ),
@@ -384,7 +375,21 @@ class _AppDrawerState extends State<AppDrawer> {
           ListView(
             children: this._buildAppDrawerItems(context),
           ),
-          this._fileTransferErrorButton(),
+          AnimatedPositioned(
+            bottom: this._isInProgress ? 50 : 0,
+            height: 300,
+            width: 310,
+            curve: Curves.easeOut,
+            duration: Duration(
+              milliseconds: this._isInProgress ? 100 : 1000,
+            ),
+            child: ListView(
+              reverse: true,
+              children: <Widget>[
+                this._fileTransferErrorButton(),
+              ],
+            ),
+          ),
           this._progressVisualization(),
         ],
       ),

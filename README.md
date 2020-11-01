@@ -4,25 +4,21 @@
 
 This repository contains the code for the Log Storage Client written in Dart using the framework Flutter.
 
-For help getting started with Flutter, view the
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+For help getting started with Flutter, view the [online documentation](https://flutter.dev/docs), which offers tutorials, samples, guidance on mobile development, and a full API reference.
 
-## Design
 
-### Color Palette
 
-![](./color-palette.png)
+## Color Palette & Mockups
 
-### UI Design
+| Color Palette                                                |                                                              |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![](mockups/color-palette.png)                               |                                                              |
+| [Podcast Dashboard by Valery Pevnev](https://dribbble.com/shots/9699028-Podcast-Dashboard) | [Desktop app - Settings by Kirill Kalita](https://dribbble.com/shots/7090778-Desktop-app-Settings) |
+| ![](https://cdn.dribbble.com/users/863815/screenshots/9699028/media/461bbfca32fee7b48f52ab6fc3825e12.jpg) | ![](https://cdn.dribbble.com/users/1256370/screenshots/7090778/media/e08226c870383ae934c26e1b79253212.png) |
+| [Mockup for displaying upload/download errors](./mockups/mockupDownloadUploadErrors.png) | [Mockup for managing profiles](./mockups/mockupProfilesView.png) |
+| ![](./mockups/mockupDownloadUploadErrors.png)                | ![](./mockups/mockupProfilesView.png)                        |
 
-* [Podcast Dashboard by Valery Pevnev](https://dribbble.com/shots/9699028-Podcast-Dashboard)
-  ![](https://cdn.dribbble.com/users/863815/screenshots/9699028/media/461bbfca32fee7b48f52ab6fc3825e12.jpg)
-* [Desktop app - Settings by Kirill Kalita](https://dribbble.com/shots/7090778-Desktop-app-Settings)
-  ![](https://cdn.dribbble.com/users/1256370/screenshots/7090778/media/e08226c870383ae934c26e1b79253212.png)
 
-* Mockup for displaying upload/download errors
-   ![](./mockupDownloadUploadErrors.png)
 
 ## Development
 
@@ -60,7 +56,7 @@ samples, guidance on mobile development, and a full API reference.
         ```bash
         mkdir data/
          ./minio.exe server data/
-         ```
+        ```
      3. You can access the MinIO Browser on http://127.0.0.1:9000. The default credentials are:
         * User: `minioadmin`
         * Password: `minioadmin`
@@ -75,6 +71,8 @@ samples, guidance on mobile development, and a full API reference.
          server /data
      ```
 
+
+
 ## File Picker Workaround
 
 Support for desktop in Flutter is still in technical preview. Therefore, some featues are not available. The project [go-flutter](https://github.com/go-flutter-desktop/go-flutter) brings support for special features such as file pickers on Linux, MacOS, and Windows
@@ -87,7 +85,10 @@ In order to compile this app, you'll need to follow [these instructions](https:/
       ```bash
       hover init
       hover run
+      # build for Windows:
       hover build windows
+      # build for Linux:
+      hover build linux
       ```
 
 ## MinIO
@@ -133,6 +134,7 @@ With `mc` (MinIO Client) MinIO provides a client application for administrative 
    ```
 
 
+
 ## Release
 
 ### Windows
@@ -144,11 +146,21 @@ There are two different ways how to release this app for Windows.
     hover init-packaging windows
     hover build windows
     ```
-    Output: `go/build/outputs/windows/log_storage_client.exe`
+    Output: `./go/build/outputs/windows/log_storage_client.exe`
 
 2. Build an executable (*.exe) for Windows and package it for msi (creates an installer / one single file)
     ```bash
     hover init-packaging windows-msi
     hover build windows-msi --docker
     ```
-    Output: `go/build/outputs/windows-msi/log_storage_client 0.1.1.msi`
+    Output: `./go/build/outputs/windows-msi/Log Storage Client 0.2.0.msi`
+
+## Linux
+
+Build the executable binary:
+
+```bash
+hover build linux
+```
+
+Output:  `./go/build/outputs/linux/log_storage_client`

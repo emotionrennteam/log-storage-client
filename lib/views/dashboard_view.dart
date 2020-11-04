@@ -480,7 +480,7 @@ class _DashboardViewState extends State<DashboardView>
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: 16,
+        horizontal: 32,
         vertical: 42,
       ),
       child: StaggeredGridView.countBuilder(

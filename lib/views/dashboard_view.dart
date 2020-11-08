@@ -502,6 +502,7 @@ class _DashboardViewState extends State<DashboardView>
           }
           return SizedBox();
         },
+        physics: BouncingScrollPhysics(),
         staggeredTileBuilder: (int index) {
           if (index == 0) {
             return StaggeredTile.fit(6);

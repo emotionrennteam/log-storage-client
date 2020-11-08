@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:log_storage_client/models/upload_profile.dart';
+import 'package:log_storage_client/utils/app_settings.dart' as AppSettings;
 import 'package:log_storage_client/utils/constants.dart';
 import 'package:log_storage_client/widgets/emotion_design_button.dart';
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';
@@ -18,13 +19,19 @@ class ProfilesView extends StatefulWidget {
 }
 
 class _ProfilesViewState extends State<ProfilesView> {
-  final profiles = [
-    UploadProfile('FSG Nürnburg 2019', 'Jens Hertfelder', 'FSG, Nürnburgring',
-        'Rainy track',
-        enabled: true),
-    UploadProfile('FSA Wien 2019', 'Fabian Langer', 'FSA, Wien', '-'),
-    UploadProfile('Werkstatt', '-', 'Werkstatt', 'Test'),
-  ];
+  List<UploadProfile> profiles = [];
+
+  @override
+  initState() {
+    super.initState();
+    AppSettings.getUploadProfiles().then((List<UploadProfile> uploadProfiles) {
+      if (mounted) {
+        setState(() {
+          this.profiles = uploadProfiles;
+        });
+      }
+    });
+  }
 
   FloatingActionButton _createProfileFloatingActionButton() {
     return FloatingActionButton.extended(
@@ -49,9 +56,12 @@ class _ProfilesViewState extends State<ProfilesView> {
           builder: (context) => UploadProfileEditDialog(),
         );
         if (newUploadProfile != null) {
-          setState(() {
-            this.profiles.add(newUploadProfile);
-          });
+          if (mounted) {
+            setState(() {
+              this.profiles.add(newUploadProfile);
+            });
+          }
+          AppSettings.setUploadProfiles(this.profiles);
         }
       },
     );
@@ -92,18 +102,21 @@ class _ProfilesViewState extends State<ProfilesView> {
                   Text(
                     this.profiles[index].name,
                     style: Theme.of(context).textTheme.headline5,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   Switch(
                     value: this.profiles[index].enabled,
                     onChanged: (enabled) {
-                      setState(() {
-                        if (enabled) {
+                      // Don't allow to directly disable an UploadProfile
+                      if (enabled) {
+                        setState(() {
                           this.profiles.forEach((element) {
                             element.enabled = false;
                           });
-                          this.profiles[index].enabled = enabled;
-                        }
-                      });
+                          this.profiles[index].enabled = true;
+                        });
+                        AppSettings.setUploadProfiles(this.profiles);
+                      }
                     },
                     activeColor: Colors.white,
                   ),
@@ -133,6 +146,7 @@ class _ProfilesViewState extends State<ProfilesView> {
                               .textTheme
                               .headline6
                               .copyWith(fontSize: 18),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -155,6 +169,7 @@ class _ProfilesViewState extends State<ProfilesView> {
                               .textTheme
                               .headline6
                               .copyWith(fontSize: 18),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -177,6 +192,7 @@ class _ProfilesViewState extends State<ProfilesView> {
                               .textTheme
                               .headline6
                               .copyWith(fontSize: 18),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -205,9 +221,12 @@ class _ProfilesViewState extends State<ProfilesView> {
                                 ),
                               );
                               if (editedUploadProfile != null) {
-                                setState(() {
-                                  this.profiles[index] = editedUploadProfile;
-                                });
+                                if (mounted) {
+                                  setState(() {
+                                    this.profiles[index] = editedUploadProfile;
+                                  });
+                                }
+                                AppSettings.setUploadProfiles(this.profiles);
                               }
                             },
                             child: Text(
@@ -220,9 +239,12 @@ class _ProfilesViewState extends State<ProfilesView> {
                           ),
                           EmotionDesignButton(
                             onPressed: () {
-                              setState(() {
-                                this.profiles.remove(this.profiles[index]);
-                              });
+                              if (mounted) {
+                                setState(() {
+                                  this.profiles.remove(this.profiles[index]);
+                                });
+                              }
+                              AppSettings.setUploadProfiles(this.profiles);
                             },
                             child: Text(
                               'Delete',
@@ -269,7 +291,7 @@ class _ProfilesViewState extends State<ProfilesView> {
                       padding: EdgeInsets.only(bottom: 64),
                       crossAxisCount:
                           (MediaQuery.of(context).size.width > 1200) ? 4 : 2,
-                      itemCount: this.profiles.length,
+                      itemCount: this.profiles?.length,
                       crossAxisSpacing: 0,
                       mainAxisSpacing: 32,
                       itemBuilder: (BuildContext _, int index) =>

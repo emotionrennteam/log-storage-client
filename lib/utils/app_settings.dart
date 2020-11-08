@@ -1,6 +1,9 @@
-library settings;
+library app_settings;
+
+import 'dart:convert';
 
 import 'package:log_storage_client/models/storage_connection_credentials.dart';
+import 'package:log_storage_client/models/upload_profile.dart';
 import 'package:log_storage_client/utils/settings_storage.dart';
 import 'package:flutter/foundation.dart';
 
@@ -13,6 +16,7 @@ const String _STORAGE_PORT = 'STORAGE_PORT';
 const String _STORAGE_REGION = 'STORAGE_REGION';
 const String _STORAGE_SECRET_KEY = 'STORAGE_SECRET_KEY';
 const String _STORAGE_TLS_ENABLED = 'STORAGE_TLS_ENABLED';
+const String _UPLOAD_PROFILES = 'UPLOAD_PROFILES';
 
 Future<bool> saveAllSettings(
   String endpoint,
@@ -139,4 +143,18 @@ Future<bool> setAutoUploadEnabled(bool enabled) async {
 
 Future<bool> getAutoUploadEnabled() async {
   return await getBoolSetting(_AUTO_UPLOAD_ENABLED);
+}
+
+Future<List<UploadProfile>> getUploadProfiles() async {
+  final profilesJson = await getStringSetting(_UPLOAD_PROFILES);
+  if (profilesJson == null || profilesJson.isEmpty) {
+    return List();
+  }
+  final Iterable iterable = json.decode(profilesJson);
+  return List<UploadProfile>.from(iterable.map((e) => UploadProfile.fromJson(e))).toList();
+}
+
+Future<bool> setUploadProfiles(List<UploadProfile> uploadProfiles) async {
+  final profilesJson = json.encode(uploadProfiles);
+  return await setStringSetting(_UPLOAD_PROFILES, profilesJson);
 }

@@ -2,7 +2,8 @@ import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:log_storage_client/models/storage_connection_credentials.dart';
-import 'package:log_storage_client/utils/app_settings.dart';
+import 'package:log_storage_client/models/upload_profile.dart';
+import 'package:log_storage_client/utils/app_settings.dart' as AppSettings;
 import 'package:log_storage_client/utils/constants.dart';
 import 'package:log_storage_client/utils/storage_manager.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +31,7 @@ class _DashboardViewState extends State<DashboardView>
   String _endpoint;
   String _port;
   String _region;
+  String _activeUploadProfile;
   bool _useTLS = false;
   bool _connectionCredentialsAreValid;
 
@@ -37,10 +39,10 @@ class _DashboardViewState extends State<DashboardView>
   initState() {
     super.initState();
 
-    getStorageBucket().then((String bucket) {
+    AppSettings.getStorageBucket().then((String bucket) {
       this._bucket = bucket == null || bucket.isEmpty ? '-' : bucket;
     });
-    getStorageConnectionCredentials().then((credentials) {
+    AppSettings.getStorageConnectionCredentials().then((credentials) {
       if (mounted) {
         setState(() {
           this._endpoint =
@@ -61,6 +63,12 @@ class _DashboardViewState extends State<DashboardView>
       Scaffold.of(context).showSnackBar(
         getSnackBar(error.toString(), true),
       );
+    });
+    AppSettings.getUploadProfiles().then((List<UploadProfile> profiles) {
+      setState(() {
+        this._activeUploadProfile =
+            profiles.where((profile) => profile.enabled).first?.name;
+      });
     });
 
     this._animationController = AnimationController(
@@ -476,6 +484,30 @@ class _DashboardViewState extends State<DashboardView>
     );
   }
 
+  Widget _activeUploadProfilePanel() {
+    return Container(
+      child: Material(
+        borderRadius: BorderRadius.circular(BORDER_RADIUS_MEDIUM),
+        color: Theme.of(context).primaryColor,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(20, 20, 20, 50),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              SizedBox(
+                height: 16,
+              ),
+              this._textPanel(
+                'Active Upload Profile',
+                this._activeUploadProfile,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -487,7 +519,7 @@ class _DashboardViewState extends State<DashboardView>
         crossAxisCount: 6,
         crossAxisSpacing: 32,
         mainAxisSpacing: 32,
-        itemCount: 5,
+        itemCount: 6,
         itemBuilder: (BuildContext context, int index) {
           if (index == 0) {
             return this._configurationPanel(context);
@@ -499,6 +531,8 @@ class _DashboardViewState extends State<DashboardView>
             return this._bucketsPanel(context);
           } else if (index == 4) {
             return this._configurationValidationPanel();
+          } else if (index == 5) {
+            return this._activeUploadProfilePanel();
           }
           return SizedBox();
         },
@@ -517,6 +551,11 @@ class _DashboardViewState extends State<DashboardView>
             return StaggeredTile.fit(6);
           } else if (index == 4) {
             return StaggeredTile.fit(2);
+          } else if (index == 5) {
+            if (MediaQuery.of(context).size.width > 1500) {
+              return StaggeredTile.fit(2);
+            }
+            return StaggeredTile.fit(3);
           }
           return StaggeredTile.count(1, 1);
         },

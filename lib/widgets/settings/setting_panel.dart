@@ -60,6 +60,7 @@ class _SettingPanelState extends State<SettingPanel> {
                 padding: EdgeInsets.all(12),
                 preferBelow: true,
                 verticalOffset: 15,
+                textStyle: Theme.of(context).textTheme.subtitle1,
               ),
               opacity: widget.isIconForTooltipVisible ? 1.0 : 0.0,
               curve: Curves.easeInBack,

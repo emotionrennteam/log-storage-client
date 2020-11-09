@@ -194,7 +194,7 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
     return Stack(
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 32),
+          padding: EdgeInsets.fromLTRB(32, 0, 32, 100),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,

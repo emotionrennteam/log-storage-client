@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:log_storage_client/models/storage_object.dart';
 import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/constants.dart';
@@ -48,6 +49,7 @@ class StorageObjectTable extends StatefulWidget {
 
 class _StorageObjectTableState extends State<StorageObjectTable> {
   List<bool> _selectedStorageObjects;
+  ScrollController _scrollController = ScrollController();
   TextStyle _textStyle = const TextStyle(color: Colors.white);
 
   @override
@@ -208,113 +210,124 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      itemCount: widget.storageObjects.length,
-      padding: EdgeInsets.only(bottom: 100),
-      physics: BouncingScrollPhysics(),
-      separatorBuilder: (context, index) => Container(
-        height: 0,
-        color: DARK_GREY,
+    return DraggableScrollbar.rrect(
+      backgroundColor: DARK_GREY,
+      controller: this._scrollController,
+      heightScrollThumb: 50,
+      padding: EdgeInsets.symmetric(
+        vertical: 8,
       ),
-      itemBuilder: (context, index) {
-        return Container(
-          color: this._selectedStorageObjects[index]
-              ? DARK_GREY
-              : Theme.of(context).primaryColor,
-          height: 50,
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                margin: EdgeInsets.symmetric(horizontal: 10),
-                child: Checkbox(
-                  activeColor: DARK_GREY,
-                  value: this._selectedStorageObjects[index],
-                  onChanged: (bool newValue) {
-                    setState(() {
-                      this._selectedStorageObjects[index] = newValue;
-                      final selectedStorageObjects = List<StorageObject>();
-                      for (var i = 0; i < widget.storageObjects.length; i++) {
-                        if (this._selectedStorageObjects[i]) {
-                          selectedStorageObjects.add(widget.storageObjects[i]);
+      child: ListView.separated(
+        controller: this._scrollController,
+        itemCount: widget.storageObjects.length,
+        physics: BouncingScrollPhysics(),
+        separatorBuilder: (context, index) => Container(
+          height: 0,
+          color: DARK_GREY,
+        ),
+        itemBuilder: (context, index) {
+          return Container(
+            color: this._selectedStorageObjects[index]
+                ? DARK_GREY
+                : Theme.of(context).primaryColor,
+            height: 50,
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  margin: EdgeInsets.symmetric(horizontal: 10),
+                  child: Checkbox(
+                    activeColor: DARK_GREY,
+                    value: this._selectedStorageObjects[index],
+                    onChanged: (bool newValue) {
+                      setState(() {
+                        this._selectedStorageObjects[index] = newValue;
+                        final selectedStorageObjects = List<StorageObject>();
+                        for (var i = 0; i < widget.storageObjects.length; i++) {
+                          if (this._selectedStorageObjects[i]) {
+                            selectedStorageObjects
+                                .add(widget.storageObjects[i]);
+                          }
                         }
-                      }
-                      widget.onSelectionChangedCallback(selectedStorageObjects);
-                    });
-                  },
+                        widget
+                            .onSelectionChangedCallback(selectedStorageObjects);
+                      });
+                    },
+                  ),
                 ),
-              ),
-              Expanded(
-                child: MouseRegion(
-                  cursor: widget.storageObjects[index].isDirectory
-                      ? SystemMouseCursors.click
-                      : MouseCursor.defer,
-                  child: GestureDetector(
-                    onTap: widget.storageObjects[index].isDirectory
-                        ? () => widget.onNavigateToDirectoryCallback(
-                              widget.storageObjects[index].path,
-                            )
-                        : null,
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 100,
-                          child: Icon(
-                            widget.storageObjects[index].isDirectory
-                                ? Icons.folder
-                                : Icons.insert_drive_file,
-                            color: Theme.of(context).iconTheme.color,
+                Expanded(
+                  child: MouseRegion(
+                    cursor: widget.storageObjects[index].isDirectory
+                        ? SystemMouseCursors.click
+                        : MouseCursor.defer,
+                    child: GestureDetector(
+                      onTap: widget.storageObjects[index].isDirectory
+                          ? () => widget.onNavigateToDirectoryCallback(
+                                widget.storageObjects[index].path,
+                              )
+                          : null,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 100,
+                            child: Icon(
+                              widget.storageObjects[index].isDirectory
+                                  ? Icons.folder
+                                  : Icons.insert_drive_file,
+                              color: Theme.of(context).iconTheme.color,
+                            ),
                           ),
-                        ),
-                        Expanded(
-                          child: Container(
+                          Expanded(
+                            child: Container(
+                              child: Text(
+                                widget.storageObjects[index].getBasename(),
+                                style: _textStyle,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            width: 110,
+                            margin: EdgeInsets.only(right: 20),
                             child: Text(
-                              widget.storageObjects[index].getBasename(),
+                              widget.storageObjects[index]
+                                  .getHumanReadableLastModified(),
                               style: _textStyle,
+                            ),
+                          ),
+                          Container(
+                            width: 100,
+                            padding: EdgeInsets.only(right: 20),
+                            child: Text(
+                              widget.storageObjects[index]
+                                  .getHumanReadableSize(),
+                              style: _textStyle,
+                              textAlign: TextAlign.right,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                        ),
-                        Container(
-                          width: 110,
-                          margin: EdgeInsets.only(right: 20),
-                          child: Text(
-                            widget.storageObjects[index]
-                                .getHumanReadableLastModified(),
-                            style: _textStyle,
-                          ),
-                        ),
-                        Container(
-                          width: 100,
-                          padding: EdgeInsets.only(right: 20),
-                          child: Text(
-                            widget.storageObjects[index].getHumanReadableSize(),
-                            style: _textStyle,
-                            textAlign: TextAlign.right,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        widget.optionsColumnEnabled
-                            ? Container(
-                                width: 40,
-                                margin: EdgeInsets.only(
-                                  left: 10,
-                                  right: 20,
-                                ),
-                                child: this._popupMenuButtonForOptions(
-                                  widget.storageObjects[index],
-                                ),
-                              )
-                            : SizedBox(),
-                      ],
+                          widget.optionsColumnEnabled
+                              ? Container(
+                                  width: 40,
+                                  margin: EdgeInsets.only(
+                                    left: 10,
+                                    right: 20,
+                                  ),
+                                  child: this._popupMenuButtonForOptions(
+                                    widget.storageObjects[index],
+                                  ),
+                                )
+                              : SizedBox(),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

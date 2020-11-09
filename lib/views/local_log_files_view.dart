@@ -4,7 +4,8 @@ import 'package:log_storage_client/models/storage_object.dart';
 import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/constants.dart';
 import 'package:log_storage_client/utils/locator.dart';
-import 'package:log_storage_client/utils/storage_manager.dart';
+import 'package:log_storage_client/utils/storage_manager.dart'
+    as StorageManager;
 import 'package:log_storage_client/utils/progress_service.dart';
 import 'package:log_storage_client/utils/utils.dart';
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';
@@ -23,7 +24,6 @@ class LocalLogFilesView extends StatefulWidget {
 }
 
 class _LocalLogFilesViewState extends State<LocalLogFilesView> {
-  List<FileSystemEntity> _fileSystemEntities = [];
   Directory _monitoredDirectory;
   List<StorageObject> _storageObjects = List();
   List<StorageObject> _selectedStorageObjects;
@@ -85,21 +85,17 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
       this._storageObjects = null;
       this._allStorageObjectsSelected = false;
     });
-    _fileSystemEntities = this._currentDirectory.listSync(recursive: false);
-
-    if (mounted) {
-      setState(() {
-        this._storageObjects = this._fileSystemEntities.map((e) {
-          final stats = e.statSync();
-          return new StorageObject(
-            e.path,
-            isDirectory: e is Directory,
-            lastModified: stats.modified,
-            sizeInBytes: stats.size,
-          );
-        }).toList();
-      });
-    }
+    
+    StorageManager.listObjectsOnLocalFileSystem(
+      this._currentDirectory,
+      StorageManager.sortByDirectoriesFirstThenFiles,
+    ).then((storageObjects) {
+      if (mounted) {
+        setState(() {
+          this._storageObjects = storageObjects;
+        });
+      }
+    });
   }
 
   /// A [FloatingActionButton] for triggering the upload of log files.
@@ -147,7 +143,7 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
     setState(() {
       this._onUploadFabPressed = () async {
         final credentials = await getStorageConnectionCredentials();
-        await uploadObjectsToRemoteStorage(
+        await StorageManager.uploadObjectsToRemoteStorage(
           credentials,
           this._selectedStorageObjects,
           this._monitoredDirectory,

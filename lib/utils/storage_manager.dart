@@ -77,7 +77,8 @@ Future<Tuple4<bool, String, String, List<Bucket>>> validateConnection(
 /// Returns a list of [StorageObject]s which represent directories
 /// and files in the storage system.
 Future<List<StorageObject>> listObjectsInRemoteStorage(
-  StorageConnectionCredentials credentials, {
+  StorageConnectionCredentials credentials,
+  void Function(List<StorageObject>) sortFunction, {
   String path = '',
   bool recursive = false,
 }) async {
@@ -104,7 +105,37 @@ Future<List<StorageObject>> listObjectsInRemoteStorage(
       storageObjects.add(StorageObject(prefix, isDirectory: true));
     }
   }
+
+  sortFunction(storageObjects);
+
   return storageObjects;
+}
+
+/// Lists all files and directories in the given [Directory] on the
+/// local file system (not recursively).
+///
+/// Returns a list of [StorageObject]s which represent directories
+/// and files on the local file system. The list is sorted in two
+/// steps: directories come first, then all files. Within the set
+/// of directories and files, all elements are sorted in alphabetically
+/// descending order.
+Future<List<StorageObject>> listObjectsOnLocalFileSystem(
+    Directory directory, void Function(List<StorageObject>) sortFunction) {
+  final fileSystemEntities = directory.listSync(recursive: false);
+
+  final storageObjects = fileSystemEntities.map((e) {
+    final stats = e.statSync();
+    return new StorageObject(
+      e.path,
+      isDirectory: e is Directory,
+      lastModified: stats.modified,
+      sizeInBytes: stats.size,
+    );
+  }).toList();
+
+  sortFunction(storageObjects);
+
+  return Future.value(storageObjects);
 }
 
 /// Creates a "presigned" (=shareable) link for downloading a [StorageObject] without
@@ -137,6 +168,7 @@ Future<void> deleteObjectFromRemoteStorage(
   if (storageObject.isDirectory) {
     final childObjects = await listObjectsInRemoteStorage(
       credentials,
+      sortByDirectoriesFirstThenFiles,
       path: storageObject.path,
       recursive: true,
     );
@@ -282,6 +314,21 @@ Future<void> uploadObjectsToRemoteStorage(
   }
 }
 
+/// Custom sorting which sorts a [List] of [StorageObject]s by directories first
+/// followed by all files. Within the set of directories and files, all elements
+/// are sorted in alphabetically descending order.
+void sortByDirectoriesFirstThenFiles(List<StorageObject> listToSort) {
+  listToSort.sort((StorageObject o1, StorageObject o2) {
+    int compare = (o1.isDirectory == o2.isDirectory)
+        ? 0
+        : o1.isDirectory
+            ? -1
+            : 1;
+    if (compare != 0) return compare;
+    return o1.getBasename().compareTo(o2.getBasename());
+  });
+}
+
 /// Traverses the given [List<StorageObject>] and recursively lists
 /// all corresponding files, directories, and symlinks in all (sub-)
 /// directories on the local file system.
@@ -324,6 +371,7 @@ Future<List<StorageObject>> _recursivelyListOnRemoteStorage(
     if (storageObject.isDirectory) {
       final childs = await listObjectsInRemoteStorage(
         credentials,
+        sortByDirectoriesFirstThenFiles,
         path: storageObject.path,
         recursive: true,
       );

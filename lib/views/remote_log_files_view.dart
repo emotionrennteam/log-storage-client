@@ -5,7 +5,7 @@ import 'package:log_storage_client/models/storage_object.dart';
 import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/constants.dart';
 import 'package:log_storage_client/utils/locator.dart';
-import 'package:log_storage_client/utils/storage_manager.dart';
+import 'package:log_storage_client/utils/storage_manager.dart' as StorageManager;
 import 'package:log_storage_client/utils/progress_service.dart';
 import 'package:log_storage_client/utils/utils.dart';
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';
@@ -58,8 +58,9 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
       this._allStorageObjectsSelected = false;
     });
 
-    listObjectsInRemoteStorage(
+    StorageManager.listObjectsInRemoteStorage(
       this._credentials,
+      StorageManager.sortByDirectoriesFirstThenFiles,
       path: this._currentDirectory,
     ).then((storageObjects) {
       if (mounted) {
@@ -174,7 +175,7 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
           return;
         }
 
-        downloadObjectsFromRemoteStorage(
+        StorageManager.downloadObjectsFromRemoteStorage(
           this._credentials,
           downloadDirectory,
           this._currentDirectory,

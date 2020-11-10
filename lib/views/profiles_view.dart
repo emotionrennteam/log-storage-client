@@ -263,47 +263,53 @@ class _ProfilesViewState extends State<ProfilesView> {
 
   @override
   Widget build(BuildContext context) {
+    final windowWidth = MediaQuery.of(context).size.width;
+    double gridViewPadding = windowWidth > 1800
+        ? 200
+        : windowWidth > 1700
+            ? 150
+            : windowWidth > 1500
+                ? 100
+                : windowWidth > 1200
+                    ? 10
+                    : 100;
+
     return Stack(
       children: <Widget>[
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: 32,
-          ),
-          child: Center(
-            child: Container(
-              constraints: BoxConstraints(maxWidth: 1100),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(
-                      bottom: 48,
-                      top: 32,
-                    ),
-                    child: Text(
-                      'Upload Profiles',
-                      style: Theme.of(context).textTheme.headline2,
-                    ),
-                  ),
-                  Expanded(
-                    child: StaggeredGridView.countBuilder(
-                      physics: BouncingScrollPhysics(),
-                      padding: EdgeInsets.only(bottom: 64),
-                      crossAxisCount:
-                          (MediaQuery.of(context).size.width > 1200) ? 4 : 2,
-                      itemCount: this.profiles?.length,
-                      crossAxisSpacing: 0,
-                      mainAxisSpacing: 32,
-                      itemBuilder: (BuildContext _, int index) =>
-                          this._profileCard(index),
-                      staggeredTileBuilder: (int index) {
-                        return StaggeredTile.fit(2);
-                      },
-                    ),
-                  ),
-                ],
+        Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(
+                  bottom: 48,
+                  top: 32,
+                ),
+                child: Text(
+                  'Upload Profiles',
+                  style: Theme.of(context).textTheme.headline2,
+                ),
               ),
-            ),
+              Expanded(
+                child: StaggeredGridView.countBuilder(
+                  physics: BouncingScrollPhysics(),
+                  padding: EdgeInsets.only(
+                    bottom: 64,
+                    left: gridViewPadding,
+                    right: gridViewPadding,
+                  ),
+                  crossAxisCount: windowWidth > 1200 ? 4 : 2,
+                  itemCount: this.profiles?.length,
+                  crossAxisSpacing: 0,
+                  mainAxisSpacing: 32,
+                  itemBuilder: (BuildContext _, int index) =>
+                      this._profileCard(index),
+                  staggeredTileBuilder: (int index) {
+                    return StaggeredTile.fit(2);
+                  },
+                ),
+              ),
+            ],
           ),
         ),
         FloatingActionButtonPosition(

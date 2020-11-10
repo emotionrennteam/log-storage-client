@@ -19,38 +19,43 @@ class _SettingsViewState extends State<SettingsView> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                constraints: BoxConstraints(maxWidth: 700),
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(bottom: 100),
-                  physics: BouncingScrollPhysics(),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(
-                          bottom: 32,
-                          top: 32,
-                        ),
-                        child: Text(
-                          'Settings',
-                          style: Theme.of(context).textTheme.headline2,
-                        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.only(bottom: 100),
+                physics: BouncingScrollPhysics(),
+                child: Container(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Container(
+                      constraints: BoxConstraints(maxWidth: 700),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(
+                              bottom: 32,
+                              top: 32,
+                            ),
+                            child: Text(
+                              'Settings',
+                              style: Theme.of(context).textTheme.headline2,
+                            ),
+                          ),
+                          _storageConnectionsWidget,
+                          SizedBox(
+                            height: 32,
+                          ),
+                          _logFileSettingsWidget,
+                        ],
                       ),
-                      _storageConnectionsWidget,
-                      SizedBox(
-                        height: 32,
-                      ),
-                      _logFileSettingsWidget,
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
         FloatingActionButtonPosition(
           floatingActionButton: FloatingActionButton.extended(

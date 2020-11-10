@@ -510,56 +510,54 @@ class _DashboardViewState extends State<DashboardView>
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return StaggeredGridView.countBuilder(
+      crossAxisCount: 6,
       padding: EdgeInsets.symmetric(
-        horizontal: 32,
+        horizontal: 64,
         vertical: 42,
       ),
-      child: StaggeredGridView.countBuilder(
-        crossAxisCount: 6,
-        crossAxisSpacing: 32,
-        mainAxisSpacing: 32,
-        itemCount: 6,
-        itemBuilder: (BuildContext context, int index) {
-          if (index == 0) {
-            return this._configurationPanel(context);
-          } else if (index == 1) {
-            return this._storageConnectionPanel();
-          } else if (index == 2) {
-            return this._regionPanel();
-          } else if (index == 3) {
-            return this._bucketsPanel(context);
-          } else if (index == 4) {
-            return this._configurationValidationPanel();
-          } else if (index == 5) {
-            return this._activeUploadProfilePanel();
+      crossAxisSpacing: 32,
+      mainAxisSpacing: 32,
+      itemCount: 6,
+      itemBuilder: (BuildContext context, int index) {
+        if (index == 0) {
+          return this._configurationPanel(context);
+        } else if (index == 1) {
+          return this._storageConnectionPanel();
+        } else if (index == 2) {
+          return this._regionPanel();
+        } else if (index == 3) {
+          return this._bucketsPanel(context);
+        } else if (index == 4) {
+          return this._configurationValidationPanel();
+        } else if (index == 5) {
+          return this._activeUploadProfilePanel();
+        }
+        return SizedBox();
+      },
+      physics: BouncingScrollPhysics(),
+      staggeredTileBuilder: (int index) {
+        if (index == 0) {
+          return StaggeredTile.fit(6);
+        } else if (index == 1) {
+          return StaggeredTile.fit(3);
+        } else if (index == 2) {
+          return StaggeredTile.fit(3);
+        } else if (index == 3) {
+          if (MediaQuery.of(context).size.width > 1500) {
+            return StaggeredTile.fit(4);
           }
-          return SizedBox();
-        },
-        physics: BouncingScrollPhysics(),
-        staggeredTileBuilder: (int index) {
-          if (index == 0) {
-            return StaggeredTile.fit(6);
-          } else if (index == 1) {
-            return StaggeredTile.fit(3);
-          } else if (index == 2) {
-            return StaggeredTile.fit(3);
-          } else if (index == 3) {
-            if (MediaQuery.of(context).size.width > 1500) {
-              return StaggeredTile.fit(4);
-            }
-            return StaggeredTile.fit(6);
-          } else if (index == 4) {
+          return StaggeredTile.fit(6);
+        } else if (index == 4) {
+          return StaggeredTile.fit(2);
+        } else if (index == 5) {
+          if (MediaQuery.of(context).size.width > 1500) {
             return StaggeredTile.fit(2);
-          } else if (index == 5) {
-            if (MediaQuery.of(context).size.width > 1500) {
-              return StaggeredTile.fit(2);
-            }
-            return StaggeredTile.fit(3);
           }
-          return StaggeredTile.count(1, 1);
-        },
-      ),
+          return StaggeredTile.fit(3);
+        }
+        return StaggeredTile.count(1, 1);
+      },
     );
   }
 }

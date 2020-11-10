@@ -17,8 +17,8 @@ class FloatingActionButtonPosition extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      bottom: 30,
-      right: 0,
+      bottom: 32,
+      right: 32,
       child: this.floatingActionButton,
     );
   }

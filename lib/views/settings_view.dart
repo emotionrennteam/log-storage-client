@@ -24,7 +24,11 @@ class _SettingsViewState extends State<SettingsView> {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: EdgeInsets.only(bottom: 100),
+                padding: EdgeInsets.only(
+                  bottom: 100,
+                  left: 32,
+                  right: 32,
+                ),
                 physics: BouncingScrollPhysics(),
                 child: Container(
                   child: Align(

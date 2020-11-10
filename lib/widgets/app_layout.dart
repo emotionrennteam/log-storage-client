@@ -41,15 +41,10 @@ class _AppLayoutState extends State<AppLayout> {
           children: <Widget>[
             AppDrawer(),
             Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 32,
-                ),
-                child: Navigator(
-                  key: locator<NavigationService>().navigatorKey,
-                  onGenerateRoute: locator<NavigationService>().onGenerateRoute,
-                  initialRoute: DashboardRoute,
-                ),
+              child: Navigator(
+                key: locator<NavigationService>().navigatorKey,
+                onGenerateRoute: locator<NavigationService>().onGenerateRoute,
+                initialRoute: DashboardRoute,
               ),
             ),
           ],

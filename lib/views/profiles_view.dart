@@ -53,7 +53,8 @@ class _ProfilesViewState extends State<ProfilesView> {
             sigmaX: 2,
             sigmaY: 2,
           ),
-          builder: (context) => UploadProfileEditDialog(),
+          builder: (context) => UploadProfileEditDialog(
+              this.profiles.map((p) => p.name).toList()),
         );
         if (newUploadProfile != null) {
           if (mounted) {
@@ -217,6 +218,7 @@ class _ProfilesViewState extends State<ProfilesView> {
                                   sigmaY: 2,
                                 ),
                                 builder: (context) => UploadProfileEditDialog(
+                                  this.profiles.map((p) => p.name).toList(),
                                   uploadProfile: this.profiles[index],
                                 ),
                               );

@@ -3,13 +3,35 @@ import 'package:log_storage_client/widgets/settings/setting_panel.dart';
 import 'package:flutter/material.dart';
 
 class TextFieldSetting extends StatefulWidget {
+  /// A title displayed above this text field.
   final String title;
+
+  /// A hint text displayed in grey inside the text field as long
+  /// as there's no input.
   final String hintText;
+
   final TextEditingController controller;
+
+  /// Reference to the [FocusNode] of the next form element / input
+  /// which will be focused automatically after this text field when
+  /// the user hits the TAB key.
   final FocusNode nextFocusNode;
+
+  /// A message displayed as a tooltip when the user hovers this text field.
   final String tooltipMessage;
+
+  /// Used to determine the type of keyboard on mobile devices.
   final bool isValueNumerical;
+
+  /// Determines whether the text should be oscured (plaintext is replaced
+  /// by character •).
   final bool isObscured;
+
+  /// A function to validate the text input.
+  /// 
+  /// The function must return null, if the text is valid. Otherwise, the
+  /// function must return an error message.
+  final String Function(String) validator;
 
   TextFieldSetting(
     this.title,
@@ -19,6 +41,7 @@ class TextFieldSetting extends StatefulWidget {
     this.tooltipMessage, {
     this.isValueNumerical = false,
     this.isObscured = false,
+    this.validator,
   });
 
   @override
@@ -88,6 +111,8 @@ class _TextFieldSettingState extends State<TextFieldSetting> {
               fontWeight: FontWeight.w400,
               color: Colors.white,
             ),
+            validator:
+                widget.validator == null ? (_) => null : widget.validator,
           ),
         ],
       ),

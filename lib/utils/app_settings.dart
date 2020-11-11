@@ -151,7 +151,9 @@ Future<List<UploadProfile>> getUploadProfiles() async {
     return List();
   }
   final Iterable iterable = json.decode(profilesJson);
-  return List<UploadProfile>.from(iterable.map((e) => UploadProfile.fromJson(e))).toList();
+  return List<UploadProfile>.from(
+    iterable.map((e) => UploadProfile.fromJson(e)),
+  ).toList();
 }
 
 Future<bool> setUploadProfiles(List<UploadProfile> uploadProfiles) async {

@@ -76,7 +76,7 @@ class _ProfilesViewState extends State<ProfilesView> {
         boxShadow: [
           BoxShadow(
             color: this.profiles[index].enabled
-                ? Theme.of(context).accentColor
+                ? Theme.of(context).accentColor.withOpacity(0.5)
                 : Theme.of(context).primaryColor.withOpacity(0),
             blurRadius: 30,
             spreadRadius: 0,

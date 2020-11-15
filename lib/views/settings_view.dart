@@ -1,6 +1,8 @@
+import 'package:dynamic_color_theme/dynamic_color_theme.dart';
 import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/utils.dart';
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';
+import 'package:log_storage_client/widgets/settings/color_settings.dart';
 import 'package:log_storage_client/widgets/settings/log_file_settings.dart';
 import 'package:log_storage_client/widgets/settings/storage_connection_settings.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,8 +14,9 @@ class SettingsView extends StatefulWidget {
 }
 
 class _SettingsViewState extends State<SettingsView> {
-  final _logFileSettingsWidget = new LogFileSettings();
-  final _storageConnectionsWidget = new StorageConnectionSettings();
+  final _logFileSettingsWidget = LogFileSettings();
+  final _storageConnectionsWidget = StorageConnectionSettings();
+  final _colorSettingsWidget = ColorSettings();
 
   @override
   Widget build(BuildContext context) {
@@ -47,11 +50,18 @@ class _SettingsViewState extends State<SettingsView> {
                               style: Theme.of(context).textTheme.headline2,
                             ),
                           ),
-                          _storageConnectionsWidget,
+                          this._storageConnectionsWidget,
                           SizedBox(
                             height: 32,
                           ),
-                          _logFileSettingsWidget,
+                          this._logFileSettingsWidget,
+                          SizedBox(
+                            height: 32,
+                          ),
+                          this._colorSettingsWidget,
+                          SizedBox(
+                            height: 32,
+                          ),
                         ],
                       ),
                     ),
@@ -82,6 +92,10 @@ class _SettingsViewState extends State<SettingsView> {
                 _storageConnectionsWidget.getTlsEnabled(),
                 _logFileSettingsWidget.logFileDirectoryController.text,
                 _logFileSettingsWidget.getAutoUploadEnabled(),
+              );
+              await DynamicColorTheme.of(context).setColor(
+                color: this._colorSettingsWidget.getSelectedColor(),
+                shouldSave: true,
               );
               ScaffoldMessenger.of(context).hideCurrentSnackBar();
               ScaffoldMessenger.of(context).showSnackBar(

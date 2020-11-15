@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:log_storage_client/models/file_transfer_exception.dart';
 
+/// This service is intended to collect/provide information on download
+/// and upload progress.
 class ProgressService {
   StreamController<double> _progressValueController = StreamController();
   StreamController<bool> _isInProgressController = StreamController.broadcast();

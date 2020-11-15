@@ -6,7 +6,7 @@ import 'package:log_storage_client/utils/constants.dart';
 import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/utils/storage_manager.dart'
     as StorageManager;
-import 'package:log_storage_client/utils/progress_service.dart';
+import 'package:log_storage_client/services/progress_service.dart';
 import 'package:log_storage_client/utils/utils.dart';
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';
 import 'package:log_storage_client/widgets/storage_object_table.dart';

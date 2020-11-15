@@ -9,7 +9,7 @@ import 'package:log_storage_client/models/storage_object.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:log_storage_client/utils/locator.dart';
-import 'package:log_storage_client/utils/progress_service.dart';
+import 'package:log_storage_client/services/progress_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:minio/minio.dart';
 import 'package:minio/models.dart';

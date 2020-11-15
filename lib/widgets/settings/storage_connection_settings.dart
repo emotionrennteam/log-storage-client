@@ -238,11 +238,13 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
               try {
                 port = int.parse(widget.portController.text);
               } on FormatException catch (_) {
-                Scaffold.of(context).hideCurrentSnackBar();
-                Scaffold.of(context).showSnackBar(getSnackBar(
-                  'The specified port must be a numerical value, e.g. 80 or 443.',
-                  true,
-                ));
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  getSnackBar(
+                    'The specified port must be a numerical value, e.g. 80 or 443.',
+                    true,
+                  ),
+                );
                 setState(() {
                   this._connectionTestInProgress = false;
                 });
@@ -258,13 +260,15 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
                 this._tlsEnabled,
               );
               final connectionSucceeded = await validateConnection(credentials);
-              Scaffold.of(context).hideCurrentSnackBar();
-              Scaffold.of(context).showSnackBar(getSnackBar(
-                connectionSucceeded.item1
-                    ? 'Successfully connected.'
-                    : 'Connection error: ${connectionSucceeded.item2}',
-                !connectionSucceeded.item1,
-              ));
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(
+                getSnackBar(
+                  connectionSucceeded.item1
+                      ? 'Successfully connected.'
+                      : 'Connection error: ${connectionSucceeded.item2}',
+                  !connectionSucceeded.item1,
+                ),
+              );
               setState(() {
                 this._connectionTestInProgress = false;
               });

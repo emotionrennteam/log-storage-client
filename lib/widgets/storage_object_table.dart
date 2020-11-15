@@ -101,18 +101,20 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
                   text: shareableLink,
                 ),
               ).then((_) {
-                Scaffold.of(context).hideCurrentSnackBar();
-                Scaffold.of(context).showSnackBar(getSnackBar(
-                  'Successfully copied shareable link to your clipboard (valid for 7 days).',
-                  false,
-                  snackBarAction: SnackBarAction(
-                      label: 'OPEN IN BROWSER',
-                      onPressed: () async {
-                        if (await canLaunch(shareableLink)) {
-                          launch(shareableLink);
-                        }
-                      }),
-                ));
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  getSnackBar(
+                    'Successfully copied shareable link to your clipboard (valid for 7 days).',
+                    false,
+                    snackBarAction: SnackBarAction(
+                        label: 'OPEN IN BROWSER',
+                        onPressed: () async {
+                          if (await canLaunch(shareableLink)) {
+                            launch(shareableLink);
+                          }
+                        }),
+                  ),
+                );
               });
             });
           } else if (option == PopupMenuOption.Delete) {
@@ -162,17 +164,21 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
                           setState(() {
                             widget.storageObjects.remove(storageObject);
                           });
-                          Scaffold.of(this.context).hideCurrentSnackBar();
-                          Scaffold.of(this.context).showSnackBar(getSnackBar(
-                            'Successfully deleted ${storageObject.path}.',
-                            false,
-                          ));
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            getSnackBar(
+                              'Successfully deleted ${storageObject.path}.',
+                              false,
+                            ),
+                          );
                         }).catchError((error) {
-                          Scaffold.of(this.context).hideCurrentSnackBar();
-                          Scaffold.of(this.context).showSnackBar(getSnackBar(
-                            'Failed to delete ${storageObject.path}. Error: ${error.toString()}',
-                            true,
-                          ));
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            getSnackBar(
+                              'Failed to delete ${storageObject.path}. Error: ${error.toString()}',
+                              true,
+                            ),
+                          );
                         });
                         Navigator.of(context).pop();
                       },

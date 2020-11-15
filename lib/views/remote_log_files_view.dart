@@ -5,7 +5,8 @@ import 'package:log_storage_client/models/storage_object.dart';
 import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/constants.dart';
 import 'package:log_storage_client/utils/locator.dart';
-import 'package:log_storage_client/utils/storage_manager.dart' as StorageManager;
+import 'package:log_storage_client/utils/storage_manager.dart'
+    as StorageManager;
 import 'package:log_storage_client/services/progress_service.dart';
 import 'package:log_storage_client/utils/utils.dart';
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';
@@ -70,8 +71,8 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
       }
     }).catchError((error) {
       if (mounted) {
-        Scaffold.of(context).hideCurrentSnackBar();
-        Scaffold.of(context).showSnackBar(
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
           getSnackBar(
             'Failed to list objects. Error: $error',
             true,
@@ -165,8 +166,8 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
 
         Directory downloadDirectory = Directory(downloadPath);
         if (!downloadDirectory.existsSync()) {
-          Scaffold.of(context).hideCurrentSnackBar();
-          Scaffold.of(context).showSnackBar(
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
             getSnackBar(
               'The selected download directory "$downloadPath" could not be found.',
               true,
@@ -181,8 +182,8 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
           this._currentDirectory,
           this._selectedStorageObjects,
         ).catchError((error) {
-          Scaffold.of(context).hideCurrentSnackBar();
-          Scaffold.of(context).showSnackBar(
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
             getSnackBar(error.toString(), true),
           );
         });

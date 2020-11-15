@@ -83,8 +83,8 @@ class _SettingsViewState extends State<SettingsView> {
                 _logFileSettingsWidget.logFileDirectoryController.text,
                 _logFileSettingsWidget.getAutoUploadEnabled(),
               );
-              Scaffold.of(context).hideCurrentSnackBar();
-              Scaffold.of(context).showSnackBar(
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(
                 getSnackBar(
                   savingSucceeded
                       ? 'Successfully saved settings.'

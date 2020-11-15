@@ -60,7 +60,8 @@ class _DashboardViewState extends State<DashboardView>
         this._connectionError = true;
         this._connectionErrorMessage = error.toString();
       });
-      Scaffold.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
         getSnackBar(error.toString(), true),
       );
     });

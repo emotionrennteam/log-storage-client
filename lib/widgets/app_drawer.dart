@@ -1,14 +1,17 @@
 import 'dart:ui';
 
 import 'package:log_storage_client/models/file_transfer_exception.dart';
+import 'package:log_storage_client/models/upload_profile.dart';
+import 'package:log_storage_client/services/upload_profile_service.dart';
+import 'package:log_storage_client/utils/app_settings.dart' as AppSettings;
 import 'package:log_storage_client/utils/constants.dart';
 import 'package:log_storage_client/utils/locator.dart';
-import 'package:log_storage_client/utils/navigation_service.dart';
+import 'package:log_storage_client/services/navigation_service.dart';
 import 'package:log_storage_client/utils/constants.dart' as constants;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:log_storage_client/utils/progress_service.dart';
+import 'package:log_storage_client/services/progress_service.dart';
 import 'package:log_storage_client/widgets/file_transfer_error_dialog.dart';
 
 class AppDrawer extends StatefulWidget {
@@ -19,7 +22,7 @@ class AppDrawer extends StatefulWidget {
       DashboardRoute,
     ),
     new AppDrawerItem(
-      'Profiles',
+      'Upload Profiles',
       FontAwesomeIcons.userAlt,
       ProfilesRoute,
     ),
@@ -53,10 +56,13 @@ class _AppDrawerState extends State<AppDrawer> {
   String _processName;
   List<FileTransferException> _errors = new List();
   Function _dialogSetState;
+  List<UploadProfile> _uploadProfiles;
+  UploadProfile _activeUploadProfile;
 
   @override
   initState() {
     super.initState();
+    this._loadUploadProfiles();
     locator<ProgressService>().getProgressValueStream().listen((progressValue) {
       setState(() {
         this._progressValue = progressValue;
@@ -82,6 +88,20 @@ class _AppDrawerState extends State<AppDrawer> {
       } else {
         setState(() {
           _errors.add(error);
+        });
+      }
+    });
+    locator<UploadProfileService>()
+        .getUploadProfileChangeStream()
+        .listen((_) => this._loadUploadProfiles());
+  }
+
+  void _loadUploadProfiles() {
+    AppSettings.getUploadProfiles().then((profiles) {
+      if (mounted) {
+        setState(() {
+          this._activeUploadProfile = profiles.where((p) => p.enabled).first;
+          this._uploadProfiles = profiles;
         });
       }
     });
@@ -295,6 +315,80 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
+  /// A widget consisting of a dropdown through which the user
+  /// can see / select the currently enabled [UploadProfile].
+  Widget _activeUploadProfileDropdown() {
+    return Tooltip(
+      decoration: BoxDecoration(
+        color: Theme.of(context).primaryColor,
+        borderRadius: BorderRadius.circular(BORDER_RADIUS_SMALL),
+      ),
+      message: 'Active Upload Profile',
+      padding: EdgeInsets.all(12),
+      preferBelow: false,
+      textStyle: Theme.of(context).textTheme.subtitle1,
+      verticalOffset: 25,
+      waitDuration: Duration(milliseconds: 500),
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 20),
+        child: Align(
+          alignment: Alignment.center,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            decoration: BoxDecoration(
+              color: Theme.of(context).canvasColor,
+              borderRadius: BorderRadius.circular(
+                constants.BORDER_RADIUS_LARGE,
+              ),
+            ),
+            width: 270,
+            child: DropdownButton<String>(
+              dropdownColor: DARK_GREY,
+              elevation: 20,
+              icon: Icon(
+                Icons.expand_more,
+                color: constants.TEXT_COLOR,
+              ),
+              iconSize: 30,
+              isExpanded: true,
+              items: this
+                  ._uploadProfiles
+                  .map<DropdownMenuItem<String>>((UploadProfile profile) {
+                return DropdownMenuItem<String>(
+                  child: Text(
+                    profile.name,
+                    style: Theme.of(context).textTheme.headline6,
+                  ),
+                  value: profile.name,
+                );
+              }).toList(),
+              onChanged: (String selectedProfile) async {
+                setState(() {
+                  this._uploadProfiles.forEach((e) {
+                    if (e.name == selectedProfile) {
+                      e.enabled = true;
+                      this._activeUploadProfile = e;
+                    } else {
+                      e.enabled = false;
+                    }
+                  });
+                });
+                await AppSettings.setUploadProfiles(this._uploadProfiles);
+                locator<UploadProfileService>()
+                    .getUploadProfileChangeSink()
+                    .add(null);
+              },
+              underline: Container(
+                height: 0,
+              ),
+              value: this._activeUploadProfile.name,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   /// Returns a button which shows whether there are any file transfer
   /// errors (upload/download errors).
   ///
@@ -373,6 +467,9 @@ class _AppDrawerState extends State<AppDrawer> {
       child: Stack(
         children: [
           ListView(
+            padding: EdgeInsets.only(
+              top: 10,
+            ),
             children: this._buildAppDrawerItems(context),
           ),
           AnimatedPositioned(
@@ -387,6 +484,7 @@ class _AppDrawerState extends State<AppDrawer> {
               reverse: true,
               children: <Widget>[
                 this._fileTransferErrorButton(),
+                this._activeUploadProfileDropdown(),
               ],
             ),
           ),

@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:log_storage_client/models/upload_profile.dart';
+import 'package:log_storage_client/services/upload_profile_service.dart';
 import 'package:log_storage_client/utils/app_settings.dart' as AppSettings;
 import 'package:log_storage_client/utils/constants.dart';
+import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/widgets/emotion_design_button.dart';
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';
 import 'package:log_storage_client/widgets/upload_profile_edit_dialog.dart';
@@ -24,6 +26,13 @@ class _ProfilesViewState extends State<ProfilesView> {
   @override
   initState() {
     super.initState();
+    this._loadUploadProfiles();
+    locator<UploadProfileService>()
+        .getUploadProfileChangeStream()
+        .listen((_) => this._loadUploadProfiles());
+  }
+
+  void _loadUploadProfiles() {
     AppSettings.getUploadProfiles().then((List<UploadProfile> uploadProfiles) {
       if (mounted) {
         setState(() {
@@ -31,6 +40,11 @@ class _ProfilesViewState extends State<ProfilesView> {
         });
       }
     });
+  }
+
+  void _persistUploadProfilesAndEmitChangeEvent() async {
+    await AppSettings.setUploadProfiles(this.profiles);
+    locator<UploadProfileService>().getUploadProfileChangeSink().add(null);
   }
 
   FloatingActionButton _createProfileFloatingActionButton() {
@@ -62,7 +76,7 @@ class _ProfilesViewState extends State<ProfilesView> {
               this.profiles.add(newUploadProfile);
             });
           }
-          AppSettings.setUploadProfiles(this.profiles);
+          this._persistUploadProfilesAndEmitChangeEvent();
         }
       },
     );
@@ -116,7 +130,7 @@ class _ProfilesViewState extends State<ProfilesView> {
                           });
                           this.profiles[index].enabled = true;
                         });
-                        AppSettings.setUploadProfiles(this.profiles);
+                        this._persistUploadProfilesAndEmitChangeEvent();
                       }
                     },
                     activeColor: Colors.white,
@@ -209,6 +223,10 @@ class _ProfilesViewState extends State<ProfilesView> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           EmotionDesignButton(
+                            child: Text(
+                              'Edit',
+                              style: Theme.of(context).textTheme.subtitle1,
+                            ),
                             onPressed: () async {
                               final editedUploadProfile =
                                   await showCupertinoModalPopup<UploadProfile>(
@@ -228,30 +246,26 @@ class _ProfilesViewState extends State<ProfilesView> {
                                     this.profiles[index] = editedUploadProfile;
                                   });
                                 }
-                                AppSettings.setUploadProfiles(this.profiles);
+                                this._persistUploadProfilesAndEmitChangeEvent();
                               }
                             },
-                            child: Text(
-                              'Edit',
-                              style: Theme.of(context).textTheme.subtitle1,
-                            ),
                           ),
                           SizedBox(
                             width: 8,
                           ),
                           EmotionDesignButton(
+                            child: Text(
+                              'Delete',
+                              style: Theme.of(context).textTheme.subtitle1,
+                            ),
                             onPressed: () {
                               if (mounted) {
                                 setState(() {
                                   this.profiles.remove(this.profiles[index]);
                                 });
                               }
-                              AppSettings.setUploadProfiles(this.profiles);
+                              this._persistUploadProfilesAndEmitChangeEvent();
                             },
-                            child: Text(
-                              'Delete',
-                              style: Theme.of(context).textTheme.subtitle1,
-                            ),
                           ),
                         ],
                       ),

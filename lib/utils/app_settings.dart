@@ -160,3 +160,8 @@ Future<bool> setUploadProfiles(List<UploadProfile> uploadProfiles) async {
   final profilesJson = json.encode(uploadProfiles);
   return await setStringSetting(_UPLOAD_PROFILES, profilesJson);
 }
+
+Future<UploadProfile> getEnabledUploadProfile() async {
+  final profiles = await getUploadProfiles();
+  return profiles.where((element) => element.enabled).first;
+}

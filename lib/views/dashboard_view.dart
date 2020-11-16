@@ -475,7 +475,7 @@ class _DashboardViewState extends State<DashboardView>
                 height: 16,
               ),
               this._textPanel(
-                'Valid Configuration',
+                'Configuration Validation',
                 this._connectionCredentialsAreValid.toString(),
               ),
             ],

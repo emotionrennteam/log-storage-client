@@ -11,7 +11,7 @@ import 'package:log_storage_client/utils/constants.dart';
 import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/widgets/emotion_design_button.dart';
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';
-import 'package:log_storage_client/widgets/upload_profile_edit_dialog.dart';
+import 'package:log_storage_client/widgets/dialogs/upload_profile_edit_dialog.dart';
 
 class ProfilesView extends StatefulWidget {
   ProfilesView({Key key}) : super(key: key);

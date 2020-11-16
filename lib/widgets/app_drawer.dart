@@ -56,7 +56,7 @@ class _AppDrawerState extends State<AppDrawer> {
   String _processName;
   List<FileTransferException> _errors = new List();
   Function _dialogSetState;
-  List<UploadProfile> _uploadProfiles;
+  List<UploadProfile> _uploadProfiles = [];
   UploadProfile _activeUploadProfile;
 
   @override
@@ -358,6 +358,8 @@ class _AppDrawerState extends State<AppDrawer> {
                   child: Text(
                     profile.name,
                     style: Theme.of(context).textTheme.headline6,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                   value: profile.name,
                 );
@@ -381,7 +383,7 @@ class _AppDrawerState extends State<AppDrawer> {
               underline: Container(
                 height: 0,
               ),
-              value: this._activeUploadProfile.name,
+              value: this._activeUploadProfile == null ? 'Loading ...' : this._activeUploadProfile.name,
             ),
           ),
         ),

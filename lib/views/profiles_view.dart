@@ -114,10 +114,13 @@ class _ProfilesViewState extends State<ProfilesView> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    this.profiles[index].name,
-                    style: Theme.of(context).textTheme.headline5,
-                    overflow: TextOverflow.ellipsis,
+                  Expanded(
+                    child: Text(
+                      this.profiles[index].name,
+                      style: Theme.of(context).textTheme.headline5,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.start,
+                    ),
                   ),
                   Switch(
                     value: this.profiles[index].enabled,
@@ -137,84 +140,85 @@ class _ProfilesViewState extends State<ProfilesView> {
                   ),
                 ],
               ),
-              Padding(
-                padding: EdgeInsets.only(
-                  left: 0,
-                  right: 12,
-                  top: 12,
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Driver:',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline6
-                              .copyWith(fontSize: 18),
-                        ),
-                        Text(
-                          this.profiles[index].driver,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline6
-                              .copyWith(fontSize: 18),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 8,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Event / Location:',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline6
-                              .copyWith(fontSize: 18),
-                        ),
-                        Text(
-                          this.profiles[index].eventOrLocation,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline6
-                              .copyWith(fontSize: 18),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 8,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Notes:',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline6
-                              .copyWith(fontSize: 18),
-                        ),
-                        Text(
-                          this.profiles[index].notes,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline6
-                              .copyWith(fontSize: 18),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 16),
-                  ],
-                ),
+              SizedBox(
+                height: 12,
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Driver:',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline6
+                        .copyWith(fontSize: 18),
+                  ),
+                  Expanded(
+                    child: Text(
+                      this.profiles[index].driver,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline6
+                          .copyWith(fontSize: 18),
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Event / Location:',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline6
+                        .copyWith(fontSize: 18),
+                  ),
+                  Expanded(
+                    child: Text(
+                      this.profiles[index].eventOrLocation,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline6
+                          .copyWith(fontSize: 18),
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Notes:',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline6
+                        .copyWith(fontSize: 18),
+                  ),
+                  Expanded(
+                    child: Text(
+                      this.profiles[index].notes,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline6
+                          .copyWith(fontSize: 18),
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16),
               Container(
                 height: 40,
                 child: this.profiles[index].enabled
@@ -294,7 +298,6 @@ class _ProfilesViewState extends State<ProfilesView> {
       children: <Widget>[
         Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Padding(
                 padding: EdgeInsets.only(
@@ -320,9 +323,7 @@ class _ProfilesViewState extends State<ProfilesView> {
                   mainAxisSpacing: 32,
                   itemBuilder: (BuildContext _, int index) =>
                       this._profileCard(index),
-                  staggeredTileBuilder: (int index) {
-                    return StaggeredTile.fit(2);
-                  },
+                  staggeredTileBuilder: (int index) => StaggeredTile.fit(2),
                 ),
               ),
             ],

@@ -12,7 +12,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:log_storage_client/services/progress_service.dart';
-import 'package:log_storage_client/widgets/file_transfer_error_dialog.dart';
+import 'package:log_storage_client/widgets/dialogs/file_transfer_error_dialog.dart';
 
 class AppDrawer extends StatefulWidget {
   final List<AppDrawerItem> appDrawerItems = [

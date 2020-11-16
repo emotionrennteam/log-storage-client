@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:log_storage_client/models/storage_object.dart';
 import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/constants.dart';
@@ -8,6 +10,7 @@ import 'package:log_storage_client/utils/storage_manager.dart'
     as StorageManager;
 import 'package:log_storage_client/services/progress_service.dart';
 import 'package:log_storage_client/utils/utils.dart';
+import 'package:log_storage_client/widgets/dialogs/confirm_upload_profile_selection_dialog.dart';
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';
 import 'package:log_storage_client/widgets/storage_object_table.dart';
 import 'package:log_storage_client/widgets/storage_object_table_header.dart';
@@ -85,7 +88,7 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
       this._storageObjects = null;
       this._allStorageObjectsSelected = false;
     });
-    
+
     StorageManager.listObjectsOnLocalFileSystem(
       this._currentDirectory,
       StorageManager.sortByDirectoriesFirstThenFiles,
@@ -142,6 +145,19 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
 
     setState(() {
       this._onUploadFabPressed = () async {
+        final uploadConfirmed = await showCupertinoModalPopup(
+          context: context,
+          filter: ImageFilter.blur(
+            sigmaX: 2,
+            sigmaY: 2,
+          ),
+          builder: (context) => ConfirmUploadProfileSelectionDialog(),
+        ) as bool;
+
+        if (!uploadConfirmed || uploadConfirmed == null) {
+          return;
+        }
+
         final credentials = await getStorageConnectionCredentials();
         await StorageManager.uploadObjectsToRemoteStorage(
           credentials,

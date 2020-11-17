@@ -8,9 +8,10 @@ import 'package:log_storage_client/widgets/emotion_design_button.dart';
 
 /// An [AlertDialog] for selecting / confirming the [UploadProfile].
 ///
-/// The built [AlertDialog] will pop with a boolean value as the resulting future.
-/// [True] indicates that the user confirmed the selection. [False] indicates that
-/// the user clicked on the cancel button. You can access the result this way:
+/// The built [AlertDialog] will pop with the selected [UploadProfile] as the
+/// resulting future, if the user confirmed the selection. The resulting future
+/// will be [null], if the user clicked on the cancel button. You can access
+/// the resulting future this way:
 /// ```dart
 /// final result = await showDialog(
 ///   context: context,
@@ -20,16 +21,16 @@ import 'package:log_storage_client/widgets/emotion_design_button.dart';
 /// The result will be null, if the user clicks on the cancel
 /// button or dismisses the dialog.
 /// The result will contain the resulting [UploadProfile], if
-/// the user clicks on the save button.
-class ConfirmUploadProfileSelectionDialog extends StatefulWidget {
+/// the user confirmed his selection by clicking on the upload button.
+class SelectUploadProfileDialog extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => _ConfirmUploadProfileSelectionDialogState();
+  State<StatefulWidget> createState() => _SelectUploadProfileDialogState();
 }
 
-class _ConfirmUploadProfileSelectionDialogState
-    extends State<ConfirmUploadProfileSelectionDialog> {
-  List<UploadProfile> _uploadProfiles;
-  UploadProfile _activeUploadProfile;
+class _SelectUploadProfileDialogState
+    extends State<SelectUploadProfileDialog> {
+  List<UploadProfile> _uploadProfiles = [];
+  UploadProfile _activeUploadProfile = UploadProfile('Loading ...', null, null, null);
 
   @override
   void initState() {
@@ -70,7 +71,7 @@ class _ConfirmUploadProfileSelectionDialogState
               ),
             ],
           ),
-          onPressed: () => Navigator.of(context).pop<bool>(true),
+          onPressed: () => Navigator.of(context).pop<UploadProfile>(this._activeUploadProfile),
         ),
         EmotionDesignButton(
           color: Theme.of(context).canvasColor,
@@ -78,7 +79,7 @@ class _ConfirmUploadProfileSelectionDialogState
             'Cancel',
             style: Theme.of(context).textTheme.button,
           ),
-          onPressed: () => Navigator.of(context).pop<bool>(false),
+          onPressed: () => Navigator.of(context).pop<UploadProfile>(null),
         ),
       ],
       backgroundColor: Theme.of(context).primaryColor,

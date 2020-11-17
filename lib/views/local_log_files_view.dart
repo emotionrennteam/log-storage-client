@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:log_storage_client/models/storage_object.dart';
+import 'package:log_storage_client/models/upload_profile.dart';
 import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/constants.dart';
 import 'package:log_storage_client/utils/locator.dart';
@@ -10,7 +11,7 @@ import 'package:log_storage_client/utils/storage_manager.dart'
     as StorageManager;
 import 'package:log_storage_client/services/progress_service.dart';
 import 'package:log_storage_client/utils/utils.dart';
-import 'package:log_storage_client/widgets/dialogs/confirm_upload_profile_selection_dialog.dart';
+import 'package:log_storage_client/widgets/dialogs/select_upload_profile_dialog.dart';
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';
 import 'package:log_storage_client/widgets/storage_object_table.dart';
 import 'package:log_storage_client/widgets/storage_object_table_header.dart';
@@ -145,16 +146,16 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
 
     setState(() {
       this._onUploadFabPressed = () async {
-        final uploadConfirmed = await showCupertinoModalPopup(
+        final selectedUploadProfile = await showCupertinoModalPopup(
           context: context,
           filter: ImageFilter.blur(
             sigmaX: 2,
             sigmaY: 2,
           ),
-          builder: (context) => ConfirmUploadProfileSelectionDialog(),
-        ) as bool;
+          builder: (context) => SelectUploadProfileDialog(),
+        ) as UploadProfile;
 
-        if (!uploadConfirmed || uploadConfirmed == null) {
+        if (selectedUploadProfile == null) {
           return;
         }
 
@@ -163,6 +164,8 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
           credentials,
           this._selectedStorageObjects,
           this._monitoredDirectory,
+          selectedUploadProfile,
+          DateTime.now().toLocal(),
         );
 
         final uploadTriggerFile = File(

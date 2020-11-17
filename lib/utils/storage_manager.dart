@@ -3,11 +3,13 @@ library storage_manager;
 import 'dart:async';
 import 'dart:io';
 
+import 'package:intl/intl.dart';
 import 'package:log_storage_client/models/file_transfer_exception.dart';
 import 'package:log_storage_client/models/storage_connection_credentials.dart';
 import 'package:log_storage_client/models/storage_object.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:log_storage_client/models/upload_profile.dart';
 import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/services/progress_service.dart';
 import 'package:path/path.dart' as p;
@@ -15,6 +17,8 @@ import 'package:minio/minio.dart';
 import 'package:minio/models.dart';
 import 'package:path/path.dart' as path;
 import 'package:tuple/tuple.dart';
+
+final _uploadDirectoryDateFormat = new DateFormat('yyyy-MM-dd_HH-mm-ss');
 
 Minio _initializeClient(StorageConnectionCredentials credentials) {
   return Minio(
@@ -41,9 +45,13 @@ Future<Tuple4<bool, String, String, List<Bucket>>> validateConnection(
   List<Bucket> buckets;
   String region;
   try {
+    if (credentials.endpoint == null || credentials.port == null) {
+      return Tuple4(false, 'Endpoint or port not configured.', null, null);
+    }
+
     minio = _initializeClient(credentials);
     if (credentials.bucket != null) {
-      // Warning before misconception: the "region" is not attached
+      // Warning of a common misconception: the "region" is not attached
       // to the server but to each bucket separately. This is why we
       // can't use `minio.region`.
       region = await minio.getBucketRegion(credentials.bucket);
@@ -258,15 +266,26 @@ Future<void> downloadObjectsFromRemoteStorage(
 /// Recursively uploads all storage objects in the given [List<StorageObject>] and their
 /// children (files in sub-directories) to the storage system.
 ///
+/// This function does not act like a typical file sync client such as OneDrive, NextCloud,
+/// or Dropbox. Instead, with each upload a new directory in the root level of the object
+/// storage system is created. This directory's name contains a [DateTime] and the name
+/// of the currently selected [UploadProfile]. All files are then uploaded into this
+/// parent directory. This strategy ensures that existing log files are never overwritten
+/// and each new upload creates a new parent directory no matter whether the same data
+/// was already uploaded before.
 /// Directories are not directly uploaded as Minio / S3 automatically creates folders
 /// whenever a file path contains forward slashes.
 /// The parameter [localBaseDirectory] is required to extract relative file paths.
-/// Emits upload progress events through the [StreamController]. The values to
-/// depict the upload progress are within the range of 0 and 1.
+/// This function emits upload progress events through the [StreamController]. The values
+/// depicting the upload progress are within the range of 0.0 and 1.0.
+/// The given [UploadProfile] and [DateTime] are used to assemble the name of the parent
+/// upload directory.
 Future<void> uploadObjectsToRemoteStorage(
   StorageConnectionCredentials credentials,
   List<StorageObject> storageObjectsToUpload,
   Directory localBaseDirectory,
+  UploadProfile uploadProfile,
+  DateTime uploadTimestamp,
 ) async {
   ProgressService progressService = locator<ProgressService>();
   final progressStreamSink = progressService.startProgressStream('Upload');
@@ -276,8 +295,13 @@ Future<void> uploadObjectsToRemoteStorage(
 
   try {
     final minio = _initializeClient(credentials);
-    final fsEntitiesToUpload =
-        _recursivelyListOnLocalFileSystem(storageObjectsToUpload);
+    final fsEntitiesToUpload = _recursivelyListOnLocalFileSystem(
+      storageObjectsToUpload,
+    );
+    final timestamp = _uploadDirectoryDateFormat.format(uploadTimestamp);
+    final uploadProfileName = uploadProfile.name.length > 25
+        ? uploadProfile.name.substring(0, 25)
+        : uploadProfile.name;
 
     int i = 0;
     for (final fsEntity in fsEntitiesToUpload) {
@@ -288,11 +312,13 @@ Future<void> uploadObjectsToRemoteStorage(
       if (fsEntity is File) {
         Stream<List<int>> stream = fsEntity.openRead();
         final fileSizeInBytes = fsEntity.lengthSync();
-        final fileName = _getS3CompatiblePath(fsEntity, localBaseDirectory);
+        final fileName = _sanitizeFilePathForS3(
+          "${timestamp}_$uploadProfileName/${_getRelativeFilePath(fsEntity, localBaseDirectory)}",
+        );
         await minio
             .putObject(credentials.bucket, fileName, stream, fileSizeInBytes)
             .then((value) {
-          debugPrint('successfully uploaded. File: ${fsEntity.path}');
+          debugPrint('successfully uploaded file ${fsEntity.path}');
         }).catchError((error) {
           progressService.getErrorMessagesSink().add(UploadException(
                 error.toString(),
@@ -383,26 +409,13 @@ Future<List<StorageObject>> _recursivelyListOnRemoteStorage(
 }
 
 /// Transforms the path of the given [FileSystemEntity] into a relative path
-/// that is compatible with S3.
-///
-/// Removes the base path from the given [FileSystemEntity] so that it becomes a
-/// relative path, makes the path name POSIX conform (Windows backslashes
-/// become forward slashes), replaces characters except [a-zA-Z0-9-\._\/]
-/// by underscores, and removes the leading slash (required for Minio).
+/// that is compatible with S3 by removing the base path from the given
+/// [FileSystemEntity].
 ///
 /// Returns the relative path as a [String].
-String _getS3CompatiblePath(
+String _getRelativeFilePath(
     FileSystemEntity fileSystemEntity, Directory localBaseDirectory) {
-  final relativePath = path
-      .relative(fileSystemEntity.path, from: localBaseDirectory.path)
-      .replaceAll('\\', '/')
-      // Prevent special characters in file names, e.g. Minio cannot handle the character '!'.
-      .replaceAll(new RegExp(r'[^a-zA-Z0-9-\._\/]'), '_');
-
-  if (relativePath.startsWith('/')) {
-    return relativePath.substring(1);
-  }
-  return relativePath;
+  return path.relative(fileSystemEntity.path, from: localBaseDirectory.path);
 }
 
 /// Downloads a single [StorageObject] (file) from the storage system and stores it
@@ -448,4 +461,33 @@ String _removeCurrentDirectoryPrefixFromFilePath(
     return filePath.substring(currentDirectory.length);
   }
   return filePath;
+}
+
+/// Sanitizes the given file path so that it is safe to be used as
+/// an object key name on Amazon S3 / MinIO.
+///
+/// Replaces backslash with forward slash (Windows -> Linux path) and
+/// special characters with underscores `_` in the given file path to
+/// make it compatible with Amazon S3. If the file path contains a
+/// leading slash, then it will be removed (generally a bad idea in S3).
+/// These steps are necessary because not all characters are safe to be
+/// used in object key names. Amazon provides a list of safe characters.
+/// Altough special characters such as `/`, `!`, `-`, `_`, `.`, `*`, `'`,
+/// `(`, and `)` are mentioned as safe characters, the MinIO library used
+/// in this Flutter app fails to handle file paths which contain an
+/// exclamation character `!`.
+/// See here for the official documentation:
+/// https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html
+String _sanitizeFilePathForS3(String filePath) {
+  filePath = filePath
+      .replaceAll('\\', '/')
+      .replaceAll('ä', 'ae')
+      .replaceAll('ö', 'oe')
+      .replaceAll('ü', 'ue')
+      .replaceAll('Ä', 'ae')
+      .replaceAll('Ö', 'oe')
+      .replaceAll('Ü', 'ue')
+      .replaceAll('ß', 'ss')
+      .replaceAll(RegExp(r'[^a-zA-Z0-9-\._\/]'), '_');
+  return filePath.startsWith('/') ? filePath.substring(1) : filePath;
 }

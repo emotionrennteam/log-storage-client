@@ -43,11 +43,6 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
     _init();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   void _navigateToDirectory(String absolutePath) {
     // Navigate to parent in the directory tree
     if (absolutePath == null) {
@@ -163,7 +158,7 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
         await StorageManager.uploadObjectsToRemoteStorage(
           credentials,
           this._selectedStorageObjects,
-          this._monitoredDirectory,
+          this._currentDirectory,
           selectedUploadProfile,
           DateTime.now().toLocal(),
         );

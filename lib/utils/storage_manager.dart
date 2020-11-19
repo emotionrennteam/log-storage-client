@@ -273,9 +273,14 @@ Future<void> downloadObjectsFromRemoteStorage(
 /// parent directory. This strategy ensures that existing log files are never overwritten
 /// and each new upload creates a new parent directory no matter whether the same data
 /// was already uploaded before.
+/// In addition to the given list of [storageObjectsToUpload] an additional JSON file named
+/// `_metadata.json` is created and uploaded. This file contains the given [uploadProfile]
+/// serialized as JSON.
 /// Directories are not directly uploaded as Minio / S3 automatically creates folders
 /// whenever a file path contains forward slashes.
-/// The parameter [localBaseDirectory] is required to extract relative file paths.
+/// The parameter [localBaseDirectory] is required to extract relative file paths and should
+/// be equivalent to the parent directory (="local base / root dir") of all selected storage
+/// objects.
 /// This function emits upload progress events through the [StreamController]. The values
 /// depicting the upload progress are within the range of 0.0 and 1.0.
 /// The given [UploadProfile] and [DateTime] are used to assemble the name of the parent
@@ -298,6 +303,12 @@ Future<void> uploadObjectsToRemoteStorage(
     final fsEntitiesToUpload = _recursivelyListOnLocalFileSystem(
       storageObjectsToUpload,
     );
+    final metadataFile = await _createMetadataJsonFileFromUploadProfile(
+      uploadProfile,
+      localBaseDirectory,
+    );
+    fsEntitiesToUpload.add(metadataFile);
+
     final timestamp = _uploadDirectoryDateFormat.format(uploadTimestamp);
     final uploadProfileName = uploadProfile.name.length > 25
         ? uploadProfile.name.substring(0, 25)
@@ -331,6 +342,7 @@ Future<void> uploadObjectsToRemoteStorage(
         });
       }
     }
+    await metadataFile.delete();
     progressStreamSink.add(1.0);
   } on Exception catch (e) {
     // TODO: error handling
@@ -490,4 +502,21 @@ String _sanitizeFilePathForS3(String filePath) {
       .replaceAll('ß', 'ss')
       .replaceAll(RegExp(r'[^a-zA-Z0-9-\._\/]'), '_');
   return filePath.startsWith('/') ? filePath.substring(1) : filePath;
+}
+
+/// Creates a file `_metadata.json` in the given [UploadDirectory].
+///
+/// The idea is that during each upload one additional file named
+/// `_metadata.json` is generated which contains the information
+/// from the currently selected/enabled [UploadProfile] encoded
+/// as JSON. This information could later on be used by people
+/// who want to analyze the uploaded log data (e.g. for filtering
+/// for specific log data).
+Future<FileSystemEntity> _createMetadataJsonFileFromUploadProfile(
+    UploadProfile uploadProfile, Directory uploadDirectory) async {
+  final jsonFile = File(
+    path.join(uploadDirectory.path, '_metadata.json'),
+  );
+  await jsonFile.writeAsString(uploadProfile.toJsonString());
+  return jsonFile;
 }

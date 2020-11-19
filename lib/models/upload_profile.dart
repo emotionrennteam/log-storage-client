@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 /// An [UploadProfile] captures metadata which are stored along with
 /// the actual log data.
 ///
@@ -15,7 +17,6 @@ class UploadProfile {
   String eventOrLocation;
   String notes;
   bool enabled;
-  // TODO: add timestamp
 
   UploadProfile(
     this.name,
@@ -33,10 +34,25 @@ class UploadProfile {
         'enabled': this.enabled,
       };
 
+  /// Transforms this [UploadProfile] into a JSON string.
+  /// 
+  /// This method is intended to be used for creating the
+  /// file `_metadata.json` while uploading log files to the
+  /// remote storage. For this purpose, an additional
+  /// upload timestamp is included. The information that
+  /// this [UploadProfile] was enabled is unnecessary and
+  /// therefore removed.
+  String toJsonString() {
+    final map = this.toJson();
+    map['uploadTimestampIso8601'] = DateTime.now().toIso8601String();
+    map.remove('enabled');
+    return jsonEncode(map);
+  }
+
   UploadProfile.fromJson(Map<String, dynamic> json)
-      : this.name = json['name'],
-        this.driver = json['driver'],
-        this.eventOrLocation = json['eventOrLocation'],
-        this.notes = json['notes'],
-        this.enabled = json['enabled'];
+      : this.driver = json['driver'] as String,
+        this.enabled = json['enabled'] as bool,
+        this.eventOrLocation = json['eventOrLocation'] as String,
+        this.name = json['name'] as String,
+        this.notes = json['notes'] as String;
 }

@@ -71,6 +71,9 @@ class MyApp extends StatelessWidget {
         color: TEXT_COLOR,
       ),
       unselectedWidgetColor: Colors.white,
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        foregroundColor: accentColor,
+      ),
     );
   }
 

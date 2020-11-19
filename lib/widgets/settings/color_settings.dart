@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dynamic_color_theme/dynamic_color_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -18,6 +20,7 @@ class ColorSettings extends StatefulWidget {
     'pinkAccent': Colors.pinkAccent,
     'purpleAccent': Colors.purpleAccent,
     'redAccent': Colors.redAccent,
+    'jebModeAccent': Colors.cyan,
   };
 
   final _state = _ColorSettingsState();
@@ -33,6 +36,7 @@ class ColorSettings extends StatefulWidget {
 class _ColorSettingsState extends State<ColorSettings> {
   Color _selectedColor;
   bool _isTooltipVisible = false;
+  Timer _jebColorTimer;
 
   @override
   void initState() {
@@ -40,16 +44,49 @@ class _ColorSettingsState extends State<ColorSettings> {
     this._selectedColor = DynamicColorTheme.of(context).color;
   }
 
+  @override
+  void dispose() {
+    this._jebColorTimer?.cancel();
+    super.dispose();
+  }
+
+  /// Upon special demand from Petrut Caloian, I added a Jeb mode (related
+  /// to Jens Bergensten a.k.a Jeb from Minecraft).
+  activateJebMode() {
+    int _colorIndex = 0;
+
+    this._jebColorTimer = Timer.periodic(Duration(milliseconds: 333), (_) {
+      _colorIndex = (_colorIndex < widget.availableColors.length - 1)
+          ? _colorIndex + 1
+          : 0;
+      DynamicColorTheme.of(context).setColor(
+        color: widget
+            .availableColors[widget.availableColors.keys.toList()[_colorIndex]],
+        shouldSave: false,
+      );
+    });
+  }
+
   Widget _colorWidget(String colorName, Color color) {
     return Container(
       child: MouseRegion(
         onEnter: (_) {
-          setState(() {
-            DynamicColorTheme.of(context).setColor(
-              color: color,
-              shouldSave: false,
-            );
-          });
+          if (colorName == 'jebModeAccent') {
+            if (this._jebColorTimer == null) {
+              this.activateJebMode();
+            }
+            return;
+          }
+
+          if (this._jebColorTimer != null) {
+            this._jebColorTimer.cancel();
+            this._jebColorTimer = null;
+          }
+
+          DynamicColorTheme.of(context).setColor(
+            color: color,
+            shouldSave: false,
+          );
         },
         opaque: false,
         cursor: SystemMouseCursors.click,
@@ -148,7 +185,7 @@ class _ColorSettingsState extends State<ColorSettings> {
             height: 8,
           ),
           Container(
-            height: 250,
+            height: 260,
             child: GridView.count(
               primary: false,
               crossAxisCount: 6,

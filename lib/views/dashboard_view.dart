@@ -323,16 +323,20 @@ class _DashboardViewState extends State<DashboardView>
     // Jumps to the bottom after 200 milliseconds and then scrolls back
     // to the top. Goal: show the user that the list of buckets is scrollable.
     Future.delayed(Duration(milliseconds: 200), () {
-      _bucketsScrollController.jumpTo(
-        _bucketsScrollController.position.maxScrollExtent,
-      );
-      Future.delayed(Duration(milliseconds: 50), () {
-        _bucketsScrollController.animateTo(
-          _bucketsScrollController.position.minScrollExtent,
-          duration: Duration(milliseconds: 800),
-          curve: Curves.easeOutCubic,
+      if (mounted) {
+        _bucketsScrollController.jumpTo(
+          _bucketsScrollController.position.maxScrollExtent,
         );
-      });
+        Future.delayed(Duration(milliseconds: 50), () {
+          if (mounted) {
+            _bucketsScrollController.animateTo(
+              _bucketsScrollController.position.minScrollExtent,
+              duration: Duration(milliseconds: 800),
+              curve: Curves.easeOutCubic,
+            );
+          }
+        });
+      }
     });
 
     return Container(

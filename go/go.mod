@@ -9,6 +9,6 @@ require (
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20201108214237-06ea97f0c265 // indirect
 	github.com/miguelpruivo/flutter_file_picker/go v0.0.0-20201007141656-b2668dbbd08a
 	github.com/pkg/errors v0.9.1
-	golang.org/x/sys v0.0.0-20201113233024-12cec1faf1ba // indirect
+	golang.org/x/sys v0.0.0-20201119102817-f84b799fce68 // indirect
 	golang.org/x/text v0.3.4 // indirect
 )

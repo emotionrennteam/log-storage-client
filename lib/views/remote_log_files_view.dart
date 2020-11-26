@@ -15,6 +15,7 @@ import 'package:log_storage_client/widgets/storage_object_table_header.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:path/path.dart' as path;
 
 class RemoteLogFilesView extends StatefulWidget {
   @override
@@ -26,9 +27,10 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
   List<StorageObject> _selectedStorageObjects = new List();
   Function _onDownloadFabPressed;
   StorageConnectionCredentials _credentials;
-  String _currentDirectory = '';
+  String _currentDirectory = '/';
   bool _allStorageObjectsSelected = false;
   bool _fileTransferIsInProgress = false;
+  bool _failedToListStorageObjects = false;
 
   @override
   void initState() {
@@ -57,12 +59,13 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
     setState(() {
       this._storageObjects = null;
       this._allStorageObjectsSelected = false;
+      this._failedToListStorageObjects = false;
     });
 
     StorageManager.listObjectsInRemoteStorage(
       this._credentials,
       StorageManager.sortByDirectoriesFirstThenFiles,
-      path: this._currentDirectory,
+      storagePath: this._currentDirectory,
     ).then((storageObjects) {
       if (mounted) {
         setState(() {
@@ -71,14 +74,14 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
       }
     }).catchError((error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(
-          getSnackBar(
-            'Failed to list objects. Error: $error',
-            true,
-          ),
-        );
+        setState(() {
+          this._failedToListStorageObjects = true;
+        });
       }
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        getSnackBar('Failed to list objects. Error: $error', true),
+      );
     });
   }
 
@@ -91,12 +94,14 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
     // Navigate to parent in the directory tree
     if (absolutePath == null) {
       setState(() {
-        this._currentDirectory = getParentForPath(this._currentDirectory, '/');
+        this._currentDirectory = getParentPath(this._currentDirectory, '/');
       });
     } else {
       // Navigate to child in the directory tree
       setState(() {
-        this._currentDirectory = absolutePath;
+        this._currentDirectory = path.canonicalize(
+          path.join('/', absolutePath),
+        );
       });
     }
     this._loadStorageObjects();
@@ -223,25 +228,31 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
                   this._onSelectDeselectAllStorageObjects,
                   this._allStorageObjectsSelected,
                   optionsColumnEnabled: true,
-                  rootDirectorySeparator: '/',
+                  // rootDirectorySeparator: '/',
                 ),
               ),
               Expanded(
                 child: Center(
-                  child: this._storageObjects == null
-                      ? Container(
-                          child: LinearProgressIndicator(
-                            backgroundColor: Colors.transparent,
-                          ),
-                          width: 200,
+                  child: this._failedToListStorageObjects
+                      ? Icon(
+                          Icons.warning_amber_rounded,
+                          size: 50,
+                          color: Theme.of(context).accentColor,
                         )
-                      : StorageObjectTable(
-                          this._navigateToDirectory,
-                          this._onSelectionOfStorageObjectsChanged,
-                          this._storageObjects,
-                          this._allStorageObjectsSelected,
-                          optionsColumnEnabled: true,
-                        ),
+                      : this._storageObjects == null
+                          ? Container(
+                              child: LinearProgressIndicator(
+                                backgroundColor: Colors.transparent,
+                              ),
+                              width: 200,
+                            )
+                          : StorageObjectTable(
+                              this._navigateToDirectory,
+                              this._onSelectionOfStorageObjectsChanged,
+                              this._storageObjects,
+                              this._allStorageObjectsSelected,
+                              optionsColumnEnabled: true,
+                            ),
                 ),
               ),
             ],

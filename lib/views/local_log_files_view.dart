@@ -34,6 +34,7 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
   Function _onUploadFabPressed;
   bool _allStorageObjectsSelected = false;
   bool _fileTransferIsInProgress = false;
+  bool _failedToListStorageObjects = false;
 
   Directory _currentDirectory;
 
@@ -41,23 +42,6 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
   void initState() {
     super.initState();
     _init();
-  }
-
-  void _navigateToDirectory(String absolutePath) {
-    // Navigate to parent in the directory tree
-    if (absolutePath == null) {
-      setState(() {
-        this._currentDirectory = Directory(
-          getParentForPath(this._currentDirectory.path, path.separator),
-        );
-      });
-    } else {
-      // Navigate to child in the directory tree
-      setState(() {
-        this._currentDirectory = Directory(absolutePath);
-      });
-    }
-    this._loadStorageObjects();
   }
 
   void _init() async {
@@ -79,12 +63,39 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
     });
   }
 
-  void _loadStorageObjects() {
-    setState(() {
-      this._storageObjects = null;
-      this._allStorageObjectsSelected = false;
-    });
+  /// Changes the current directory to the given [absolutePath].
+  ///
+  /// If [absolutePath] is null, the current directory will be set
+  /// to the parent directory of the current directory.
+  void _navigateToDirectory(String absolutePath) {
+    // Navigate to parent in the directory tree
+    if (absolutePath == null) {
+      setState(() {
+        this._currentDirectory = Directory(
+          getParentPath(
+            this._currentDirectory.path,
+            path.separator,
+            artificialRootDirectory: this._monitoredDirectory.path,
+          ),
+        );
+      });
+    } else {
+      // Navigate to child in the directory tree
+      setState(() {
+        this._currentDirectory = Directory(absolutePath);
+      });
+    }
+    this._loadStorageObjects();
+  }
 
+  void _loadStorageObjects() {
+    if (mounted) {
+      setState(() {
+        this._storageObjects = null;
+        this._allStorageObjectsSelected = false;
+        this._failedToListStorageObjects = false;
+      });
+    }
     StorageManager.listObjectsOnLocalFileSystem(
       this._currentDirectory,
       StorageManager.sortByDirectoriesFirstThenFiles,
@@ -94,6 +105,16 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
           this._storageObjects = storageObjects;
         });
       }
+    }).catchError((error) {
+      if (mounted) {
+        setState(() {
+          this._failedToListStorageObjects = true;
+        });
+      }
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        getSnackBar('Failed to list files. Error: $error', true),
+      );
     });
   }
 
@@ -218,10 +239,14 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
               Center(
                 child: StorageObjectTableHeader(
                   this._currentDirectory != null
-                      ? path.relative(this._currentDirectory.path,
-                          from: this._monitoredDirectory.path)
+                      ? path.relative(
+                          this._currentDirectory.path,
+                          from: this._monitoredDirectory.path,
+                        )
                       : '',
-                  '',
+                  this._monitoredDirectory == null
+                      ? ''
+                      : path.basename(this._monitoredDirectory.path),
                   this._navigateToDirectory,
                   this._onSelectDeselectAllStorageObjects,
                   this._allStorageObjectsSelected,
@@ -229,19 +254,25 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
               ),
               Expanded(
                 child: Center(
-                  child: this._storageObjects == null
-                      ? Container(
-                          child: LinearProgressIndicator(
-                            backgroundColor: Colors.transparent,
-                          ),
-                          width: 200,
+                  child: this._failedToListStorageObjects
+                      ? Icon(
+                          Icons.warning_amber_rounded,
+                          size: 50,
+                          color: Theme.of(context).accentColor,
                         )
-                      : StorageObjectTable(
-                          this._navigateToDirectory,
-                          this._onSelectionOfStorageObjectsChanged,
-                          this._storageObjects,
-                          this._allStorageObjectsSelected,
-                        ),
+                      : this._storageObjects == null
+                          ? Container(
+                              child: LinearProgressIndicator(
+                                backgroundColor: Colors.transparent,
+                              ),
+                              width: 200,
+                            )
+                          : StorageObjectTable(
+                              this._navigateToDirectory,
+                              this._onSelectionOfStorageObjectsChanged,
+                              this._storageObjects,
+                              this._allStorageObjectsSelected,
+                            ),
                 ),
               ),
             ],

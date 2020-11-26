@@ -6,17 +6,23 @@ import 'package:path/path.dart' as path;
 
 /// Computes the path of the parent directory for the given path.
 ///
-/// Returns an empty string when the root of the directory tree has
-/// been reached. Otherwise, returns the path to the parent directory
-/// using the current system's separator ('forward slash on Linux
-/// and backslash on Windows).
-String getParentForPath(String currentPath, String pathSeparator) {
-  List<String> pathComponents = path.split(currentPath);
-  if (pathComponents.isEmpty || pathComponents.length == 1) {
-    return '';
+/// Returns the parent directory for the given [currentPath].
+/// If [artificialRootDirectory] is set, this method prevents from
+/// navigating further-up in the file system hierarchy than the path
+/// given in [artificialRootDirectory]. That is, [artificialRootDirectory]
+/// becomes the artificial "root" directory.
+String getParentPath(
+  String currentPath,
+  String pathSeparator, {
+  String artificialRootDirectory,
+}) {
+  final parentDirectory = path.dirname(currentPath);
+  if (artificialRootDirectory == null) {
+    return parentDirectory;
   }
-  pathComponents.removeLast();
-  return path.joinAll(pathComponents) + pathSeparator;
+  // Limits the returned path from being further-up in the directory
+  // structure than the artifical root directory.
+  return path.isWithin(artificialRootDirectory, parentDirectory) ? parentDirectory : artificialRootDirectory;
 }
 
 /// Returns a styled instance of [SnackBar].

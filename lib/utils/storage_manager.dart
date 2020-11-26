@@ -83,12 +83,14 @@ Future<Tuple4<bool, String, String, List<Bucket>>> validateConnection(
 
 /// Asynchronically lists all objects in the given bucket.
 ///
-/// Returns a list of [StorageObject]s which represent directories
-/// and files in the storage system.
+/// Returns a list of [StorageObject]s which represent directories and
+/// files in the storage system. The [storagePath] is the directory or
+/// path on S3, so to speak, for which all "children" objects shall be
+/// listed.
 Future<List<StorageObject>> listObjectsInRemoteStorage(
   StorageConnectionCredentials credentials,
   void Function(List<StorageObject>) sortFunction, {
-  String path = '',
+  String storagePath = '',
   bool recursive = false,
 }) async {
   final minio = _initializeClient(credentials);
@@ -97,8 +99,18 @@ Future<List<StorageObject>> listObjectsInRemoteStorage(
     throw Exception('The given bucket "${credentials.bucket}" doesn\'t exist.');
   }
 
+  // For listing objects in a S3 bucket the prefix must not start with a leading
+  // slash but it must always end with a slash.
+  var prefix = storagePath;
+  if (storagePath.startsWith('/')) {
+    prefix = storagePath.substring(1);
+  }
+  if (!storagePath.endsWith('/')) {
+    prefix += '/';
+  }
+
   List<ListObjectsChunk> objectsChunks = await minio
-      .listObjects(credentials.bucket, prefix: path, recursive: recursive)
+      .listObjects(credentials.bucket, prefix: prefix, recursive: recursive)
       .toList();
   List<StorageObject> storageObjects = List();
 
@@ -128,10 +140,9 @@ Future<List<StorageObject>> listObjectsInRemoteStorage(
 /// steps: directories come first, then all files. Within the set
 /// of directories and files, all elements are sorted in alphabetically
 /// descending order.
-Future<List<StorageObject>> listObjectsOnLocalFileSystem(
-    Directory directory, void Function(List<StorageObject>) sortFunction) {
+Future<List<StorageObject>> listObjectsOnLocalFileSystem(Directory directory,
+    void Function(List<StorageObject>) sortFunction) async {
   final fileSystemEntities = directory.listSync(recursive: false);
-
   final storageObjects = fileSystemEntities.map((e) {
     final stats = e.statSync();
     return new StorageObject(
@@ -178,7 +189,7 @@ Future<void> deleteObjectFromRemoteStorage(
     final childObjects = await listObjectsInRemoteStorage(
       credentials,
       sortByDirectoriesFirstThenFiles,
-      path: storageObject.path,
+      storagePath: storageObject.path,
       recursive: true,
     );
     final childObjectsPaths = childObjects.map((o) => o.path).toList();
@@ -411,7 +422,7 @@ Future<List<StorageObject>> _recursivelyListOnRemoteStorage(
       final childs = await listObjectsInRemoteStorage(
         credentials,
         sortByDirectoriesFirstThenFiles,
-        path: storageObject.path,
+        storagePath: storageObject.path,
         recursive: true,
       );
       recursiveStorageObjects.addAll(childs);

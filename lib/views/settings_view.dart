@@ -82,6 +82,20 @@ class _SettingsViewState extends State<SettingsView> {
               style: TextStyle(fontSize: 20, color: Colors.white),
             ),
             onPressed: () async {
+              // Validate port
+              try {
+                int.parse(_storageConnectionsWidget.portController.text);
+              } on Exception {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  getSnackBar(
+                    'Failed to save settings. The specified port must be a numerical value, e.g. 80 or 443.',
+                    true,
+                  ),
+                );
+                return;
+              }
+
               final savingSucceeded = await saveAllSettings(
                 _storageConnectionsWidget.endpointController.text,
                 _storageConnectionsWidget.portController.text,

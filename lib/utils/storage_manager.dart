@@ -36,7 +36,7 @@ Minio _initializeClient(StorageConnectionCredentials credentials) {
 /// Returns a [Tuple4]. The first item contains a [bool] which is [true] upon
 /// successful connection to the storage system and otherwise false. If no successful
 /// connection could be established, then the second item contains an additional error
-/// message as a [String]. The third item contains the (server) region of the bucket
+/// message as a [String]. The third item contains the (server) region of the bucket.
 /// The fourth item contains a [List] of all available buckets on the storage system
 /// server.
 Future<Tuple4<bool, String, String, List<Bucket>>> validateConnection(

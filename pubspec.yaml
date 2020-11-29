@@ -1,7 +1,7 @@
 name: log_storage_client
 authors:
     - "Philipp Perez"
-description: A desktop app to upload and download log files to an S3-based object storage (MinIO).
+description: A desktop app to upload and download log files to an S3-based object storage.
 
 author: "Philipp Perez"
 

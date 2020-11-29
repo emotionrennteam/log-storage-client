@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:log_storage_client/utils/constants.dart' as constants;
 import 'package:log_storage_client/widgets/dashboard/dashboard_panel.dart';
 
+/// A widget that visualizes the following app settings: bucket, endpoint, port, TLS
 class ConfigurationPanel extends StatelessWidget {
   final String bucket;
   final String endpoint;

@@ -25,7 +25,7 @@ class _BucketsPanelState extends State<BucketsPanel> {
         widget.bucketsScrollController.jumpTo(
           widget.bucketsScrollController.position.maxScrollExtent,
         );
-        Future.delayed(Duration(milliseconds: 50), () {
+        Future.delayed(Duration(milliseconds: 500), () {
           if (mounted) {
             widget.bucketsScrollController.animateTo(
               widget.bucketsScrollController.position.minScrollExtent,

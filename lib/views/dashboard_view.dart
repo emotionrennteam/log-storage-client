@@ -30,14 +30,17 @@ class _DashboardViewState extends State<DashboardView> {
   String _region;
   UploadProfile _activeUploadProfile;
   bool _useTLS = false;
+  String _logFileDirectoryPath;
   StorageConnectionCredentials _storageConnectionCredentials;
 
   @override
   initState() {
     super.initState();
+    
     appSettings.getStorageBucket().then((String bucket) {
       this._bucket = bucket == null || bucket.isEmpty ? '-' : bucket;
     });
+    
     appSettings.getStorageConnectionCredentials().then((credentials) {
       if (mounted) {
         setState(() {
@@ -64,11 +67,16 @@ class _DashboardViewState extends State<DashboardView> {
         getSnackBar(error.toString(), true),
       );
     });
+    
     appSettings.getUploadProfiles().then((List<UploadProfile> profiles) {
       setState(() {
         this._activeUploadProfile =
-            profiles.where((profile) => profile.enabled).first;
+            profiles.where((profile) => profile.enabled)?.first;
       });
+    });
+    
+    appSettings.getLogFileDirectoryPath().then((logFileDirectoryPath) {
+      this._logFileDirectoryPath = logFileDirectoryPath;
     });
   }
 
@@ -102,12 +110,13 @@ class _DashboardViewState extends State<DashboardView> {
             buckets: this._buckets,
           );
         } else if (index == 4) {
-          return ConfigurationValidationPanel(
-            storageConnectionCredentials: this._storageConnectionCredentials,
-          );
-        } else if (index == 5) {
           return ActiveUploadPanel(
             activeUploadProfile: this._activeUploadProfile,
+          );
+        } else if (index == 5) {
+          return ConfigurationValidationPanel(
+            storageConnectionCredentials: this._storageConnectionCredentials,
+            logFileDirectoryPath: this._logFileDirectoryPath
           );
         }
         return SizedBox();
@@ -128,8 +137,8 @@ class _DashboardViewState extends State<DashboardView> {
         } else if (index == 4) {
           return StaggeredTile.fit(2);
         } else if (index == 5) {
-          if (MediaQuery.of(context).size.width > 1500) {
-            return StaggeredTile.fit(2);
+          if (MediaQuery.of(context).size.width < 1500) {
+            return StaggeredTile.fit(4);
           }
           return StaggeredTile.fit(3);
         }

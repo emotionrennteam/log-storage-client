@@ -4,6 +4,9 @@ import 'package:log_storage_client/utils/app_settings.dart' as appSettings;
 import 'package:log_storage_client/utils/constants.dart' as constants;
 import 'package:log_storage_client/utils/storage_manager.dart';
 
+/// A widget that executes a dynamic analysis of the app settings by trying
+/// to establish a connection to the storage system with the current app
+/// settings.
 class StorageConnectionPanel extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _StorageConnectionPanelState();

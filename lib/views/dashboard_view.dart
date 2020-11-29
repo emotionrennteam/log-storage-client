@@ -36,11 +36,11 @@ class _DashboardViewState extends State<DashboardView> {
   @override
   initState() {
     super.initState();
-    
+
     appSettings.getStorageBucket().then((String bucket) {
       this._bucket = bucket == null || bucket.isEmpty ? '-' : bucket;
     });
-    
+
     appSettings.getStorageConnectionCredentials().then((credentials) {
       if (mounted) {
         setState(() {
@@ -67,14 +67,14 @@ class _DashboardViewState extends State<DashboardView> {
         getSnackBar(error.toString(), true),
       );
     });
-    
+
     appSettings.getUploadProfiles().then((List<UploadProfile> profiles) {
       setState(() {
         this._activeUploadProfile =
             profiles.where((profile) => profile.enabled)?.first;
       });
     });
-    
+
     appSettings.getLogFileDirectoryPath().then((logFileDirectoryPath) {
       this._logFileDirectoryPath = logFileDirectoryPath;
     });
@@ -116,7 +116,7 @@ class _DashboardViewState extends State<DashboardView> {
         } else if (index == 5) {
           return ConfigurationValidationPanel(
             storageConnectionCredentials: this._storageConnectionCredentials,
-            logFileDirectoryPath: this._logFileDirectoryPath
+            logFileDirectoryPath: this._logFileDirectoryPath,
           );
         }
         return SizedBox();

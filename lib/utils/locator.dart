@@ -6,7 +6,8 @@ import 'package:log_storage_client/services/upload_profile_service.dart';
 /// Allows to locate singleton instances of services.
 GetIt locator = GetIt.instance;
 
-/// Registers the [NavigationService] as a singleton.
+/// Registers [NavigationService], [ProgressService], and [UploadProfileService]
+/// as a singletons.
 void setupLocator() {
   locator.registerLazySingleton(() => NavigationService());
   locator.registerLazySingleton(() => ProgressService());

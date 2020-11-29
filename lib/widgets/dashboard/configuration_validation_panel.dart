@@ -71,7 +71,7 @@ class ConfigurationValidationPanel extends StatelessWidget {
         borderRadius: BorderRadius.circular(constants.BORDER_RADIUS_MEDIUM),
         color: Theme.of(context).primaryColor,
         child: Padding(
-          padding: EdgeInsets.fromLTRB(20, 20, 20, 50),
+          padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [

@@ -1,3 +1,4 @@
+import 'package:log_storage_client/services/auto_upload_service.dart';
 import 'package:log_storage_client/services/navigation_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:log_storage_client/services/progress_service.dart';
@@ -12,4 +13,5 @@ void setupLocator() {
   locator.registerLazySingleton(() => NavigationService());
   locator.registerLazySingleton(() => ProgressService());
   locator.registerLazySingleton(() => UploadProfileService());
+  locator.registerLazySingleton(() => AutoUploadService());
 }

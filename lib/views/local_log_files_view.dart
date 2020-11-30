@@ -184,6 +184,7 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
           DateTime.now().toLocal(),
         );
 
+        // TODO: is this still used?
         final uploadTriggerFile = File(
           path.join(
             this._monitoredDirectory.path,

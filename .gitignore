@@ -46,6 +46,6 @@ app.*.map.json
 preferences.json
 dirToMonitor/
 data/
-_SUCCESS
+_UPLOAD
 arguments.txt
 postload.bat

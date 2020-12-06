@@ -29,7 +29,7 @@ class AutoUploadService {
   /// uploaded. Unfortunately, Dart's API doesn't support recursive watching on
   /// Linux. That means, auto upload will only work on OS X and Windows.
   void enableAutoUpload(Directory logFileDirectory) {
-    if (!logFileDirectory.existsSync()) {
+    if (logFileDirectory == null || logFileDirectory.path.isEmpty || !logFileDirectory.existsSync()) {
       throw FileSystemException(
         'The specified log file directory does not exist.',
       );

@@ -69,10 +69,14 @@ class _DashboardViewState extends State<DashboardView> {
     });
 
     appSettings.getUploadProfiles().then((List<UploadProfile> profiles) {
-      setState(() {
-        this._activeUploadProfile =
-            profiles.where((profile) => profile.enabled)?.first;
-      });
+      if (mounted) {
+        setState(() {
+          if (profiles != null && profiles.isNotEmpty) {
+            this._activeUploadProfile =
+                profiles.where((profile) => profile.enabled)?.first;
+          }
+        });
+      }
     });
 
     appSettings.getLogFileDirectoryPath().then((logFileDirectoryPath) {

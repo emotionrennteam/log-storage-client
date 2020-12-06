@@ -115,7 +115,9 @@ class _AppDrawerState extends State<AppDrawer> {
     appSettings.getUploadProfiles().then((profiles) {
       if (mounted) {
         setState(() {
-          this._activeUploadProfile = profiles.where((p) => p.enabled).first;
+          if (profiles != null && profiles.isNotEmpty) {
+            this._activeUploadProfile = profiles.where((p) => p.enabled).first;
+          }
           this._uploadProfiles = profiles;
         });
       }
@@ -124,20 +126,25 @@ class _AppDrawerState extends State<AppDrawer> {
 
   void _loadAutoUpload() {
     appSettings.getAutoUploadEnabled().then((autoUploadEnabled) {
+      if (autoUploadEnabled == null || !autoUploadEnabled) {
+        return;
+      }
+
       appSettings.getLogFileDirectoryPath().then((logFileDirectoryPath) {
-        locator<AutoUploadService>().enableAutoUpload(
-          Directory(logFileDirectoryPath),
-        );
-        if (mounted) {
-          setState(() {
-            this._autoUploadEnabled = autoUploadEnabled;
-            this._autoUploadTimer =
-                Timer.periodic(Duration(seconds: 1), (timer) {
-              setState(() {
-                this._autoUploadBlink = !this._autoUploadBlink;
+        if (logFileDirectoryPath != null && logFileDirectoryPath.isNotEmpty) {
+          locator<AutoUploadService>().enableAutoUpload(
+            Directory(logFileDirectoryPath),
+          );
+          if (mounted) {
+            setState(() {
+              this._autoUploadEnabled = autoUploadEnabled;
+              this._autoUploadTimer = Timer.periodic(Duration(seconds: 1), (_) {
+                setState(() {
+                  this._autoUploadBlink = !this._autoUploadBlink;
+                });
               });
             });
-          });
+          }
         }
       });
     });

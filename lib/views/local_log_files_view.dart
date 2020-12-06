@@ -45,10 +45,23 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
   }
 
   void _init() async {
-    var logFileDirectory = await getLogFileDirectoryPath();
-    this._monitoredDirectory = new Directory(logFileDirectory);
-    this._currentDirectory = this._monitoredDirectory;
-    _loadStorageObjects();
+    getLogFileDirectoryPath().then((logFileDirectory) {
+      if (logFileDirectory != null && logFileDirectory.isNotEmpty) {
+        this._monitoredDirectory = new Directory(logFileDirectory);
+        this._currentDirectory = this._monitoredDirectory;
+        _loadStorageObjects();
+      } else {
+        if (mounted) {
+          setState(() {
+            this._failedToListStorageObjects = true;
+          });
+        }
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          getSnackBar('Failed to list files. Error: path to local log file directory must not be null or empty.', true),
+        );
+      }
+    });
 
     ProgressService progressService = locator<ProgressService>();
     setState(() {

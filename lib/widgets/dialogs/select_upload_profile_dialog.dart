@@ -27,10 +27,10 @@ class SelectUploadProfileDialog extends StatefulWidget {
   State<StatefulWidget> createState() => _SelectUploadProfileDialogState();
 }
 
-class _SelectUploadProfileDialogState
-    extends State<SelectUploadProfileDialog> {
+class _SelectUploadProfileDialogState extends State<SelectUploadProfileDialog> {
   List<UploadProfile> _uploadProfiles = [];
-  UploadProfile _activeUploadProfile = UploadProfile('Loading ...', null, null, null);
+  UploadProfile _activeUploadProfile;
+  Function _onUploadButtonPressed;
 
   @override
   void initState() {
@@ -38,8 +38,12 @@ class _SelectUploadProfileDialogState
     AppSettings.getUploadProfiles().then((uploadProfiles) {
       setState(() {
         this._uploadProfiles = uploadProfiles;
-        this._activeUploadProfile =
-            uploadProfiles.where((p) => p.enabled).first;
+        if (this._uploadProfiles != null && this._uploadProfiles.isNotEmpty) {
+          this._activeUploadProfile =
+              uploadProfiles.where((p) => p.enabled).first;
+          this._onUploadButtonPressed = () => Navigator.of(context)
+              .pop<UploadProfile>(this._activeUploadProfile);
+        }
       });
     });
   }
@@ -71,7 +75,7 @@ class _SelectUploadProfileDialogState
               ),
             ],
           ),
-          onPressed: () => Navigator.of(context).pop<UploadProfile>(this._activeUploadProfile),
+          onPressed: this._onUploadButtonPressed,
         ),
         EmotionDesignButton(
           color: Theme.of(context).canvasColor,

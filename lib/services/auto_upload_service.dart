@@ -10,7 +10,7 @@ import 'package:log_storage_client/utils/storage_manager.dart'
 import 'package:path/path.dart' as path;
 
 /// A service which handles the auto upoad of log files.
-/// 
+///
 /// Auto upload can be enabled and disabled. Auto upload works by watching
 /// the log file directory for file-system notifications. If the predefined
 /// trigger file `_UPLOAD` is modified (= created or changed), then the
@@ -18,22 +18,30 @@ import 'package:path/path.dart' as path;
 /// Unfortunately, Dart's API doesn't support recursive watching on Linux.
 /// That means, auto upload will only work on OS X and Windows.
 class AutoUploadService {
-
   StreamSubscription _fileEventStreamSubscription;
+  StreamController<bool> _autoUploadChangeController =
+      new StreamController.broadcast();
+  
+  Stream<bool> getAutoUploadChangeStream() {
+    return this._autoUploadChangeController.stream;
+  }
 
   /// Enables auto upload for the given directory [logFileDirectory].
-  /// 
+  ///
   /// Monitors the specified [logFileDirectory] for file-system notifications.
   /// If the predefined trigger file `_UPLOAD` is modified (= created or changed),
   /// then the directory which contains the trigger file will be automatically
   /// uploaded. Unfortunately, Dart's API doesn't support recursive watching on
   /// Linux. That means, auto upload will only work on OS X and Windows.
   void enableAutoUpload(Directory logFileDirectory) {
-    if (logFileDirectory == null || logFileDirectory.path.isEmpty || !logFileDirectory.existsSync()) {
+    if (logFileDirectory == null ||
+        logFileDirectory.path.isEmpty ||
+        !logFileDirectory.existsSync()) {
       throw FileSystemException(
         'The specified log file directory does not exist.',
       );
     }
+    this._autoUploadChangeController.sink.add(true);
 
     try {
       Stream<FileSystemEvent> eventStream = logFileDirectory.watch(
@@ -56,6 +64,7 @@ class AutoUploadService {
 
   // Disables auto upload which effectively turns of the file-system watcher.
   void disableAutoUpload() {
+    this._autoUploadChangeController.sink.add(false);
     this._fileEventStreamSubscription?.cancel();
   }
 

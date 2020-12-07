@@ -1,6 +1,9 @@
 library utils;
 
+import 'dart:io';
+
 import 'package:log_storage_client/models/upload_profile.dart';
+import 'package:log_storage_client/services/auto_upload_service.dart';
 import 'package:log_storage_client/services/upload_profile_service.dart';
 import 'package:log_storage_client/utils/app_settings.dart' as appSettings;
 import 'package:log_storage_client/utils/constants.dart';
@@ -84,6 +87,7 @@ SnackBar getSnackBar(String message, bool isErrorMessage,
 /// as singletons.
 /// Checks whether at least one [UploadProfile] exists and if not creates
 /// a default [UploadProfile].
+/// Enables the file watcher if auto upload is enabled.
 initializeApp() {
   setupLocator();
 
@@ -93,6 +97,18 @@ initializeApp() {
         UploadProfile('Default', 'Unknown', 'Unknown', '', enabled: true),
       ]).then((_) {
         locator<UploadProfileService>().getUploadProfileChangeSink().add(null);
+      });
+    }
+  });
+
+  appSettings.getAutoUploadEnabled().then((autoUploadEnabled) {
+    if (autoUploadEnabled != null && autoUploadEnabled) {
+      appSettings.getLogFileDirectoryPath().then((logFileDirectoryPath) {
+        if (logFileDirectoryPath != null && logFileDirectoryPath.isNotEmpty) {
+          locator<AutoUploadService>().enableAutoUpload(
+            Directory(logFileDirectoryPath),
+          );
+        }
       });
     }
   });

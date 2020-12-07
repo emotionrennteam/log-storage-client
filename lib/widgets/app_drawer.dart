@@ -70,7 +70,11 @@ class _AppDrawerState extends State<AppDrawer> {
     super.initState();
 
     this._loadUploadProfiles();
-    this._loadAutoUpload();
+
+    appSettings.getAutoUploadEnabled().then(this._enableDisableAutoUpload);
+    locator<AutoUploadService>()
+        .getAutoUploadChangeStream()
+        .listen(this._enableDisableAutoUpload);
 
     locator<ProgressService>().getProgressValueStream().listen((progressValue) {
       setState(() {
@@ -124,29 +128,29 @@ class _AppDrawerState extends State<AppDrawer> {
     });
   }
 
-  void _loadAutoUpload() {
-    appSettings.getAutoUploadEnabled().then((autoUploadEnabled) {
-      if (autoUploadEnabled == null || !autoUploadEnabled) {
-        return;
-      }
+  void _enableDisableAutoUpload(bool autoUploadEnabled) {
+    this._autoUploadTimer?.cancel();
 
-      appSettings.getLogFileDirectoryPath().then((logFileDirectoryPath) {
-        if (logFileDirectoryPath != null && logFileDirectoryPath.isNotEmpty) {
-          locator<AutoUploadService>().enableAutoUpload(
-            Directory(logFileDirectoryPath),
-          );
-          if (mounted) {
-            setState(() {
-              this._autoUploadEnabled = autoUploadEnabled;
-              this._autoUploadTimer = Timer.periodic(Duration(seconds: 1), (_) {
-                setState(() {
-                  this._autoUploadBlink = !this._autoUploadBlink;
-                });
+    if (autoUploadEnabled == null || !autoUploadEnabled) {
+      setState(() {
+        this._autoUploadEnabled = false;
+      });
+      return;
+    }
+
+    appSettings.getLogFileDirectoryPath().then((logFileDirectoryPath) {
+      if (logFileDirectoryPath != null && logFileDirectoryPath.isNotEmpty) {
+        if (mounted) {
+          setState(() {
+            this._autoUploadEnabled = autoUploadEnabled;
+            this._autoUploadTimer = Timer.periodic(Duration(seconds: 1), (_) {
+              setState(() {
+                this._autoUploadBlink = !this._autoUploadBlink;
               });
             });
-          }
+          });
         }
-      });
+      }
     });
   }
 

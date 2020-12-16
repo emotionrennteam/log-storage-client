@@ -45,7 +45,7 @@ class AutoUploadService {
 
     try {
       Stream<FileSystemEvent> eventStream = logFileDirectory.watch(
-        recursive: false,
+        recursive: true,
       );
       _fileEventStreamSubscription = eventStream.listen(
         (event) {

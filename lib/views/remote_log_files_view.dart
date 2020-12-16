@@ -99,9 +99,7 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
     } else {
       // Navigate to child in the directory tree
       setState(() {
-        this._currentDirectory = path.canonicalize(
-          path.join('/', absolutePath),
-        );
+        this._currentDirectory = path.join('/', absolutePath);
       });
     }
     this._loadStorageObjects();

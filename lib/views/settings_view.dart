@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:dynamic_color_theme/dynamic_color_theme.dart';
+import 'package:log_storage_client/services/auto_upload_service.dart';
 import 'package:log_storage_client/utils/app_settings.dart';
+import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/utils/utils.dart';
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';
 import 'package:log_storage_client/widgets/settings/color_settings.dart';
@@ -120,6 +124,16 @@ class _SettingsViewState extends State<SettingsView> {
                   !savingSucceeded,
                 ),
               );
+
+              if (_logFileSettingsWidget.getAutoUploadEnabled()) {
+                locator<AutoUploadService>().enableAutoUpload(
+                  Directory(
+                    _logFileSettingsWidget.logFileDirectoryController.text,
+                  ),
+                );
+              } else {
+                locator<AutoUploadService>().disableAutoUpload();
+              }
             },
           ),
         ),

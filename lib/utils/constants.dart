@@ -9,7 +9,7 @@ const Color LIGHT_RED = Color.fromRGBO(239, 35, 60, 1);
 const Color DARK_RED = Color.fromRGBO(217, 4, 41, 1);
 
 /// Name of the file which triggers an auto upload of all log files.
-const String AUTO_UPLOAD_TRIGGER_FILE = '_SUCCESS';
+const String AUTO_UPLOAD_TRIGGER_FILE = '_UPLOAD';
 
 const double BORDER_RADIUS_SMALL = 7.0;
 const double BORDER_RADIUS_MEDIUM = 10.0;

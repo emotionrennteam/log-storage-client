@@ -1,9 +1,12 @@
+import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:log_storage_client/models/file_transfer_exception.dart';
 import 'package:log_storage_client/models/upload_profile.dart';
+import 'package:log_storage_client/services/auto_upload_service.dart';
 import 'package:log_storage_client/services/upload_profile_service.dart';
-import 'package:log_storage_client/utils/app_settings.dart' as AppSettings;
+import 'package:log_storage_client/utils/app_settings.dart' as appSettings;
 import 'package:log_storage_client/utils/constants.dart';
 import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/services/navigation_service.dart';
@@ -58,11 +61,21 @@ class _AppDrawerState extends State<AppDrawer> {
   Function _dialogSetState;
   List<UploadProfile> _uploadProfiles = [];
   UploadProfile _activeUploadProfile;
+  bool _autoUploadEnabled = false;
+  Timer _autoUploadTimer;
+  bool _autoUploadBlink = false;
 
   @override
   initState() {
     super.initState();
+
     this._loadUploadProfiles();
+
+    appSettings.getAutoUploadEnabled().then(this._enableDisableAutoUpload);
+    locator<AutoUploadService>()
+        .getAutoUploadChangeStream()
+        .listen(this._enableDisableAutoUpload);
+
     locator<ProgressService>().getProgressValueStream().listen((progressValue) {
       setState(() {
         this._progressValue = progressValue;
@@ -96,13 +109,47 @@ class _AppDrawerState extends State<AppDrawer> {
         .listen((_) => this._loadUploadProfiles());
   }
 
+  @override
+  void dispose() {
+    this._autoUploadTimer?.cancel();
+    super.dispose();
+  }
+
   void _loadUploadProfiles() {
-    AppSettings.getUploadProfiles().then((profiles) {
+    appSettings.getUploadProfiles().then((profiles) {
       if (mounted) {
         setState(() {
-          this._activeUploadProfile = profiles.where((p) => p.enabled).first;
+          if (profiles != null && profiles.isNotEmpty) {
+            this._activeUploadProfile = profiles.where((p) => p.enabled).first;
+          }
           this._uploadProfiles = profiles;
         });
+      }
+    });
+  }
+
+  void _enableDisableAutoUpload(bool autoUploadEnabled) {
+    this._autoUploadTimer?.cancel();
+
+    if (autoUploadEnabled == null || !autoUploadEnabled) {
+      setState(() {
+        this._autoUploadEnabled = false;
+      });
+      return;
+    }
+
+    appSettings.getLogFileDirectoryPath().then((logFileDirectoryPath) {
+      if (logFileDirectoryPath != null && logFileDirectoryPath.isNotEmpty) {
+        if (mounted) {
+          setState(() {
+            this._autoUploadEnabled = autoUploadEnabled;
+            this._autoUploadTimer = Timer.periodic(Duration(seconds: 1), (_) {
+              setState(() {
+                this._autoUploadBlink = !this._autoUploadBlink;
+              });
+            });
+          });
+        }
       }
     });
   }
@@ -375,7 +422,7 @@ class _AppDrawerState extends State<AppDrawer> {
                     }
                   });
                 });
-                await AppSettings.setUploadProfiles(this._uploadProfiles);
+                await appSettings.setUploadProfiles(this._uploadProfiles);
                 locator<UploadProfileService>()
                     .getUploadProfileChangeSink()
                     .add(null);
@@ -383,7 +430,9 @@ class _AppDrawerState extends State<AppDrawer> {
               underline: Container(
                 height: 0,
               ),
-              value: this._activeUploadProfile == null ? 'Loading ...' : this._activeUploadProfile.name,
+              value: this._activeUploadProfile == null
+                  ? 'Loading ...'
+                  : this._activeUploadProfile.name,
             ),
           ),
         ),
@@ -458,6 +507,57 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
+  /// A non-interactive widget that is only visible when the auto upload of log files
+  /// is enabled.
+  Widget _autoUploadWidget() {
+    if (!this._autoUploadEnabled) {
+      return SizedBox();
+    }
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20, 10, 20, 20),
+      child: Container(
+        height: 50,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(BORDER_RADIUS_LARGE),
+          color: Theme.of(context).canvasColor,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 20,
+            ),
+            Text(
+              'Auto Upload Enabled',
+              style: Theme.of(context).textTheme.headline6,
+            ),
+            Expanded(
+              child: Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    top: 10,
+                    right: 20,
+                  ),
+                  child: Container(
+                    width: this._autoUploadBlink ? 10 : 0,
+                    height: this._autoUploadBlink ? 10 : 0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).accentColor,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -486,6 +586,7 @@ class _AppDrawerState extends State<AppDrawer> {
               reverse: true,
               children: <Widget>[
                 this._fileTransferErrorButton(),
+                this._autoUploadWidget(),
                 this._activeUploadProfileDropdown(),
               ],
             ),

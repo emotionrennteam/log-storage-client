@@ -123,7 +123,6 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           'The hostname or IP address of the storage\nsystem (without port and scheme). For\nconnecting to S3 from Amazon Web\nServices please use "s3.amazonaws.com".',
         ),
         Divider(color: Colors.transparent),
-        // TODO: validate user input and ensure that it's a string
         TextFieldSetting(
           'Port',
           '443',

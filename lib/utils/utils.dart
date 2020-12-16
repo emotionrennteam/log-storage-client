@@ -1,7 +1,14 @@
 library utils;
 
+import 'dart:io';
+
+import 'package:log_storage_client/models/upload_profile.dart';
+import 'package:log_storage_client/services/auto_upload_service.dart';
+import 'package:log_storage_client/services/upload_profile_service.dart';
+import 'package:log_storage_client/utils/app_settings.dart' as appSettings;
 import 'package:log_storage_client/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:log_storage_client/utils/locator.dart';
 import 'package:path/path.dart' as path;
 
 /// Computes the path of the parent directory for the given path.
@@ -22,7 +29,9 @@ String getParentPath(
   }
   // Limits the returned path from being further-up in the directory
   // structure than the artifical root directory.
-  return path.isWithin(artificialRootDirectory, parentDirectory) ? parentDirectory : artificialRootDirectory;
+  return path.isWithin(artificialRootDirectory, parentDirectory)
+      ? parentDirectory
+      : artificialRootDirectory;
 }
 
 /// Returns a styled instance of [SnackBar].
@@ -70,4 +79,37 @@ SnackBar getSnackBar(String message, bool isErrorMessage,
       ],
     ),
   );
+}
+
+/// Initializes the app.
+///
+/// Initializes the service locator which registers service implementations
+/// as singletons.
+/// Checks whether at least one [UploadProfile] exists and if not creates
+/// a default [UploadProfile].
+/// Enables the file watcher if auto upload is enabled.
+initializeApp() {
+  setupLocator();
+
+  appSettings.getUploadProfiles().then((List<UploadProfile> uploadProfiles) {
+    if (uploadProfiles == null || uploadProfiles.isEmpty) {
+      appSettings.setUploadProfiles([
+        UploadProfile('Default', 'Unknown', 'Unknown', '', enabled: true),
+      ]).then((_) {
+        locator<UploadProfileService>().getUploadProfileChangeSink().add(null);
+      });
+    }
+  });
+
+  appSettings.getAutoUploadEnabled().then((autoUploadEnabled) {
+    if (autoUploadEnabled != null && autoUploadEnabled) {
+      appSettings.getLogFileDirectoryPath().then((logFileDirectoryPath) {
+        if (logFileDirectoryPath != null && logFileDirectoryPath.isNotEmpty) {
+          locator<AutoUploadService>().enableAutoUpload(
+            Directory(logFileDirectoryPath),
+          );
+        }
+      });
+    }
+  });
 }

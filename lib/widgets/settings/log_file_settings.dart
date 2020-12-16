@@ -119,7 +119,7 @@ class _LogFileSettingsState extends State<LogFileSettings> {
             children: [
               SettingPanel(
                 'Auto Upload',
-                'Determines whether new log files shall be\nuploaded automatically. If enabled, then\nthe specified log directory will be monitored\nfor file changes. An upload is automatically\nstarted when the user creates a new file\nnamed "_SUCCESS".',
+                'Determines whether new log files shall be\nuploaded automatically. If enabled, then\nthe specified log directory will be monitored\nfor file changes. An upload is automatically\nstarted when the user creates a new file\nnamed "_UPLOAD".',
                 this._isAutoUploadTooltipVisible,
               ),
               SwitchListTile(

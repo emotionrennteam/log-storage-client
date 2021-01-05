@@ -1,3 +1,5 @@
+<img src="./go/assets/icon.svg" align="right" width="90" style="background-color: white">
+
 # Log Storage Client
 
 The _Log Storage Client_ is a desktop app for uploading and downloading log files to an S3-based object storage. It's written in Dart using the Flutter framework and can connect to any storage system that implements the S3 protocol (e.g. [Amazon S3](https://aws.amazon.com/s3/) or [MinIO](https://min.io/)). It comes with an auto upload function and helps you to collect log files in a central place / storage.

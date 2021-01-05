@@ -318,6 +318,7 @@ Future<void> uploadObjectsToRemoteStorage(
     final metadataFile = await _createMetadataJsonFileFromUploadProfile(
       uploadProfile,
       localBaseDirectory,
+      fsEntitiesToUpload.where((e) => e is File).length,
     );
     fsEntitiesToUpload.add(metadataFile);
 
@@ -541,11 +542,20 @@ String _sanitizeFilePathForS3(String filePath) {
 /// as JSON. This information could later on be used by people
 /// who want to analyze the uploaded log data (e.g. for filtering
 /// for specific log data).
+///
+/// The value of [numberOfFiles] should contain the number of files
+/// which are about to be uploaded. This number is included in the
+/// JSON file `_metadata.json` as additional metadata.
 Future<FileSystemEntity> _createMetadataJsonFileFromUploadProfile(
-    UploadProfile uploadProfile, Directory uploadDirectory) async {
+  UploadProfile uploadProfile,
+  Directory uploadDirectory,
+  int numberOfFiles,
+) async {
   final jsonFile = File(
     path.join(uploadDirectory.path, '_metadata.json'),
   );
-  await jsonFile.writeAsString(uploadProfile.toJsonString());
+  await jsonFile.writeAsString(
+    uploadProfile.toJsonString(numberOfFiles),
+  );
   return jsonFile;
 }

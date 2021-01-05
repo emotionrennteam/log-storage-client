@@ -35,16 +35,20 @@ class UploadProfile {
       };
 
   /// Transforms this [UploadProfile] into a JSON string.
-  /// 
+  ///
   /// This method is intended to be used for creating the
-  /// file `_metadata.json` while uploading log files to the
-  /// remote storage. For this purpose, an additional
-  /// upload timestamp is included. The information that
+  /// file `_metadata.json` while uploading log files to
+  /// the remote storage. For this purpose, an additional
+  /// upload timestamp is included. The value of
+  /// [numberOfFiles] should contain the number of files
+  /// which are about to be uploaded. This number is
+  /// included in the JSON file, too. The information that
   /// this [UploadProfile] was enabled is unnecessary and
   /// therefore removed.
-  String toJsonString() {
+  String toJsonString(int numberOfFiles) {
     final map = this.toJson();
     map['uploadTimestampIso8601'] = DateTime.now().toIso8601String();
+    map['numberOfFiles'] = numberOfFiles;
     map.remove('enabled');
     return jsonEncode(map);
   }

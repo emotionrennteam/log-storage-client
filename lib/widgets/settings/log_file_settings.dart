@@ -1,12 +1,15 @@
-import 'dart:io';
+import 'dart:io' show Platform, File;
+import 'dart:ui';
 
-import 'package:log_storage_client/utils/app_settings.dart';
-import 'package:log_storage_client/widgets/emotion_design_button.dart';
-import 'package:log_storage_client/widgets/settings/setting_panel.dart';
-import 'package:log_storage_client/widgets/settings/textfield_setting.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'package:log_storage_client/utils/app_settings.dart';
+import 'package:log_storage_client/utils/constants.dart' as constants;
+import 'package:log_storage_client/widgets/emotion_design_button.dart';
+import 'package:log_storage_client/widgets/settings/setting_panel.dart';
+import 'package:log_storage_client/widgets/settings/textfield_setting.dart';
 
 class LogFileSettings extends StatefulWidget {
   final logFileDirectoryController = TextEditingController();
@@ -43,6 +46,46 @@ class _LogFileSettingsState extends State<LogFileSettings> {
           this._autoUploadEnabled = value;
         }
       }),
+    );
+  }
+
+  void _showAutoUploadWarningForLinux() {
+    showCupertinoModalPopup(
+      context: context,
+      filter: ImageFilter.blur(
+        sigmaX: 2,
+        sigmaY: 2,
+      ),
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Theme.of(context).primaryColor,
+          elevation: 20,
+          title: Text('Warning'),
+          content: Text(
+            """"Auto Upload" on Linux isn\'t fully supported. "Auto Upload" watches the\nfile-system for changes. The implementation for file-system watching in\nDart (=the programming language used for the implementation of this\napplication) supports watching both files and directories, but recursive\nwatching is not supported.\n\nTherefore, "Auto Upload" only works, if the trigger file "_UPLOAD" is\ncreated directly in the configured log file directory (sub-directories\naren't supported). In other words, if the trigger file is created in a sub-\ndirectory of the configured log file directory, then this application won't\nbe notified about the creation of the trigger file and therefore cannot\nstart the "Auto Upload".""",
+            softWrap: true,
+          ),
+          contentPadding: EdgeInsets.fromLTRB(24, 20, 24, 10),
+          buttonPadding: EdgeInsets.only(
+            right: 24,
+          ),
+          actions: <Widget>[
+            EmotionDesignButton(
+              child: Text(
+                'Ok',
+                style: TextStyle(
+                  color: constants.LIGHT_RED,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -130,6 +173,9 @@ class _LogFileSettingsState extends State<LogFileSettings> {
                 onChanged: (value) async {
                   setState(() {
                     this._autoUploadEnabled = value;
+                    if (Platform.isLinux && value) {
+                      this._showAutoUploadWarningForLinux();
+                    }
                   });
                 },
                 contentPadding: EdgeInsets.only(

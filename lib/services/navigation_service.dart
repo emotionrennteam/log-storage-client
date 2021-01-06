@@ -1,4 +1,4 @@
-import 'package:log_storage_client/views/profiles_view.dart';
+import 'package:log_storage_client/views/upload_profiles_view.dart';
 import 'package:log_storage_client/views/dashboard_view.dart';
 import 'package:log_storage_client/views/local_log_files_view.dart';
 import 'package:log_storage_client/views/remote_log_files_view.dart';
@@ -37,7 +37,7 @@ class NavigationService {
       case SettingsRoute:
         return _getPageRoute(SettingsView());
       case ProfilesRoute:
-        return _getPageRoute(ProfilesView());
+        return _getPageRoute(UploadProfilesView());
       default:
         return _getPageRoute(DashboardView());
     }

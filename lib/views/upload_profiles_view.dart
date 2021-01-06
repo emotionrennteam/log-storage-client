@@ -7,20 +7,20 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:log_storage_client/models/upload_profile.dart';
 import 'package:log_storage_client/services/upload_profile_service.dart';
 import 'package:log_storage_client/utils/app_settings.dart' as AppSettings;
-import 'package:log_storage_client/utils/constants.dart';
+import 'package:log_storage_client/utils/constants.dart' as constants;
 import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/widgets/emotion_design_button.dart';
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';
 import 'package:log_storage_client/widgets/dialogs/upload_profile_edit_dialog.dart';
 
-class ProfilesView extends StatefulWidget {
-  ProfilesView({Key key}) : super(key: key);
+class UploadProfilesView extends StatefulWidget {
+  UploadProfilesView({Key key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _ProfilesViewState();
+  State<StatefulWidget> createState() => _UploadProfilesViewState();
 }
 
-class _ProfilesViewState extends State<ProfilesView> {
+class _UploadProfilesViewState extends State<UploadProfilesView> {
   List<UploadProfile> profiles = [];
 
   @override
@@ -86,7 +86,7 @@ class _ProfilesViewState extends State<ProfilesView> {
     return Container(
       margin: EdgeInsets.only(top: 30, left: 30, right: 30),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(BORDER_RADIUS_MEDIUM),
+        borderRadius: BorderRadius.circular(constants.BORDER_RADIUS_MEDIUM),
         boxShadow: [
           BoxShadow(
             color: this.profiles[index].enabled
@@ -102,7 +102,7 @@ class _ProfilesViewState extends State<ProfilesView> {
             : Theme.of(context).primaryColor,
       ),
       child: Material(
-        borderRadius: BorderRadius.circular(BORDER_RADIUS_MEDIUM),
+        borderRadius: BorderRadius.circular(constants.BORDER_RADIUS_MEDIUM),
         color: this.profiles[index].enabled
             ? Theme.of(context).accentColor
             : Theme.of(context).primaryColor,

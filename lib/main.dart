@@ -12,6 +12,7 @@ void main() {
 class MyApp extends StatelessWidget {
   ThemeData _buildTheme(Color accentColor, bool isDark) {
     return ThemeData(
+      dividerColor: constants.DARK_GREY,
       primarySwatch: Colors.blueGrey,
       primaryColor: Color.fromRGBO(32, 33, 37, 1),
       canvasColor: Color.fromRGBO(22, 23, 27, 1),

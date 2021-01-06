@@ -1,19 +1,22 @@
 import 'dart:ui';
 
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:log_storage_client/widgets/dialogs/object_metadata_dialog.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import 'package:log_storage_client/models/storage_connection_credentials.dart';
 import 'package:log_storage_client/models/storage_object.dart';
 import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/constants.dart';
 import 'package:log_storage_client/utils/storage_manager.dart';
 import 'package:log_storage_client/utils/utils.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:log_storage_client/widgets/emotion_design_button.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-enum PopupMenuOption { Delete, Share }
+enum PopupMenuOption { Delete, Metadata, Share }
 
 /// Builds the widget for displaying the list of [StorageObject]s as a table.
 class StorageObjectTable extends StatefulWidget {
@@ -80,6 +83,122 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
     );
   }
 
+  void _deleteStorageObject(
+      StorageConnectionCredentials credentials, StorageObject storageObject) {
+    showCupertinoModalPopup(
+      context: context,
+      filter: ImageFilter.blur(
+        sigmaX: 2,
+        sigmaY: 2,
+      ),
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Theme.of(context).primaryColor,
+          elevation: 20,
+          title: Text(
+              'Delete ${storageObject.isDirectory ? "Directory" : "File"}'),
+          content: Text(
+            'Do you really want to delete ${storageObject.path}?\nThis action can\'t be undone.',
+          ),
+          contentPadding: EdgeInsets.fromLTRB(24, 20, 24, 10),
+          buttonPadding: EdgeInsets.only(
+            right: 24,
+          ),
+          actions: <Widget>[
+            EmotionDesignButton(
+              child: Text(
+                'No',
+                style: Theme.of(context).textTheme.button,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            EmotionDesignButton(
+              child: Text(
+                'Yes',
+                style: TextStyle(
+                  color: LIGHT_RED,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              onPressed: () {
+                deleteObjectFromRemoteStorage(
+                  storageObject,
+                  credentials,
+                ).then((_) {
+                  setState(() {
+                    widget.storageObjects.remove(storageObject);
+                  });
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    getSnackBar(
+                      'Successfully deleted ${storageObject.path}.',
+                      false,
+                    ),
+                  );
+                }).catchError((error) {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    getSnackBar(
+                      'Failed to delete ${storageObject.path}. Error: ${error.toString()}',
+                      true,
+                    ),
+                  );
+                });
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showMetadataOfStorageObject(
+      StorageConnectionCredentials credentials,
+      StorageObject storageObject) async {
+    await showCupertinoModalPopup(
+      context: context,
+      filter: ImageFilter.blur(
+        sigmaX: 2,
+        sigmaY: 2,
+      ),
+      builder: (context) => ObjectMetadataDialog(credentials, storageObject),
+    );
+  }
+
+  void _shareStorageObject(
+      StorageConnectionCredentials credentials, StorageObject storageObject) {
+    shareObjectFromRemoteStorage(
+      storageObject,
+      credentials,
+    ).then((String shareableLink) {
+      Clipboard.setData(
+        ClipboardData(
+          text: shareableLink,
+        ),
+      ).then((_) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          getSnackBar(
+            'Successfully copied shareable link to your clipboard (valid for 7 days).',
+            false,
+            snackBarAction: SnackBarAction(
+              label: 'OPEN IN BROWSER',
+              onPressed: () async {
+                if (await canLaunch(shareableLink)) {
+                  launch(shareableLink);
+                }
+              },
+            ),
+          ),
+        );
+      });
+    });
+  }
+
   /// Builds a [PopupMenuButton] with the options to delete or share the
   /// associated [StorageObject].
   ///
@@ -92,101 +211,11 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
       onSelected: (option) {
         getStorageConnectionCredentials().then((credentials) {
           if (option == PopupMenuOption.Share) {
-            shareObjectFromRemoteStorage(
-              storageObject,
-              credentials,
-            ).then((String shareableLink) {
-              Clipboard.setData(
-                ClipboardData(
-                  text: shareableLink,
-                ),
-              ).then((_) {
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  getSnackBar(
-                    'Successfully copied shareable link to your clipboard (valid for 7 days).',
-                    false,
-                    snackBarAction: SnackBarAction(
-                        label: 'OPEN IN BROWSER',
-                        onPressed: () async {
-                          if (await canLaunch(shareableLink)) {
-                            launch(shareableLink);
-                          }
-                        }),
-                  ),
-                );
-              });
-            });
+            this._shareStorageObject(credentials, storageObject);
+          } else if (option == PopupMenuOption.Metadata) {
+            this._showMetadataOfStorageObject(credentials, storageObject);
           } else if (option == PopupMenuOption.Delete) {
-            showCupertinoModalPopup(
-              context: context,
-              filter: ImageFilter.blur(
-                sigmaX: 2,
-                sigmaY: 2,
-              ),
-              builder: (context) {
-                return AlertDialog(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  elevation: 20,
-                  title: Text(
-                      'Delete ${storageObject.isDirectory ? "Directory" : "File"}'),
-                  content: Text(
-                    'Do you really want to delete ${storageObject.path}?\nThis action can\'t be undone.',
-                  ),
-                  contentPadding: EdgeInsets.fromLTRB(24, 20, 24, 10),
-                  buttonPadding: EdgeInsets.only(
-                    right: 24,
-                  ),
-                  actions: <Widget>[
-                    EmotionDesignButton(
-                      child: Text(
-                        'No',
-                        style: Theme.of(context).textTheme.button,
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    EmotionDesignButton(
-                      child: Text(
-                        'Yes',
-                        style: TextStyle(
-                          color: LIGHT_RED,
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      onPressed: () {
-                        deleteObjectFromRemoteStorage(
-                          storageObject,
-                          credentials,
-                        ).then((_) {
-                          setState(() {
-                            widget.storageObjects.remove(storageObject);
-                          });
-                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            getSnackBar(
-                              'Successfully deleted ${storageObject.path}.',
-                              false,
-                            ),
-                          );
-                        }).catchError((error) {
-                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            getSnackBar(
-                              'Failed to delete ${storageObject.path}. Error: ${error.toString()}',
-                              true,
-                            ),
-                          );
-                        });
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
-                );
-              },
-            );
+            this._deleteStorageObject(credentials, storageObject);
           }
         });
       },
@@ -194,9 +223,13 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
       elevation: 20,
       itemBuilder: (BuildContext context) {
         return PopupMenuOption.values.map((PopupMenuOption option) {
-          // Disables sharing of directories (which is not possible in S3)
-          final enabled =
-              (!storageObject.isDirectory || option == PopupMenuOption.Delete);
+          // Disables options "Share" and "Metadata" for directories (which is
+          // both not possible in S3)
+          final enabled = storageObject.isDirectory &&
+                  (option == PopupMenuOption.Share ||
+                      option == PopupMenuOption.Metadata)
+              ? false
+              : true;
 
           return PopupMenuItem<PopupMenuOption>(
             value: option,

@@ -330,7 +330,7 @@ Future<void> uploadObjectsToRemoteStorage(
     final metadata = {
       'driver': uploadProfile.driver,
       'name': uploadProfile.name,
-      'eventOrLocation': uploadProfile.eventOrLocation,
+      'event-or-location': uploadProfile.eventOrLocation,
       'notes': uploadProfile.notes,
     };
 
@@ -402,6 +402,28 @@ void sortByDirectoriesFirstThenFiles(List<StorageObject> listToSort) {
         .getBasename()
         .toLowerCase()
         .compareTo(o2.getBasename().toLowerCase());
+  });
+}
+
+/// Gets the object metadata for the given [storageObject].
+///
+/// For each object stored in a bucket, Amazon S3 maintains a set of
+/// system metadata. When uploading an object to S3, one can assign
+/// user-defined metadata to the object. This function returns a
+/// [Map<String, String>] which contains all object metadata as key-
+/// value pairs.
+Future<Map<String, String>> getObjectMetadata(
+    StorageConnectionCredentials credentials,
+    StorageObject storageObject) async {
+  final minio = _initializeClient(credentials);
+  return minio
+      .statObject(credentials.bucket, storageObject.path)
+      .then((metadataMap) => metadataMap.metaData)
+      .catchError((error) {
+    debugPrint(
+      'Failed to retrieve metadata for storage object "${storageObject.path}". Error: $error.',
+    );
+    return null;
   });
 }
 

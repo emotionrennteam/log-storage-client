@@ -74,6 +74,19 @@ class MyApp extends StatelessWidget {
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         foregroundColor: accentColor,
       ),
+      tooltipTheme: TooltipThemeData(
+        decoration: BoxDecoration(
+          color: constants.DARK_GREY,
+          borderRadius: BorderRadius.circular(
+            constants.BORDER_RADIUS_SMALL,
+          ),
+        ),
+        textStyle: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w300,
+          color: constants.TEXT_COLOR,
+        ),
+      ),
     );
   }
 

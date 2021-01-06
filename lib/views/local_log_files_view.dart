@@ -29,7 +29,7 @@ class LocalLogFilesView extends StatefulWidget {
 
 class _LocalLogFilesViewState extends State<LocalLogFilesView> {
   Directory _monitoredDirectory;
-  List<StorageObject> _storageObjects = List();
+  List<StorageObject> _storageObjects = [];
   List<StorageObject> _selectedStorageObjects;
   Function _onUploadFabPressed;
   bool _allStorageObjectsSelected = false;
@@ -58,7 +58,10 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
         }
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
-          getSnackBar('Failed to list files. Error: path to local log file directory must not be null or empty.', true),
+          getSnackBar(
+            'Failed to list files. Error: path to local log file directory must not be null or empty.',
+            true,
+          ),
         );
       }
     });

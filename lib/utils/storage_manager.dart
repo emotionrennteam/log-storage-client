@@ -112,7 +112,7 @@ Future<List<StorageObject>> listObjectsInRemoteStorage(
   List<ListObjectsChunk> objectsChunks = await minio
       .listObjects(credentials.bucket, prefix: prefix, recursive: recursive)
       .toList();
-  List<StorageObject> storageObjects = List();
+  List<StorageObject> storageObjects = [];
 
   for (var objectsChunk in objectsChunks) {
     for (var object in objectsChunk.objects) {
@@ -413,7 +413,7 @@ void sortByDirectoriesFirstThenFiles(List<StorageObject> listToSort) {
 /// directories, and symlinks.
 List<FileSystemEntity> _recursivelyListOnLocalFileSystem(
     List<StorageObject> storageObjects) {
-  final recursiveFileSystemEntities = List<FileSystemEntity>();
+  final List<FileSystemEntity> recursiveFileSystemEntities = [];
 
   storageObjects.forEach((StorageObject storageObject) {
     if (storageObject.isDirectory) {
@@ -439,7 +439,7 @@ List<FileSystemEntity> _recursivelyListOnLocalFileSystem(
 Future<List<StorageObject>> _recursivelyListOnRemoteStorage(
     List<StorageObject> storageObjects,
     StorageConnectionCredentials credentials) async {
-  final recursiveStorageObjects = List<StorageObject>();
+  final List<StorageObject> recursiveStorageObjects = [];
 
   for (StorageObject storageObject in storageObjects) {
     recursiveStorageObjects.add(storageObject);

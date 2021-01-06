@@ -248,7 +248,7 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
                     onChanged: (bool newValue) {
                       setState(() {
                         this._selectedStorageObjects[index] = newValue;
-                        final selectedStorageObjects = List<StorageObject>();
+                        final List<StorageObject> selectedStorageObjects = [];
                         for (var i = 0; i < widget.storageObjects.length; i++) {
                           if (this._selectedStorageObjects[i]) {
                             selectedStorageObjects

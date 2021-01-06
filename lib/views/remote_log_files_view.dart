@@ -23,8 +23,8 @@ class RemoteLogFilesView extends StatefulWidget {
 }
 
 class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
-  List<StorageObject> _storageObjects = new List();
-  List<StorageObject> _selectedStorageObjects = new List();
+  List<StorageObject> _storageObjects = [];
+  List<StorageObject> _selectedStorageObjects = [];
   Function _onDownloadFabPressed;
   StorageConnectionCredentials _credentials;
   String _currentDirectory = '/';

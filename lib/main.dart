@@ -1,6 +1,5 @@
 import 'package:dynamic_color_theme/dynamic_color_theme.dart';
 import 'package:log_storage_client/utils/constants.dart' as constants;
-import 'package:log_storage_client/utils/constants.dart';
 import 'package:log_storage_client/utils/utils.dart' as utils;
 import 'package:log_storage_client/widgets/app_layout.dart';
 import 'package:flutter/material.dart';
@@ -68,7 +67,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       iconTheme: IconThemeData(
-        color: TEXT_COLOR,
+        color: constants.TEXT_COLOR,
       ),
       unselectedWidgetColor: Colors.white,
       floatingActionButtonTheme: FloatingActionButtonThemeData(

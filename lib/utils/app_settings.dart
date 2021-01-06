@@ -148,7 +148,7 @@ Future<bool> getAutoUploadEnabled() async {
 Future<List<UploadProfile>> getUploadProfiles() async {
   final profilesJson = await getStringSetting(_UPLOAD_PROFILES);
   if (profilesJson == null || profilesJson.isEmpty) {
-    return List();
+    return List<UploadProfile>.empty();
   }
   final Iterable iterable = json.decode(profilesJson);
   return List<UploadProfile>.from(

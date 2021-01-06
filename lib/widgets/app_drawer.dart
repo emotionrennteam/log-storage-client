@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:log_storage_client/models/file_transfer_exception.dart';
@@ -57,7 +56,7 @@ class _AppDrawerState extends State<AppDrawer> {
   double _progressValue = 0.0;
   bool _isInProgress = false;
   String _processName;
-  List<FileTransferException> _errors = new List();
+  List<FileTransferException> _errors = [];
   Function _dialogSetState;
   List<UploadProfile> _uploadProfiles = [];
   UploadProfile _activeUploadProfile;
@@ -155,7 +154,7 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   List<Widget> _buildAppDrawerItems(BuildContext context) {
-    final appDrawerItems = List<Widget>();
+    final List<Widget> appDrawerItems = [];
     widget.appDrawerItems.asMap().forEach((index, element) {
       appDrawerItems.add(
         Padding(
@@ -242,7 +241,7 @@ class _AppDrawerState extends State<AppDrawer> {
           this._dialogSetState = setState;
           return FileTransferErrorDialog(
             this._errors,
-            () => this._errors = List(),
+            () => this._errors = [],
           );
         });
       },

@@ -287,7 +287,8 @@ Future<void> downloadObjectsFromRemoteStorage(
 /// was already uploaded before.
 /// In addition to the given list of [storageObjectsToUpload] an additional JSON file named
 /// `_metadata.json` is created and uploaded. This file contains the given [uploadProfile]
-/// serialized as JSON.
+/// serialized as JSON. Moreover, the properties of the [uploadProfile] are assigned as
+/// user-deinfed object metadata (=S3 feature) to each object / file during upload.
 /// Directories are not directly uploaded as Minio / S3 automatically creates folders
 /// whenever a file path contains forward slashes.
 /// The parameter [localBaseDirectory] is required to extract relative file paths and should
@@ -326,6 +327,12 @@ Future<void> uploadObjectsToRemoteStorage(
     final uploadProfileName = uploadProfile.name.length > 25
         ? uploadProfile.name.substring(0, 25)
         : uploadProfile.name;
+    final metadata = {
+      'driver': uploadProfile.driver,
+      'name': uploadProfile.name,
+      'eventOrLocation': uploadProfile.eventOrLocation,
+      'notes': uploadProfile.notes,
+    };
 
     int i = 0;
     for (final fsEntity in fsEntitiesToUpload) {
@@ -340,7 +347,8 @@ Future<void> uploadObjectsToRemoteStorage(
           "${timestamp}_$uploadProfileName/${_getRelativeFilePath(fsEntity, localBaseDirectory)}",
         );
         await minio
-            .putObject(credentials.bucket, fileName, stream, fileSizeInBytes)
+            .putObject(credentials.bucket, fileName, stream, fileSizeInBytes,
+                metadata: metadata)
             .then((value) {
           debugPrint('successfully uploaded file ${fsEntity.path}');
         }).catchError((error) {

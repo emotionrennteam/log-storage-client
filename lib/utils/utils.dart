@@ -94,7 +94,14 @@ initializeApp() {
   appSettings.getUploadProfiles().then((List<UploadProfile> uploadProfiles) {
     if (uploadProfiles == null || uploadProfiles.isEmpty) {
       appSettings.setUploadProfiles([
-        UploadProfile('Default', 'Unknown', 'Unknown', '', enabled: true),
+        UploadProfile(
+          'Default',
+          'Unknown',
+          List.empty(),
+          List.empty(),
+          List.empty(),
+          enabled: true,
+        ),
       ]).then((_) {
         locator<UploadProfileService>().getUploadProfileChangeSink().add(null);
       });

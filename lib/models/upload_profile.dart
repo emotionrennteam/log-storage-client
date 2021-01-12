@@ -8,29 +8,32 @@ import 'dart:convert';
 /// location, a different profile can be activated while uploading
 /// log files. The profile therefore captures information such as who
 /// was driving the vehicle (driver), where the vehicle was driven
-/// (name of the event or location), and potentially additional notes
-/// such as a description of the race track (rainy, dry, hot) or the
-/// purpose of the log files (e.g. test in workshop).
+/// (name of the event or location), and potentially additional tags
+/// such as a description of the race track (`rainy`, `dry`, `hot`)
+/// or the purpose of the log files (e.g. `test in workshop`).
 class UploadProfile {
   String name;
-  String driver;
-  String eventOrLocation;
-  String notes;
+  String vehicle;
+  List<String> drivers;
+  List<String> eventOrLocation;
+  List<String> tags;
   bool enabled;
 
   UploadProfile(
     this.name,
-    this.driver,
+    this.vehicle,
+    this.drivers,
     this.eventOrLocation,
-    this.notes, {
+    this.tags, {
     this.enabled = false,
   });
 
   Map<String, dynamic> toJson() => {
         'name': this.name,
-        'driver': this.driver,
+        'vehicle': this.vehicle,
+        'drivers': this.drivers,
         'eventOrLocation': this.eventOrLocation,
-        'notes': this.notes,
+        'tags': this.tags,
         'enabled': this.enabled,
       };
 
@@ -54,9 +57,10 @@ class UploadProfile {
   }
 
   UploadProfile.fromJson(Map<String, dynamic> json)
-      : this.driver = json['driver'] as String,
-        this.enabled = json['enabled'] as bool,
-        this.eventOrLocation = json['eventOrLocation'] as String,
-        this.name = json['name'] as String,
-        this.notes = json['notes'] as String;
+      : this.name = json['name'] as String,
+        this.vehicle = json['vehicle'] as String,
+        this.drivers = List.from(json['drivers']),
+        this.eventOrLocation = List.from(json['eventOrLocation']),
+        this.tags = List.from(json['tags']),
+        this.enabled = json['enabled'] as bool;
 }

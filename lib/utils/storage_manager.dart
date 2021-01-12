@@ -327,11 +327,12 @@ Future<void> uploadObjectsToRemoteStorage(
     final uploadProfileName = uploadProfile.name.length > 25
         ? uploadProfile.name.substring(0, 25)
         : uploadProfile.name;
-    final metadata = {
-      'driver': uploadProfile.driver,
-      'name': uploadProfile.name,
-      'event-or-location': uploadProfile.eventOrLocation,
-      'notes': uploadProfile.notes,
+    final metadata = <String, String>{
+      'upload-profile': uploadProfile.name,
+      'vehicle': uploadProfile.vehicle,
+      'drivers': uploadProfile.drivers.join(';'),
+      'event-or-location': uploadProfile.eventOrLocation.join(';'),
+      'tags': uploadProfile.tags.join(';'),
     };
 
     int i = 0;

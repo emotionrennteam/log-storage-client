@@ -147,15 +147,16 @@ class _UploadProfilesViewState extends State<UploadProfilesView> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Driver:',
+                    'Drivers:',
                     style: Theme.of(context)
                         .textTheme
                         .headline6
                         .copyWith(fontSize: 18),
                   ),
+                  SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      this.profiles[index].driver,
+                      this.profiles[index].drivers.join(', '),
                       style: Theme.of(context)
                           .textTheme
                           .headline6
@@ -179,9 +180,10 @@ class _UploadProfilesViewState extends State<UploadProfilesView> {
                         .headline6
                         .copyWith(fontSize: 18),
                   ),
+                  SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      this.profiles[index].eventOrLocation,
+                      this.profiles[index].eventOrLocation.join(', '),
                       style: Theme.of(context)
                           .textTheme
                           .headline6
@@ -199,15 +201,16 @@ class _UploadProfilesViewState extends State<UploadProfilesView> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Notes:',
+                    'Tags:',
                     style: Theme.of(context)
                         .textTheme
                         .headline6
                         .copyWith(fontSize: 18),
                   ),
+                  SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      this.profiles[index].notes,
+                      this.profiles[index].tags.join(', '),
                       style: Theme.of(context)
                           .textTheme
                           .headline6

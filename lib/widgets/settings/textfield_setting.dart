@@ -12,11 +12,6 @@ class TextFieldSetting extends StatefulWidget {
 
   final TextEditingController controller;
 
-  /// Reference to the [FocusNode] of the next form element / input
-  /// which will be focused automatically after this text field when
-  /// the user hits the TAB key.
-  final FocusNode nextFocusNode;
-
   /// A message displayed as a tooltip when the user hovers this text field.
   final String tooltipMessage;
 
@@ -37,7 +32,6 @@ class TextFieldSetting extends StatefulWidget {
     this.title,
     this.hintText,
     this.controller,
-    this.nextFocusNode,
     this.tooltipMessage, {
     this.isValueNumerical = false,
     this.isObscured = false,
@@ -97,11 +91,6 @@ class _TextFieldSettingState extends State<TextFieldSetting> {
               ),
               hintText: widget.hintText,
             ),
-            focusNode: widget.nextFocusNode,
-            textInputAction: widget.nextFocusNode == null
-                ? TextInputAction.done
-                : TextInputAction.next,
-            onEditingComplete: () => widget.nextFocusNode?.nextFocus(),
             keyboardType: widget.isValueNumerical
                 ? TextInputType.number
                 : TextInputType.text,

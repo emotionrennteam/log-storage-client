@@ -119,7 +119,6 @@ class _LogFileSettingsState extends State<LogFileSettings> {
                   'Log File Directory',
                   '/home/johndoe/logs/',
                   widget.logFileDirectoryController,
-                  null,
                   'The directory on your local hard drive which\ncontains log files. Only files in this directory\ncan be uploaded.',
                 ),
                 width: 500,

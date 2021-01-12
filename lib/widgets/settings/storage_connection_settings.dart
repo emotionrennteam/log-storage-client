@@ -29,11 +29,6 @@ class StorageConnectionSettings extends StatefulWidget {
 }
 
 class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
-  final _accessKeyFocusNode = FocusNode();
-  final _bucketFocusNode = FocusNode();
-  final _portFocusNode = FocusNode();
-  final _regionFocusNode = FocusNode();
-  final _secretKeyFocusNode = FocusNode();
   bool _tlsEnabled = false;
   bool _isTlsTooltipVisible = false;
   bool _connectionTestInProgress = false;
@@ -42,16 +37,6 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
   void initState() {
     super.initState();
     this._readSettings();
-  }
-
-  @override
-  void dispose() {
-    this._accessKeyFocusNode.dispose();
-    this._bucketFocusNode.dispose();
-    this._portFocusNode.dispose();
-    this._regionFocusNode.dispose();
-    this._secretKeyFocusNode.dispose();
-    super.dispose();
   }
 
   void _readSettings() async {
@@ -119,7 +104,6 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           'Endpoint',
           's3.amazonaws.com',
           widget.endpointController,
-          this._portFocusNode,
           'The hostname or IP address of the storage\nsystem (without port and scheme). For\nconnecting to S3 from Amazon Web\nServices please use "s3.amazonaws.com".',
         ),
         Divider(color: Colors.transparent),
@@ -127,7 +111,6 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           'Port',
           '443',
           widget.portController,
-          this._accessKeyFocusNode,
           'The TCP/IP port number for the storage system.\nTypically port 80 for HTTP and 443 for HTTPS.',
           isValueNumerical: true,
         ),
@@ -136,7 +119,6 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           'Region',
           'eu-central-1',
           widget.regionController,
-          this._regionFocusNode,
           'The name of the location where the bucket\nis stored e.g. "eu-central-1". This property is\nrequired so that the storage system can locate\nwhere your data is stored at. The default value\nis "us-east-1".',
         ),
         Divider(color: Colors.transparent),
@@ -144,7 +126,6 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           'Bucket',
           'logs',
           widget.bucketController,
-          null,
           'The name of the bucket. A bucket is the\nuppermost storage unit in S3 storage systems\n(root). Buckets can store files and directories.',
         ),
         Divider(color: Colors.transparent),
@@ -152,7 +133,6 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           'Access Key',
           'eyW/+8ZtsgT81Cb0e8OVxzJAQP5lY7Dcamnze+JnWEDT ...',
           widget.accessKeyController,
-          this._secretKeyFocusNode,
           'The access key is like  a user-id that\nuniquely identifies your account.',
           isObscured: true,
         ),
@@ -161,7 +141,6 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           'Secret Key',
           '0tZn+7QQCxphpHwTm6/dC3LpP5JGIbYl6PK8Sy79R+P2 ...',
           widget.secretKeyController,
-          this._bucketFocusNode,
           'The secret key is the password to your\naccount.',
           isObscured: true,
         ),

@@ -96,10 +96,6 @@ class _ChipsFormFieldState extends State<ChipsFormField> {
   }
 
   void _addAutocompleteOverlay() {
-    // if (widget.maxChips != null && this._chips.length == widget.maxChips) {
-    //   return;
-    // }
-
     if (this._overlayEntry != null) {
       this._overlayEntry.markNeedsBuild();
     } else {

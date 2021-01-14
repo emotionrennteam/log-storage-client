@@ -338,8 +338,10 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
                             width: 100,
                             padding: EdgeInsets.only(right: 20),
                             child: Text(
-                              widget.storageObjects[index]
-                                  .getHumanReadableSize(),
+                              widget.storageObjects[index].isDirectory
+                                  ? ''
+                                  : widget.storageObjects[index]
+                                      .getHumanReadableSize(),
                               style: _textStyle,
                               textAlign: TextAlign.right,
                               overflow: TextOverflow.ellipsis,

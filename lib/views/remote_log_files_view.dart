@@ -9,6 +9,7 @@ import 'package:log_storage_client/utils/storage_manager.dart'
     as StorageManager;
 import 'package:log_storage_client/services/progress_service.dart';
 import 'package:log_storage_client/utils/utils.dart';
+import 'package:log_storage_client/utils/storage_object_sorting.dart' as StorageObjectSorting;
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';
 import 'package:log_storage_client/widgets/storage_object_table.dart';
 import 'package:log_storage_client/widgets/storage_object_table_header.dart';
@@ -64,7 +65,7 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
 
     StorageManager.listObjectsInRemoteStorage(
       this._credentials,
-      StorageManager.sortByDirectoriesFirstThenFiles,
+      StorageObjectSorting.sortByDirectoriesFirstThenFiles,
       storagePath: this._currentDirectory,
     ).then((storageObjects) {
       if (mounted) {

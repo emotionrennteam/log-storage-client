@@ -11,6 +11,7 @@ import 'package:log_storage_client/utils/storage_manager.dart'
     as StorageManager;
 import 'package:log_storage_client/services/progress_service.dart';
 import 'package:log_storage_client/utils/utils.dart';
+import 'package:log_storage_client/utils/storage_object_sorting.dart' as StorageObjectSorting;
 import 'package:log_storage_client/widgets/dialogs/select_upload_profile_dialog.dart';
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';
 import 'package:log_storage_client/widgets/storage_object_table.dart';
@@ -114,7 +115,7 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
     }
     StorageManager.listObjectsOnLocalFileSystem(
       this._currentDirectory,
-      StorageManager.sortByDirectoriesFirstThenFiles,
+      StorageObjectSorting.sortByDirectoriesFirstThenFiles,
     ).then((storageObjects) {
       if (mounted) {
         setState(() {

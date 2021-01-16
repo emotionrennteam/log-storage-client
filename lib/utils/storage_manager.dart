@@ -11,6 +11,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:log_storage_client/models/upload_profile.dart';
 import 'package:log_storage_client/utils/locator.dart';
+import 'package:log_storage_client/utils/storage_object_sorting.dart' as StorageObjectSorting;
 import 'package:log_storage_client/services/progress_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:minio/minio.dart';
@@ -188,7 +189,7 @@ Future<void> deleteObjectFromRemoteStorage(
   if (storageObject.isDirectory) {
     final childObjects = await listObjectsInRemoteStorage(
       credentials,
-      sortByDirectoriesFirstThenFiles,
+      StorageObjectSorting.sortByDirectoriesFirstThenFiles,
       storagePath: storageObject.path,
       recursive: true,
     );
@@ -375,38 +376,6 @@ Future<void> uploadObjectsToRemoteStorage(
   }
 }
 
-/// Custom sorting which sorts a [List] of [StorageObject]s by directories first
-/// followed by all files. Within the set of directories and files, all elements
-/// are sorted in alphabetically descending order with the exception of the special
-/// file `_metadata.json`. This file is sorted so that it is always shown as the
-/// very first file.
-void sortByDirectoriesFirstThenFiles(List<StorageObject> listToSort) {
-  listToSort.sort((StorageObject o1, StorageObject o2) {
-    if (o1.isDirectory && o2.isDirectory) {
-      return o1
-          .getBasename()
-          .toLowerCase()
-          .compareTo(o2.getBasename().toLowerCase());
-    }
-    if (o1.isDirectory) {
-      return -1;
-    }
-    if (o2.isDirectory) {
-      return 1;
-    }
-    if (o1.getBasename() == '_metadata.json') {
-      return -1;
-    }
-    if (o2.getBasename() == '_metadata.json') {
-      return 1;
-    }
-    return o1
-        .getBasename()
-        .toLowerCase()
-        .compareTo(o2.getBasename().toLowerCase());
-  });
-}
-
 /// Gets the object metadata for the given [storageObject].
 ///
 /// For each object stored in a bucket, Amazon S3 maintains a set of
@@ -471,7 +440,7 @@ Future<List<StorageObject>> _recursivelyListOnRemoteStorage(
     if (storageObject.isDirectory) {
       final childs = await listObjectsInRemoteStorage(
         credentials,
-        sortByDirectoriesFirstThenFiles,
+        StorageObjectSorting.sortByDirectoriesFirstThenFiles,
         storagePath: storageObject.path,
         recursive: true,
       );

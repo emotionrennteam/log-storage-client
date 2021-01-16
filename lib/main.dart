@@ -99,7 +99,7 @@ class MyApp extends StatelessWidget {
       defaultColor: Color.fromRGBO(1, 176, 117, 1),
       themedWidgetBuilder: (BuildContext context, ThemeData theme) {
         return MaterialApp(
-          title: 'E-Motion Rennteam',
+          title: 'Log Storage Client',
           theme: theme,
           home: AppLayout(),
         );

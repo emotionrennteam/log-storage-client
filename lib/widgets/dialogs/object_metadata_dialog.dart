@@ -53,7 +53,7 @@ class _ObjectMetadataDialogState extends State<ObjectMetadataDialog> {
       elevation: 20,
       title: Text('Metadata'),
       content: Container(
-        height: 300,
+        height: 350,
         width: 500,
         child: DraggableScrollbar.rrect(
           controller: _scrollController,
@@ -93,7 +93,10 @@ class _ObjectMetadataDialogState extends State<ObjectMetadataDialog> {
                             ),
                             DataCell(
                               Text(
-                                this._metadataValues[entry.key],
+                                this
+                                    ._metadataValues[entry.key]
+                                    .split(';')
+                                    .join(', '),
                                 style: TextStyle(
                                   color: constants.TEXT_COLOR,
                                 ),

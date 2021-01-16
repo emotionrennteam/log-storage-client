@@ -334,6 +334,7 @@ Future<void> uploadObjectsToRemoteStorage(
       'event-or-location': uploadProfile.eventOrLocation.join(';'),
       'tags': uploadProfile.tags.join(';'),
     };
+    metadata.updateAll((key, value) => _sanitizeHttpHeaderValue(value));
 
     int i = 0;
     for (final fsEntity in fsEntitiesToUpload) {
@@ -564,6 +565,30 @@ String _sanitizeFilePathForS3(String filePath) {
       .replaceAll(RegExp(r'[^a-zA-Z0-9-\._\/]'), '_');
   return filePath.startsWith('/') ? filePath.substring(1) : filePath;
 }
+
+/// Sanitizes the given [String] so that it can be safely used in an HTTP
+/// header.
+/// 
+/// All ASCII characters greater than or equal 32 (whitespace) and less
+/// than or equal 126 (`~`) are preserved. All other characters are unsafe
+/// to use in an HTTP header and therefore replaced by `_`.
+/// I'm not 100% sure which characters are actually safe to use in HTTP
+/// header fields due to confusing answers on StackOverflow and an
+/// uncomprehensive RFC.
+/// https://stackoverflow.com/questions/47687379/what-characters-are-allowed-in-http-header-values
+String _sanitizeHttpHeaderValue(String httpHeaderValue) => httpHeaderValue
+    .replaceAll('ä', 'ae')
+    .replaceAll('ö', 'oe')
+    .replaceAll('ü', 'ue')
+    .replaceAll('Ä', 'ae')
+    .replaceAll('Ö', 'oe')
+    .replaceAll('Ü', 'ue')
+    .replaceAll('ß', 'ss')
+    .codeUnits
+    .map((asciiCode) => (asciiCode >= 32 && asciiCode <= 126)
+        ? String.fromCharCode(asciiCode)
+        : '_')
+    .join();
 
 /// Creates a file `_metadata.json` in the given [UploadDirectory].
 ///

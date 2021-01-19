@@ -6,8 +6,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:log_storage_client/models/upload_profile.dart';
 import 'package:log_storage_client/services/upload_profile_service.dart';
-import 'package:log_storage_client/utils/app_settings.dart' as AppSettings;
 import 'package:log_storage_client/utils/constants.dart' as constants;
+import 'package:log_storage_client/utils/i_app_settings.dart';
 import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/widgets/emotion_design_button.dart';
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';
@@ -21,6 +21,7 @@ class UploadProfilesView extends StatefulWidget {
 }
 
 class _UploadProfilesViewState extends State<UploadProfilesView> {
+  IAppSettings _appSettings = locator<IAppSettings>();
   List<UploadProfile> profiles = [];
 
   @override
@@ -33,7 +34,10 @@ class _UploadProfilesViewState extends State<UploadProfilesView> {
   }
 
   void _loadUploadProfiles() {
-    AppSettings.getUploadProfiles().then((List<UploadProfile> uploadProfiles) {
+    this
+        ._appSettings
+        .getUploadProfiles()
+        .then((List<UploadProfile> uploadProfiles) {
       if (mounted) {
         setState(() {
           this.profiles = uploadProfiles;
@@ -43,7 +47,7 @@ class _UploadProfilesViewState extends State<UploadProfilesView> {
   }
 
   void _persistUploadProfilesAndEmitChangeEvent() async {
-    await AppSettings.setUploadProfiles(this.profiles);
+    await this._appSettings.setUploadProfiles(this.profiles);
     locator<UploadProfileService>().getUploadProfileChangeSink().add(null);
   }
 

@@ -5,8 +5,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/constants.dart' as constants;
+import 'package:log_storage_client/utils/i_app_settings.dart';
+import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/widgets/emotion_design_button.dart';
 import 'package:log_storage_client/widgets/settings/setting_panel.dart';
 import 'package:log_storage_client/widgets/settings/textfield_setting.dart';
@@ -25,6 +26,7 @@ class LogFileSettings extends StatefulWidget {
 }
 
 class _LogFileSettingsState extends State<LogFileSettings> {
+  IAppSettings _appSettings = locator<IAppSettings>();
   bool _autoUploadEnabled = false;
   bool _isAutoUploadTooltipVisible = false;
 
@@ -35,18 +37,18 @@ class _LogFileSettingsState extends State<LogFileSettings> {
   }
 
   void _readSettings() async {
-    getLogFileDirectoryPath().then(
-      (value) => setState(() {
-        widget.logFileDirectoryController.text = value;
-      }),
-    );
-    getAutoUploadEnabled().then(
-      (value) => setState(() {
-        if (value != null) {
-          this._autoUploadEnabled = value;
-        }
-      }),
-    );
+    this._appSettings.getLogFileDirectoryPath().then(
+          (value) => setState(() {
+            widget.logFileDirectoryController.text = value;
+          }),
+        );
+    this._appSettings.getAutoUploadEnabled().then(
+          (value) => setState(() {
+            if (value != null) {
+              this._autoUploadEnabled = value;
+            }
+          }),
+        );
   }
 
   void _showAutoUploadWarningForLinux() {

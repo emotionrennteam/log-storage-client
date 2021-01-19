@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:log_storage_client/models/storage_connection_credentials.dart';
 import 'package:log_storage_client/models/storage_object.dart';
-import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/constants.dart';
+import 'package:log_storage_client/utils/i_app_settings.dart';
 import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/utils/storage_manager.dart'
     as StorageManager;
@@ -24,6 +24,7 @@ class RemoteLogFilesView extends StatefulWidget {
 }
 
 class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
+  IAppSettings _appSettings = locator<IAppSettings>();
   List<StorageObject> _storageObjects = [];
   List<StorageObject> _selectedStorageObjects = [];
   Function _onDownloadFabPressed;
@@ -36,7 +37,7 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
   @override
   void initState() {
     super.initState();
-    getStorageConnectionCredentials().then((cred) {
+    this._appSettings.getStorageConnectionCredentials().then((cred) {
       this._credentials = cred;
       if (mounted) {
         this._loadStorageObjects();

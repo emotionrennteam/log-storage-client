@@ -5,12 +5,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:log_storage_client/utils/i_app_settings.dart';
+import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/widgets/dialogs/object_metadata_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:log_storage_client/models/storage_connection_credentials.dart';
 import 'package:log_storage_client/models/storage_object.dart';
-import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/constants.dart';
 import 'package:log_storage_client/utils/storage_manager.dart';
 import 'package:log_storage_client/utils/utils.dart';
@@ -51,6 +52,7 @@ class StorageObjectTable extends StatefulWidget {
 }
 
 class _StorageObjectTableState extends State<StorageObjectTable> {
+  IAppSettings _appSettings = locator<IAppSettings>();
   List<bool> _selectedStorageObjects;
   ScrollController _scrollController = ScrollController();
   TextStyle _textStyle = const TextStyle(color: Colors.white);
@@ -209,7 +211,7 @@ class _StorageObjectTableState extends State<StorageObjectTable> {
   PopupMenuButton _popupMenuButtonForOptions(StorageObject storageObject) {
     return PopupMenuButton<PopupMenuOption>(
       onSelected: (option) {
-        getStorageConnectionCredentials().then((credentials) {
+        this._appSettings.getStorageConnectionCredentials().then((credentials) {
           if (option == PopupMenuOption.Share) {
             this._shareStorageObject(credentials, storageObject);
           } else if (option == PopupMenuOption.Metadata) {

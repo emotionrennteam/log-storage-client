@@ -1,6 +1,7 @@
 import 'package:log_storage_client/models/storage_connection_credentials.dart';
-import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/constants.dart';
+import 'package:log_storage_client/utils/i_app_settings.dart';
+import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/utils/storage_manager.dart';
 import 'package:log_storage_client/utils/utils.dart';
 import 'package:log_storage_client/widgets/emotion_design_button.dart';
@@ -29,6 +30,7 @@ class StorageConnectionSettings extends StatefulWidget {
 }
 
 class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
+  IAppSettings _appSettings = locator<IAppSettings>();
   bool _tlsEnabled = false;
   bool _isTlsTooltipVisible = false;
   bool _connectionTestInProgress = false;
@@ -40,37 +42,37 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
   }
 
   void _readSettings() async {
-    getStorageAccessKey().then(
+    this._appSettings.getStorageAccessKey().then(
       (value) => setState(() {
         widget.accessKeyController.text = value;
       }),
     );
-    getStorageBucket().then(
+    this._appSettings.getStorageBucket().then(
       (value) => setState(() {
         widget.bucketController.text = value;
       }),
     );
-    getStorageEndpoint().then(
+    this._appSettings.getStorageEndpoint().then(
       (value) => setState(() {
         widget.endpointController.text = value;
       }),
     );
-    getStoragePort().then(
+    this._appSettings.getStoragePort().then(
       (value) => setState(() {
         if (value != null) widget.portController.text = value.toString();
       }),
     );
-    getStorageRegion().then(
+    this._appSettings.getStorageRegion().then(
       (value) => setState(() {
         widget.regionController.text = value;
       }),
     );
-    getStorageSecretKey().then(
+    this._appSettings.getStorageSecretKey().then(
       (value) => setState(() {
         widget.secretKeyController.text = value;
       }),
     );
-    getStorageTlsEnabled().then(
+    this._appSettings.getStorageTlsEnabled().then(
       (value) => setState(() {
         if (value != null) {
           this._tlsEnabled = value;

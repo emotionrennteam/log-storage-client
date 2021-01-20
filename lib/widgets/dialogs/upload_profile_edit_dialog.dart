@@ -125,6 +125,7 @@ class _UploadProfileEditDialogState extends State<UploadProfileEditDialog> {
                   initialValues: this._vehicle != null ? [this._vehicle] : [],
                   title: 'Vehicle *',
                   hintText: 'ERT-08/19',
+                  minValues: 1,
                   maxValues: 1,
                   onAutoComplete: (query) => this._cacheService.getVehicleSuggestions(query),
                   onAddChip: (chip) {
@@ -148,6 +149,7 @@ class _UploadProfileEditDialogState extends State<UploadProfileEditDialog> {
                   initialValues: this._drivers,
                   title: 'Drivers *',
                   hintText: 'Sebastian Vettel',
+                  minValues: 1,
                   onAutoComplete: (query) => this._cacheService.getDriverSuggestions(query),
                   onAddChip: (chip) {
                     setState(() {
@@ -170,6 +172,7 @@ class _UploadProfileEditDialogState extends State<UploadProfileEditDialog> {
                   initialValues: this._eventOrLocation,
                   title: 'Event / Location *',
                   hintText: 'Nürnburgring',
+                  minValues: 1,
                   onAutoComplete: (query) => this._cacheService.getEventOrLocationSuggestions(query),
                   onAddChip: (chip) {
                     setState(() {
@@ -191,6 +194,7 @@ class _UploadProfileEditDialogState extends State<UploadProfileEditDialog> {
                 ChipsTextFieldSetting(
                   initialValues: this._tags,
                   title: 'Tags',
+                  minValues: 0,
                   hintText: 'Track conditions, weather, etc.',
                   onAutoComplete: (query) =>
                       this._cacheService.getTagSuggestions(query),
@@ -220,7 +224,6 @@ class _UploadProfileEditDialogState extends State<UploadProfileEditDialog> {
             style: Theme.of(context).textTheme.button,
           ),
           onPressed: () {
-            // TODO: fix form validation after adding chip input fields
             if (this._formKey.currentState.validate()) {
               Navigator.of(context).pop<UploadProfile>(
                 UploadProfile(

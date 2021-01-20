@@ -29,6 +29,9 @@ class ChipsTextFieldSetting extends StatefulWidget {
 
   /// The maximum number of allowed chips / values.
   final int maxValues;
+  
+  /// The minimum number of required chips / values. Defaults to 0.
+  final int minValues;
 
   /// A wrapper for [ChipsFormField] which applies a custom [InputDecoration]
   /// so that the style of the [ChipsFormField] matches the design of this
@@ -42,6 +45,7 @@ class ChipsTextFieldSetting extends StatefulWidget {
     @required this.onRemoveChip,
     @required this.tooltipMessage,
     this.maxValues,
+    this.minValues = 0,
   });
 
   @override
@@ -77,6 +81,7 @@ class _ChipsTextFieldSettingState extends State<ChipsTextFieldSetting> {
             chipBackgroundColor: Theme.of(context).primaryColor,
             focusNode: this._focusNode,
             maxChips: widget.maxValues,
+            minChips: widget.minValues,
             inputDecoration: InputDecoration(
               focusedBorder: OutlineInputBorder(
                 borderRadius: const BorderRadius.all(

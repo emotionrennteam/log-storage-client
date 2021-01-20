@@ -14,6 +14,7 @@ class ChipsFormField extends StatefulWidget {
   final List<String> initialValue;
   final InputDecoration inputDecoration;
   final int maxChips;
+  final int minChips;
   final int minimalQueryLength;
   final List<String> Function(String) onAutoComplete;
   final void Function(String) onAddChip;
@@ -22,7 +23,7 @@ class ChipsFormField extends StatefulWidget {
 
   /// A [TextFormField] widget that allows the user to input multiple values
   /// which are visualized as [InputChip]s.
-  /// 
+  ///
   /// Whenever the user presses the enter key on his keyboard, then the current
   /// text input is added as another [ChipInput]. The list of [ChipInput]s is
   /// visualized before / preprended to the actual [TextFormField]. This widget
@@ -39,6 +40,7 @@ class ChipsFormField extends StatefulWidget {
     this.inputDecoration = const InputDecoration.collapsed(hintText: ''),
     this.minimalQueryLength = 2,
     this.maxChips,
+    this.minChips = 0,
     this.textStyle,
     @required this.focusNode,
     @required this.hintTextStyle,
@@ -57,9 +59,6 @@ class _ChipsFormFieldState extends State<ChipsFormField> {
   final _rawKeyboardListenerFocusNode = FocusNode(skipTraversal: true);
   final _suggestionsScrollController = ScrollController();
   final _chips = <String>[];
-
-  bool get _hasReachedMaxChips =>
-      widget.maxChips != null && this._chips.length >= widget.maxChips;
 
   OverlayEntry _overlayEntry;
   List<String> _suggestions = [];
@@ -81,9 +80,7 @@ class _ChipsFormFieldState extends State<ChipsFormField> {
 
     this._textEditingController.addListener(() {
       final query = this._textEditingController.text.toLowerCase();
-      if (query.isEmpty ||
-          query.length < widget.minimalQueryLength ||
-          this._hasReachedMaxChips) {
+      if (query.isEmpty || query.length < widget.minimalQueryLength) {
         this._removeAutocompleteOverlay();
       } else if (widget.focusNode.hasFocus) {
         setState(() {
@@ -134,8 +131,7 @@ class _ChipsFormFieldState extends State<ChipsFormField> {
     // Add current text as chip if user presses the enter key
     if ((keyEvent.physicalKey == PhysicalKeyboardKey.enter ||
             keyEvent.physicalKey == PhysicalKeyboardKey.numpadEnter) &&
-        this._textEditingController.text.isNotEmpty &&
-        !this._hasReachedMaxChips) {
+        this._textEditingController.text.isNotEmpty) {
       this._addTextAsChip(this._textEditingController.text);
     }
 
@@ -227,25 +223,40 @@ class _ChipsFormFieldState extends State<ChipsFormField> {
     chipWidgets.add(
       IntrinsicWidth(
         stepWidth: 20,
-        child: RawKeyboardListener(
-          focusNode: this._rawKeyboardListenerFocusNode,
-          onKey: this._onKeyboardEvent,
-          child: Align(
-            alignment: Alignment.center,
-            child: TextFormField(
-              autofocus: true,
-              controller: this._textEditingController,
-              decoration: InputDecoration(
-                hintText: widget.hintText,
-                hintStyle: widget.hintTextStyle,
-                contentPadding: EdgeInsets.only(
-                  left: 8.0,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minWidth: 180),
+          child: RawKeyboardListener(
+            focusNode: this._rawKeyboardListenerFocusNode,
+            onKey: this._onKeyboardEvent,
+            child: Align(
+              alignment: Alignment.center,
+              child: TextFormField(
+                autofocus: true,
+                controller: this._textEditingController,
+                decoration: InputDecoration(
+                  hintText: widget.hintText,
+                  hintStyle: widget.hintTextStyle,
+                  contentPadding: EdgeInsets.only(
+                    left: 8.0,
+                  ),
+                  border: InputBorder.none,
                 ),
-                border: InputBorder.none,
+                focusNode: widget.focusNode,
+                style:
+                    widget.textStyle ?? Theme.of(context).textTheme.bodyText1,
+                cursorColor: widget.cursorColor,
+                validator: (String _) {
+                  if (this._chips == null ||
+                      this._chips.length < widget.minChips) {
+                    return 'At least ${widget.minChips} value${widget.minChips == 1 ? '' : 's'} required.';
+                  }
+                  if (widget.maxChips != null &&
+                      this._chips.length > widget.maxChips) {
+                    return 'At maximum ${widget.maxChips} value${widget.maxChips == 1 ? '' : 's'} allowed.';
+                  }
+                  return null;
+                },
               ),
-              focusNode: widget.focusNode,
-              style: widget.textStyle ?? Theme.of(context).textTheme.bodyText1,
-              cursorColor: widget.cursorColor,
             ),
           ),
         ),

@@ -1,7 +1,9 @@
 library storage_manager;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:intl/intl.dart';
 import 'package:log_storage_client/models/file_transfer_exception.dart';
@@ -11,7 +13,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:log_storage_client/models/upload_profile.dart';
 import 'package:log_storage_client/utils/locator.dart';
-import 'package:log_storage_client/utils/storage_object_sorting.dart' as StorageObjectSorting;
+import 'package:log_storage_client/utils/storage_object_sorting.dart'
+    as StorageObjectSorting;
 import 'package:log_storage_client/services/progress_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:minio/minio.dart';
@@ -276,6 +279,37 @@ Future<void> downloadObjectsFromRemoteStorage(
   }
 }
 
+/// Downloads the given [StorageObject] and returns it as a List of Bytes.
+Future<Uint8List> downloadObjectFromRemoteStorageAsByteList(
+    StorageConnectionCredentials credentials,
+    StorageObject storageObject) async {
+  final minio = _initializeClient(credentials);
+  final objectByteStream = await minio.getObject(
+    credentials.bucket,
+    storageObject.path,
+  );
+
+  return await objectByteStream.toBytes();
+}
+
+/// Creates an object from the given [data] and with name [objectName]
+/// on the S3 storage system.
+uploadObjectToRemoteStorage(StorageConnectionCredentials credentials,
+    String objectName, String data) async {
+  final encodedData = utf8.encode(data);
+  final streamController = StreamController<List<int>>();
+  streamController.sink.add(encodedData);
+  streamController.close();
+
+  final minio = _initializeClient(credentials);
+  await minio.putObject(
+    credentials.bucket,
+    objectName,
+    streamController.stream,
+    encodedData.length,
+  );
+}
+
 /// Recursively uploads all storage objects in the given [List<StorageObject>] and their
 /// children (files in sub-directories) to the storage system.
 ///
@@ -537,7 +571,7 @@ String _sanitizeFilePathForS3(String filePath) {
 
 /// Sanitizes the given [String] so that it can be safely used in an HTTP
 /// header.
-/// 
+///
 /// All ASCII characters greater than or equal 32 (whitespace) and less
 /// than or equal 126 (`~`) are preserved. All other characters are unsafe
 /// to use in an HTTP header and therefore replaced by `_`.

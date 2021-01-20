@@ -1,7 +1,9 @@
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:flutter/material.dart';
 import 'package:log_storage_client/models/upload_profile.dart';
+import 'package:log_storage_client/services/upload_profile_suggestions_service.dart';
 import 'package:log_storage_client/utils/constants.dart' as constants;
+import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/widgets/emotion_design_button.dart';
 import 'package:log_storage_client/widgets/settings/chips_textfield_setting.dart';
 import 'package:log_storage_client/widgets/settings/textfield_setting.dart';
@@ -36,36 +38,12 @@ class UploadProfileEditDialog extends StatefulWidget {
 }
 
 class _UploadProfileEditDialogState extends State<UploadProfileEditDialog> {
+  final _cacheService = locator<UploadProfileSuggestionsService>();
   final _formKey = GlobalKey<FormState>();
   String _vehicle;
   List<String> _drivers = [];
   List<String> _eventOrLocation = [];
   List<String> _tags = [];
-
-  // TODO: load known vehicles, drivers, etc. from S3 caching file
-  Set<String> _knownVehicles = {
-    'ERT-08/19',
-    'ERT-09/20',
-  };
-  Set<String> _knownDrivers = {
-    'Fabian Langer',
-    'Jens Hertfelder',
-  };
-  Set<String> _knownEventOrLocations = {
-    'Aalen',
-    'Nürnburgring',
-    'Workshop',
-  };
-  Set<String> _knownTags = {
-    'cold',
-    'hot',
-    'rain',
-    'rainy',
-    'rainy trackdrive',
-    'rainy weather',
-    'sunny',
-    'thunderstorm',
-  };
 
   @override
   initState() {
@@ -79,6 +57,20 @@ class _UploadProfileEditDialogState extends State<UploadProfileEditDialog> {
       this._eventOrLocation = widget.uploadProfile.eventOrLocation;
       this._tags = widget.uploadProfile.tags;
     }
+  }
+
+  @override
+  void dispose() {
+    this._cacheService.addSuggestionsFromUploadProfile(
+          UploadProfile(
+            widget._profileNameController.text,
+            this._vehicle,
+            this._drivers,
+            this._eventOrLocation,
+            this._tags,
+          ),
+        );
+    super.dispose();
   }
 
   /// Builds an [AlertDialog] for creating/editing [UploadProfile]s.
@@ -134,10 +126,7 @@ class _UploadProfileEditDialogState extends State<UploadProfileEditDialog> {
                   title: 'Vehicle *',
                   hintText: 'ERT-08/19',
                   maxValues: 1,
-                  onAutoComplete: (query) => this
-                      ._knownVehicles
-                      .where((tag) => tag.toLowerCase().contains(query))
-                      .toList(),
+                  onAutoComplete: (query) => this._cacheService.getVehicleSuggestions(query),
                   onAddChip: (chip) {
                     setState(() {
                       this._vehicle = chip;
@@ -159,10 +148,7 @@ class _UploadProfileEditDialogState extends State<UploadProfileEditDialog> {
                   initialValues: this._drivers,
                   title: 'Drivers *',
                   hintText: 'Sebastian Vettel',
-                  onAutoComplete: (query) => this
-                      ._knownDrivers
-                      .where((tag) => tag.toLowerCase().contains(query))
-                      .toList(),
+                  onAutoComplete: (query) => this._cacheService.getDriverSuggestions(query),
                   onAddChip: (chip) {
                     setState(() {
                       this._drivers.add(chip);
@@ -184,10 +170,7 @@ class _UploadProfileEditDialogState extends State<UploadProfileEditDialog> {
                   initialValues: this._eventOrLocation,
                   title: 'Event / Location *',
                   hintText: 'Nürnburgring',
-                  onAutoComplete: (query) => this
-                      ._knownEventOrLocations
-                      .where((tag) => tag.toLowerCase().contains(query))
-                      .toList(),
+                  onAutoComplete: (query) => this._cacheService.getEventOrLocationSuggestions(query),
                   onAddChip: (chip) {
                     setState(() {
                       this._eventOrLocation.add(chip);
@@ -209,10 +192,8 @@ class _UploadProfileEditDialogState extends State<UploadProfileEditDialog> {
                   initialValues: this._tags,
                   title: 'Tags',
                   hintText: 'Track conditions, weather, etc.',
-                  onAutoComplete: (query) => this
-                      ._knownTags
-                      .where((tag) => tag.toLowerCase().contains(query))
-                      .toList(),
+                  onAutoComplete: (query) =>
+                      this._cacheService.getTagSuggestions(query),
                   onAddChip: (chip) {
                     setState(() {
                       this._tags.add(chip);

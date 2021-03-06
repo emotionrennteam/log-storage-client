@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "de.aalen.university.emotion.logstorageclient" "\0"
-            VALUE "FileDescription", "A desktop app to upload and download log files to an S3-based object storage (e.g. AWS S3 or MinIO)." "\0"
+            VALUE "CompanyName", "com.example" "\0"
+            VALUE "FileDescription", "A new Flutter project." "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "emotion" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2020 E-Motion Rennteam Aalen e.V. All rights reserved." "\0"
-            VALUE "OriginalFilename", "emotion.exe" "\0"
-            VALUE "ProductName", "emotion" "\0"
+            VALUE "InternalName", "log_storage_client" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2021 com.example. All rights reserved." "\0"
+            VALUE "OriginalFilename", "log_storage_client.exe" "\0"
+            VALUE "ProductName", "log_storage_client" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
-project(emotion LANGUAGES CXX)
+project(log_storage_client LANGUAGES CXX)
 
-set(BINARY_NAME "emotion")
+set(BINARY_NAME "log_storage_client")
 
 cmake_policy(SET CMP0063 NEW)
 

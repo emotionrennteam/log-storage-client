@@ -55,28 +55,30 @@ class _SelectUploadProfileDialogState extends State<SelectUploadProfileDialog> {
       title: Text('Upload Profile Selection'),
       actionsPadding: EdgeInsets.only(right: 20, bottom: 20),
       actions: [
-        EmotionDesignButton(
-          verticalPadding: 17,
-          child: Row(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(right: 5),
-                child: Icon(
-                  Icons.upload_file,
-                  color: Theme.of(context).accentColor,
+        IntrinsicWidth(
+          child: EmotionDesignButton(
+            verticalPadding: 12,
+            child: Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(right: 5),
+                  child: Icon(
+                    Icons.upload_file,
+                    color: Theme.of(context).accentColor,
+                  ),
                 ),
-              ),
-              Text(
-                'Upload',
-                style: TextStyle(
-                  color: Theme.of(context).accentColor,
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
+                Text(
+                  'Upload',
+                  style: TextStyle(
+                    color: Theme.of(context).accentColor,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
+            onPressed: this._onUploadButtonPressed,
           ),
-          onPressed: this._onUploadButtonPressed,
         ),
         EmotionDesignButton(
           color: Theme.of(context).canvasColor,
@@ -148,7 +150,9 @@ class _SelectUploadProfileDialogState extends State<SelectUploadProfileDialog> {
                       }
                     });
                   });
-                  await this._appSettings.setUploadProfiles(this._uploadProfiles);
+                  await this
+                      ._appSettings
+                      .setUploadProfiles(this._uploadProfiles);
                   locator<UploadProfileService>()
                       .getUploadProfileChangeSink()
                       .add(null);

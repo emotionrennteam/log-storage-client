@@ -182,7 +182,7 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
         Align(
           alignment: Alignment.centerLeft,
           child: EmotionDesignButton(
-            verticalPadding: 17,
+            verticalPadding: 12,
             child: Wrap(
               spacing: 10,
               verticalDirection: VerticalDirection.down,

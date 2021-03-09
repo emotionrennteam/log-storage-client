@@ -24,7 +24,7 @@ import 'package:log_storage_client/utils/storage_manager.dart'
 class UploadProfileSuggestionsService {
   IAppSettings _appSettings = locator<IAppSettings>();
 
-  UploadProfileSuggestions _suggestions;
+  UploadProfileSuggestions _suggestions = UploadProfileSuggestions();
 
   UploadProfileSuggestionsService();
 

@@ -227,7 +227,7 @@ class _UploadProfilesViewState extends State<UploadProfilesView> {
               ),
               SizedBox(height: 16),
               Container(
-                height: 40,
+                height: 45,
                 child: this.profiles[index].enabled
                     ? SizedBox()
                     : Row(

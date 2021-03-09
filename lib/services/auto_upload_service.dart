@@ -54,7 +54,8 @@ class AutoUploadService {
           /// Start upload on [FileSystemEvent.modify] of the trigger file.
           if ((path.basename(event.path) == AUTO_UPLOAD_TRIGGER_FILE) &&
               (!event.isDirectory) &&
-              (event.type == FileSystemEvent.modify)) {
+              (event.type == FileSystemEvent.create ||
+                  event.type == FileSystemEvent.modify)) {
             this._triggerFileUpload(path.dirname(event.path));
           }
         },

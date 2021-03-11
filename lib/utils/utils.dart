@@ -99,8 +99,8 @@ initializeApp() {
         UploadProfile(
           'Default',
           'Unknown',
-          List.empty(),
-          List.empty(),
+          ['-'],
+          ['Unknown'],
           List.empty(),
           enabled: true,
         ),

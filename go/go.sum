@@ -8,7 +8,7 @@ github.com/gen2brain/dlgs v0.0.0-20190708095831-3854608588f7/go.mod h1:/eFcjDXaU
 github.com/go-flutter-desktop/go-flutter v0.30.0/go.mod h1:NCryd/AqiRbYSd8pMzQldYkgH1tZIFGt2ToUghZcWGA=
 github.com/go-flutter-desktop/go-flutter v0.43.0 h1:7tdUbGKmHwdsUnBfC/h7zAO3T67cAkKSCWi9ZDFg25A=
 github.com/go-flutter-desktop/go-flutter v0.43.0/go.mod h1:GSCn6XOpB0cnYlK9/BdSwxi99t5YD1XEk0v4agI7SS4=
-github.com/go-flutter-desktop/plugins v0.0.0-20210222175010-3d2c37c4f00f h1:jRtJ69e9w44v04Hqo/bldK+3+rhbNNGhLhAfuCYb3KI=
+github.com/go-flutter-desktop/plugins v0.0.0-20210310213155-a4e7164360e0 h1:unmGjY92vXuWbxamWPSgqGjmp0ZJr366w0rJ3AzbbNw=
 github.com/go-flutter-desktop/plugins/url_launcher v0.1.2 h1:oFiIJjotMQvF8rfKWVJrf+1/JgTXShEIsibkiXrQnUw=
 github.com/go-flutter-desktop/plugins/url_launcher v0.1.2/go.mod h1:GYgRDaLDAJRYvaASQk8HEmI8YJurbZGW5VVDIMxwzBU=
 github.com/go-gl/gl v0.0.0-20190320180904-bf2b1f2f34d7 h1:SCYMcCJ89LjRGwEa0tRluNRiMjZHalQZrVrvTbPh+qw=
@@ -17,16 +17,14 @@ github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1 h1:QbL/5oDUmRBzO9/Z7Seo
 github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1/go.mod h1:vR7hzQXu2zJy9AVAgeJqvqgH9Q5CA+iKCZ2gyEVpxRU=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20201108214237-06ea97f0c265 h1:BcbKYUZo/TKPsiSh7LymK3p+TNAJJW3OfGO/21sBbiA=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20201108214237-06ea97f0c265/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
-github.com/go-gl/glfw/v3.3/glfw v0.0.0-20210306165530-87ff8d237f3b h1:GZtV4BvE1ifT8rQ5aLYwPPP8nrpCOwbPMwQZMI9cXnQ=
-github.com/go-gl/glfw/v3.3/glfw v0.0.0-20210306165530-87ff8d237f3b/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1 h1:EGx4pi6eqNxGaHF6qqu48+N2wcFQ5qg5FXgOdqsJ5d8=
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1/go.mod h1:wJfORRmW1u3UXTncJ5qlYoELFm8eSnnEO6hX4iZ3EWY=
 github.com/gopherjs/gopherjs v0.0.0-20190915194858-d3ddacdb130f/go.mod h1:wJfORRmW1u3UXTncJ5qlYoELFm8eSnnEO6hX4iZ3EWY=
 github.com/jtolds/gls v4.20.0+incompatible h1:xdiiI2gbIgH/gLH7ADydsJ1uDOEzR8yvV7C0MuV77Wo=
 github.com/jtolds/gls v4.20.0+incompatible/go.mod h1:QJZ7F/aHp+rZTRtaJ1ow/lLfFfVYBRgL+9YlvaHOwJU=
 github.com/miguelpruivo/flutter_file_picker v1.4.3 h1:4no+PtzEL9ooQXXVI7lVKgva4/nZYKEPWlcVesmZdbk=
-github.com/miguelpruivo/flutter_file_picker/go v0.0.0-20210304180221-eb04cec5511a h1:LPYYZfNfIZZ2S4iZXs5Xw4s+I6+kGX5UUFQV7gZNbE4=
-github.com/miguelpruivo/flutter_file_picker/go v0.0.0-20210304180221-eb04cec5511a/go.mod h1:csuW+TFyYKtiUwNvcvhcpyX4quPI7Pvv0SUogdqCW4I=
+github.com/miguelpruivo/flutter_file_picker/go v0.0.0-20210308194605-e13481648963 h1:w7bVS/I+Dphn4q8kyld2acCQSqwiFIH8qG8h9cmAUvk=
+github.com/miguelpruivo/flutter_file_picker/go v0.0.0-20210308194605-e13481648963/go.mod h1:csuW+TFyYKtiUwNvcvhcpyX4quPI7Pvv0SUogdqCW4I=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
@@ -45,8 +43,6 @@ golang.org/x/net v0.0.0-20190311183353-d8887717615a/go.mod h1:t9HGtf8HONx5eT2rtn
 golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
 golang.org/x/sys v0.0.0-20200802091954-4b90ce9b60b3 h1:qDJKu1y/1SjhWac4BQZjLljqvqiWUhjmDMnonmVGDAU=
 golang.org/x/sys v0.0.0-20200802091954-4b90ce9b60b3/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
-golang.org/x/sys v0.0.0-20210305230114-8fe3ee5dd75b h1:ggRgirZABFolTmi3sn6Ivd9SipZwLedQ5wR0aAKnFxU=
-golang.org/x/sys v0.0.0-20210305230114-8fe3ee5dd75b/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
 golang.org/x/text v0.3.3/go.mod h1:5Zoc/QRtKVWzQhOtBMvqHzDpF6irO9z98xDceosuGiQ=
 golang.org/x/text v0.3.5 h1:i6eZZ+zk0SOf0xgBpEpPD18qWcJda6q1sxt3S0kzyUQ=

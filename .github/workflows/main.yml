@@ -22,18 +22,25 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+      
+      - name: install CMake
+        uses: lukka/get-cmake@v3.19.2
 
       - name: Flutter action
         uses: subosito/flutter-action@v1.4.0
         with:
           flutter-version: 2.1.0-10.0.pre
           channel: dev
-     
+      
+      - name: Doctor
+        # Run doctor, for ease of debugging any issues.
+        run: flutter doctor -v
+
       - name: Enable support for Linux desktop
         run: flutter config --enable-linux-desktop
-     
-      - name: Flutter build Linux
-        run: flutter build linux
 
       - name: Flutter test
         run: flutter test
+
+      - name: Flutter build Linux
+        run: flutter build linux

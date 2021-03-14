@@ -29,10 +29,10 @@ class UploadProfileSuggestionsService {
   UploadProfileSuggestionsService();
 
   Future<UploadProfileSuggestionsService> init() async {
-    final credentials =
-        await this._appSettings.getStorageConnectionCredentials();
-
     try {
+      final credentials =
+          await this._appSettings.getStorageConnectionCredentials();
+
       final byteList =
           await StorageManager.downloadObjectFromRemoteStorageAsByteList(
         credentials,

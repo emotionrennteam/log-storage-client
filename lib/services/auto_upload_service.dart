@@ -50,13 +50,13 @@ class AutoUploadService {
         recursive: true,
       );
       _fileEventStreamSubscription = eventStream.listen(
-        (event) {
+        (event) async {
           /// Start upload on [FileSystemEvent.modify] of the trigger file.
           if ((path.basename(event.path) == AUTO_UPLOAD_TRIGGER_FILE) &&
               (!event.isDirectory) &&
               (event.type == FileSystemEvent.create ||
                   event.type == FileSystemEvent.modify)) {
-            this._triggerFileUpload(path.dirname(event.path));
+            await this._triggerFileUpload(path.dirname(event.path));
           }
         },
       );
@@ -66,12 +66,12 @@ class AutoUploadService {
   }
 
   // Disables auto upload which effectively turns of the file-system watcher.
-  void disableAutoUpload() {
+  Future<void> disableAutoUpload() async {
     this._autoUploadChangeController.sink.add(false);
-    this._fileEventStreamSubscription?.cancel();
+    await this._fileEventStreamSubscription?.cancel();
   }
 
-  void _triggerFileUpload(String directoryName) async {
+  Future<void> _triggerFileUpload(String directoryName) async {
     final uploadProfile = await this._appSettings.getEnabledUploadProfile();
     final credentials =
         await this._appSettings.getStorageConnectionCredentials();
@@ -82,7 +82,7 @@ class AutoUploadService {
       ),
     ];
 
-    storageManager.uploadObjectsToRemoteStorage(
+    await storageManager.uploadObjectsToRemoteStorage(
       credentials,
       storageObjects,
       Directory(directoryName),

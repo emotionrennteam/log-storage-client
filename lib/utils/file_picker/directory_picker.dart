@@ -6,7 +6,8 @@ import 'linux_directory_picker.dart' as linux_directory_picker;
 ///
 /// [dialogTitle] is a string that is displayed above the tree view control in the
 /// dialog box. This string can be used to specify instructions to the user.
-/// Returns [null] if folder path couldn't be resolved.
+/// Returns [null] if the folder path couldn't be resolved or the user closed the
+/// dialog without selecting a directory.
 Future<String> pickDirectory({String dialogTitle = ''}) {
   if (Platform.isWindows) {
     return Future(() => windows_directory_picker.pickDirectory(dialogTitle));

@@ -26,7 +26,6 @@ dependencies:
     sdk: flutter
   draggable_scrollbar: ^0.0.4
   dynamic_color_theme: ^1.1.1
-  file_picker: ^2.0.4
   flutter_staggered_grid_view: ^0.3.4
   font_awesome_flutter: ^8.12.0
   get_it: ^6.0.0

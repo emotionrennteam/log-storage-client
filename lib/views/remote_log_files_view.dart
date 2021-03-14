@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:log_storage_client/models/storage_connection_credentials.dart';
 import 'package:log_storage_client/models/storage_object.dart';
 import 'package:log_storage_client/utils/constants.dart';
+import 'package:log_storage_client/utils/file_picker/directory_picker.dart';
 import 'package:log_storage_client/utils/i_app_settings.dart';
 import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/utils/storage_manager.dart'
@@ -14,7 +15,6 @@ import 'package:log_storage_client/utils/storage_object_sorting.dart'
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';
 import 'package:log_storage_client/widgets/storage_object_table.dart';
 import 'package:log_storage_client/widgets/storage_object_table_header.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:path/path.dart' as path;
@@ -166,7 +166,9 @@ class _RemoteLogFilesViewState extends State<RemoteLogFilesView> {
 
     setState(() {
       this._onDownloadFabPressed = () async {
-        String downloadPath = await FilePicker.platform.getDirectoryPath();
+        String downloadPath = await pickDirectory(
+          dialogTitle: 'Please select the directory where the log files should be downloaded:',
+        );
         // Path is null or empty when user didn't select a directory but closed the dialog.
         if (downloadPath == null || downloadPath.isEmpty) {
           return;

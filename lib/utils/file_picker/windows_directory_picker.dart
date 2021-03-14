@@ -7,7 +7,7 @@ import 'windows_ffi_types.dart';
 ///
 /// [dialogTitle] is a string that is displayed above the tree view control in the
 /// dialog box. This string can be used to specify instructions to the user.
-/// Returns the absolute path which the user selected. Returns [null] if
+/// Returns the absolute path which the user selected. Returns [null] if the
 /// folder path couldn't be resolved.
 String pickDirectory(String dialogTitle) {
   try {

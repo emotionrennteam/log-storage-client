@@ -1,11 +1,11 @@
 import 'dart:io' show Platform, File;
 import 'dart:ui';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:log_storage_client/utils/constants.dart' as constants;
+import 'package:log_storage_client/utils/file_picker/directory_picker.dart';
 import 'package:log_storage_client/utils/i_app_settings.dart';
 import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/widgets/emotion_design_button.dart';
@@ -135,8 +135,10 @@ class _LogFileSettingsState extends State<LogFileSettings> {
                 margin: EdgeInsets.only(top: 41),
                 child: EmotionDesignButton(
                   onPressed: () async {
-                    var directoryPath =
-                        await FilePicker.platform.getDirectoryPath();
+                    var directoryPath = await pickDirectory(
+                      dialogTitle:
+                          'Please select the directory that contains the log files:',
+                    );
                     if (directoryPath != null && directoryPath.length > 1) {
                       widget.logFileDirectoryController.text =
                           File(directoryPath).path;

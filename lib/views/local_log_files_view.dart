@@ -4,13 +4,14 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:log_storage_client/models/storage_object.dart';
 import 'package:log_storage_client/models/upload_profile.dart';
-import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/constants.dart';
+import 'package:log_storage_client/utils/i_app_settings.dart';
 import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/utils/storage_manager.dart'
     as StorageManager;
 import 'package:log_storage_client/services/progress_service.dart';
 import 'package:log_storage_client/utils/utils.dart';
+import 'package:log_storage_client/utils/storage_object_sorting.dart' as StorageObjectSorting;
 import 'package:log_storage_client/widgets/dialogs/select_upload_profile_dialog.dart';
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';
 import 'package:log_storage_client/widgets/storage_object_table.dart';
@@ -28,8 +29,9 @@ class LocalLogFilesView extends StatefulWidget {
 }
 
 class _LocalLogFilesViewState extends State<LocalLogFilesView> {
+  IAppSettings _appSettings = locator<IAppSettings>();
   Directory _monitoredDirectory;
-  List<StorageObject> _storageObjects = List();
+  List<StorageObject> _storageObjects = [];
   List<StorageObject> _selectedStorageObjects;
   Function _onUploadFabPressed;
   bool _allStorageObjectsSelected = false;
@@ -45,7 +47,7 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
   }
 
   void _init() async {
-    getLogFileDirectoryPath().then((logFileDirectory) {
+    this._appSettings.getLogFileDirectoryPath().then((logFileDirectory) {
       if (logFileDirectory != null && logFileDirectory.isNotEmpty) {
         this._monitoredDirectory = new Directory(logFileDirectory);
         this._currentDirectory = this._monitoredDirectory;
@@ -58,7 +60,10 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
         }
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
-          getSnackBar('Failed to list files. Error: path to local log file directory must not be null or empty.', true),
+          getSnackBar(
+            'Failed to list files. Error: path to local log file directory must not be null or empty.',
+            true,
+          ),
         );
       }
     });
@@ -111,7 +116,7 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
     }
     StorageManager.listObjectsOnLocalFileSystem(
       this._currentDirectory,
-      StorageManager.sortByDirectoriesFirstThenFiles,
+      StorageObjectSorting.sortByDirectoriesFirstThenFiles,
     ).then((storageObjects) {
       if (mounted) {
         setState(() {
@@ -188,7 +193,7 @@ class _LocalLogFilesViewState extends State<LocalLogFilesView> {
           return;
         }
 
-        final credentials = await getStorageConnectionCredentials();
+        final credentials = await this._appSettings.getStorageConnectionCredentials();
         await StorageManager.uploadObjectsToRemoteStorage(
           credentials,
           this._selectedStorageObjects,

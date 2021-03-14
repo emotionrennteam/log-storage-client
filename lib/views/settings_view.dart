@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:dynamic_color_theme/dynamic_color_theme.dart';
 import 'package:log_storage_client/services/auto_upload_service.dart';
-import 'package:log_storage_client/utils/app_settings.dart';
+import 'package:log_storage_client/utils/i_app_settings.dart';
 import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/utils/utils.dart';
 import 'package:log_storage_client/widgets/floating_action_button_position.dart';
@@ -18,6 +18,7 @@ class SettingsView extends StatefulWidget {
 }
 
 class _SettingsViewState extends State<SettingsView> {
+  IAppSettings _appSettings = locator<IAppSettings>();
   final _logFileSettingsWidget = LogFileSettings();
   final _storageConnectionsWidget = StorageConnectionSettings();
   final _colorSettingsWidget = ColorSettings();
@@ -100,17 +101,17 @@ class _SettingsViewState extends State<SettingsView> {
                 return;
               }
 
-              final savingSucceeded = await saveAllSettings(
-                _storageConnectionsWidget.endpointController.text,
-                _storageConnectionsWidget.portController.text,
-                _storageConnectionsWidget.regionController.text,
-                _storageConnectionsWidget.bucketController.text,
-                _storageConnectionsWidget.accessKeyController.text,
-                _storageConnectionsWidget.secretKeyController.text,
-                _storageConnectionsWidget.getTlsEnabled(),
-                _logFileSettingsWidget.logFileDirectoryController.text,
-                _logFileSettingsWidget.getAutoUploadEnabled(),
-              );
+              final savingSucceeded = await this._appSettings.saveAllSettings(
+                    _storageConnectionsWidget.endpointController.text,
+                    _storageConnectionsWidget.portController.text,
+                    _storageConnectionsWidget.regionController.text,
+                    _storageConnectionsWidget.bucketController.text,
+                    _storageConnectionsWidget.accessKeyController.text,
+                    _storageConnectionsWidget.secretKeyController.text,
+                    _storageConnectionsWidget.getTlsEnabled(),
+                    _logFileSettingsWidget.logFileDirectoryController.text,
+                    _logFileSettingsWidget.getAutoUploadEnabled(),
+                  );
               await DynamicColorTheme.of(context).setColor(
                 color: this._colorSettingsWidget.getSelectedColor(),
                 shouldSave: true,

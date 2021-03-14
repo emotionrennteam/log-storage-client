@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:log_storage_client/models/storage_connection_credentials.dart';
-import 'package:log_storage_client/utils/app_settings.dart' as appSettings;
 import 'package:log_storage_client/utils/constants.dart' as constants;
+import 'package:log_storage_client/utils/i_app_settings.dart';
+import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/utils/storage_manager.dart';
 
 /// A widget that executes a dynamic analysis of the app settings by trying
@@ -14,6 +15,7 @@ class StorageConnectionPanel extends StatefulWidget {
 
 class _StorageConnectionPanelState extends State<StorageConnectionPanel>
     with SingleTickerProviderStateMixin {
+  IAppSettings _appSettings = locator<IAppSettings>();
   bool _connectionError = true;
   String _connectionErrorMessage;
   AnimationController _animationController;
@@ -28,7 +30,7 @@ class _StorageConnectionPanelState extends State<StorageConnectionPanel>
       vsync: this,
     );
 
-    appSettings.getStorageConnectionCredentials().then((credentials) {
+    this._appSettings.getStorageConnectionCredentials().then((credentials) {
       if (mounted) {
         setState(() {
           this._storageConnectionCredentials = credentials;

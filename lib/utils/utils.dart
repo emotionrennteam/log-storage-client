@@ -5,9 +5,9 @@ import 'dart:io';
 import 'package:log_storage_client/models/upload_profile.dart';
 import 'package:log_storage_client/services/auto_upload_service.dart';
 import 'package:log_storage_client/services/upload_profile_service.dart';
-import 'package:log_storage_client/utils/app_settings.dart' as appSettings;
 import 'package:log_storage_client/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:log_storage_client/utils/i_app_settings.dart';
 import 'package:log_storage_client/utils/locator.dart';
 import 'package:path/path.dart' as path;
 
@@ -91,10 +91,19 @@ SnackBar getSnackBar(String message, bool isErrorMessage,
 initializeApp() {
   setupLocator();
 
+  IAppSettings appSettings = locator<IAppSettings>();
+
   appSettings.getUploadProfiles().then((List<UploadProfile> uploadProfiles) {
     if (uploadProfiles == null || uploadProfiles.isEmpty) {
       appSettings.setUploadProfiles([
-        UploadProfile('Default', 'Unknown', 'Unknown', '', enabled: true),
+        UploadProfile(
+          'Default',
+          'Unknown',
+          ['-'],
+          ['Unknown'],
+          List.empty(),
+          enabled: true,
+        ),
       ]).then((_) {
         locator<UploadProfileService>().getUploadProfileChangeSink().add(null);
       });

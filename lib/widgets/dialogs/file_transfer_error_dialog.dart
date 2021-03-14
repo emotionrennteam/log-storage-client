@@ -32,31 +32,33 @@ class FileTransferErrorDialog extends StatelessWidget {
     return AlertDialog(
       actionsPadding: EdgeInsets.only(right: 20, bottom: 20),
       actions: [
-        EmotionDesignButton(
-          verticalPadding: 17,
-          child: Row(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(right: 5),
-                child: Icon(
-                  Icons.clear,
-                  color: LIGHT_RED,
+        IntrinsicWidth(
+          child: EmotionDesignButton(
+            verticalPadding: 12,
+            child: Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(right: 5),
+                  child: Icon(
+                    Icons.clear,
+                    color: LIGHT_RED,
+                  ),
                 ),
-              ),
-              Text(
-                'Clear Errors',
-                style: TextStyle(
-                  color: LIGHT_RED,
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
+                Text(
+                  'Clear Errors',
+                  style: TextStyle(
+                    color: LIGHT_RED,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
+            onPressed: () {
+              this.clearErrorsCallback();
+              Navigator.of(context).pop();
+            },
           ),
-          onPressed: () {
-            this.clearErrorsCallback();
-            Navigator.of(context).pop();
-          },
         ),
         EmotionDesignButton(
           color: Theme.of(context).canvasColor,

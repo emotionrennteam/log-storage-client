@@ -1,7 +1,9 @@
 library storage_manager;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:intl/intl.dart';
 import 'package:log_storage_client/models/file_transfer_exception.dart';
@@ -11,6 +13,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:log_storage_client/models/upload_profile.dart';
 import 'package:log_storage_client/utils/locator.dart';
+import 'package:log_storage_client/utils/storage_object_sorting.dart'
+    as StorageObjectSorting;
 import 'package:log_storage_client/services/progress_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:minio/minio.dart';
@@ -112,7 +116,7 @@ Future<List<StorageObject>> listObjectsInRemoteStorage(
   List<ListObjectsChunk> objectsChunks = await minio
       .listObjects(credentials.bucket, prefix: prefix, recursive: recursive)
       .toList();
-  List<StorageObject> storageObjects = List();
+  List<StorageObject> storageObjects = [];
 
   for (var objectsChunk in objectsChunks) {
     for (var object in objectsChunk.objects) {
@@ -188,7 +192,7 @@ Future<void> deleteObjectFromRemoteStorage(
   if (storageObject.isDirectory) {
     final childObjects = await listObjectsInRemoteStorage(
       credentials,
-      sortByDirectoriesFirstThenFiles,
+      StorageObjectSorting.sortByDirectoriesFirstThenFiles,
       storagePath: storageObject.path,
       recursive: true,
     );
@@ -275,6 +279,37 @@ Future<void> downloadObjectsFromRemoteStorage(
   }
 }
 
+/// Downloads the given [StorageObject] and returns it as a List of Bytes.
+Future<Uint8List> downloadObjectFromRemoteStorageAsByteList(
+    StorageConnectionCredentials credentials,
+    StorageObject storageObject) async {
+  final minio = _initializeClient(credentials);
+  final objectByteStream = await minio.getObject(
+    credentials.bucket,
+    storageObject.path,
+  );
+
+  return await objectByteStream.toBytes();
+}
+
+/// Creates an object from the given [data] and with name [objectName]
+/// on the S3 storage system.
+uploadObjectToRemoteStorage(StorageConnectionCredentials credentials,
+    String objectName, String data) async {
+  final encodedData = utf8.encode(data);
+  final streamController = StreamController<List<int>>();
+  streamController.sink.add(encodedData);
+  streamController.close();
+
+  final minio = _initializeClient(credentials);
+  await minio.putObject(
+    credentials.bucket,
+    objectName,
+    streamController.stream,
+    encodedData.length,
+  );
+}
+
 /// Recursively uploads all storage objects in the given [List<StorageObject>] and their
 /// children (files in sub-directories) to the storage system.
 ///
@@ -287,7 +322,8 @@ Future<void> downloadObjectsFromRemoteStorage(
 /// was already uploaded before.
 /// In addition to the given list of [storageObjectsToUpload] an additional JSON file named
 /// `_metadata.json` is created and uploaded. This file contains the given [uploadProfile]
-/// serialized as JSON.
+/// serialized as JSON. Moreover, the properties of the [uploadProfile] are assigned as
+/// user-deinfed object metadata (=S3 feature) to each object / file during upload.
 /// Directories are not directly uploaded as Minio / S3 automatically creates folders
 /// whenever a file path contains forward slashes.
 /// The parameter [localBaseDirectory] is required to extract relative file paths and should
@@ -318,6 +354,7 @@ Future<void> uploadObjectsToRemoteStorage(
     final metadataFile = await _createMetadataJsonFileFromUploadProfile(
       uploadProfile,
       localBaseDirectory,
+      fsEntitiesToUpload.where((e) => e is File).length,
     );
     fsEntitiesToUpload.add(metadataFile);
 
@@ -325,6 +362,14 @@ Future<void> uploadObjectsToRemoteStorage(
     final uploadProfileName = uploadProfile.name.length > 25
         ? uploadProfile.name.substring(0, 25)
         : uploadProfile.name;
+    final metadata = <String, String>{
+      'upload-profile': uploadProfile.name,
+      'vehicle': uploadProfile.vehicle,
+      'drivers': uploadProfile.drivers.join(';'),
+      'event-or-location': uploadProfile.eventOrLocation.join(';'),
+      'tags': uploadProfile.tags.join(';'),
+    };
+    metadata.updateAll((key, value) => _sanitizeHttpHeaderValue(value));
 
     int i = 0;
     for (final fsEntity in fsEntitiesToUpload) {
@@ -339,7 +384,8 @@ Future<void> uploadObjectsToRemoteStorage(
           "${timestamp}_$uploadProfileName/${_getRelativeFilePath(fsEntity, localBaseDirectory)}",
         );
         await minio
-            .putObject(credentials.bucket, fileName, stream, fileSizeInBytes)
+            .putObject(credentials.bucket, fileName, stream, fileSizeInBytes,
+                metadata: metadata)
             .then((value) {
           debugPrint('successfully uploaded file ${fsEntity.path}');
         }).catchError((error) {
@@ -364,18 +410,25 @@ Future<void> uploadObjectsToRemoteStorage(
   }
 }
 
-/// Custom sorting which sorts a [List] of [StorageObject]s by directories first
-/// followed by all files. Within the set of directories and files, all elements
-/// are sorted in alphabetically descending order.
-void sortByDirectoriesFirstThenFiles(List<StorageObject> listToSort) {
-  listToSort.sort((StorageObject o1, StorageObject o2) {
-    int compare = (o1.isDirectory == o2.isDirectory)
-        ? 0
-        : o1.isDirectory
-            ? -1
-            : 1;
-    if (compare != 0) return compare;
-    return o1.getBasename().compareTo(o2.getBasename());
+/// Gets the object metadata for the given [storageObject].
+///
+/// For each object stored in a bucket, Amazon S3 maintains a set of
+/// system metadata. When uploading an object to S3, one can assign
+/// user-defined metadata to the object. This function returns a
+/// [Map<String, String>] which contains all object metadata as key-
+/// value pairs.
+Future<Map<String, String>> getObjectMetadata(
+    StorageConnectionCredentials credentials,
+    StorageObject storageObject) async {
+  final minio = _initializeClient(credentials);
+  return minio
+      .statObject(credentials.bucket, storageObject.path)
+      .then((metadataMap) => metadataMap.metaData)
+      .catchError((error) {
+    debugPrint(
+      'Failed to retrieve metadata for storage object "${storageObject.path}". Error: $error.',
+    );
+    return null;
   });
 }
 
@@ -387,7 +440,7 @@ void sortByDirectoriesFirstThenFiles(List<StorageObject> listToSort) {
 /// directories, and symlinks.
 List<FileSystemEntity> _recursivelyListOnLocalFileSystem(
     List<StorageObject> storageObjects) {
-  final recursiveFileSystemEntities = List<FileSystemEntity>();
+  final List<FileSystemEntity> recursiveFileSystemEntities = [];
 
   storageObjects.forEach((StorageObject storageObject) {
     if (storageObject.isDirectory) {
@@ -413,7 +466,7 @@ List<FileSystemEntity> _recursivelyListOnLocalFileSystem(
 Future<List<StorageObject>> _recursivelyListOnRemoteStorage(
     List<StorageObject> storageObjects,
     StorageConnectionCredentials credentials) async {
-  final recursiveStorageObjects = List<StorageObject>();
+  final List<StorageObject> recursiveStorageObjects = [];
 
   for (StorageObject storageObject in storageObjects) {
     recursiveStorageObjects.add(storageObject);
@@ -421,7 +474,7 @@ Future<List<StorageObject>> _recursivelyListOnRemoteStorage(
     if (storageObject.isDirectory) {
       final childs = await listObjectsInRemoteStorage(
         credentials,
-        sortByDirectoriesFirstThenFiles,
+        StorageObjectSorting.sortByDirectoriesFirstThenFiles,
         storagePath: storageObject.path,
         recursive: true,
       );
@@ -516,6 +569,30 @@ String _sanitizeFilePathForS3(String filePath) {
   return filePath.startsWith('/') ? filePath.substring(1) : filePath;
 }
 
+/// Sanitizes the given [String] so that it can be safely used in an HTTP
+/// header.
+///
+/// All ASCII characters greater than or equal 32 (whitespace) and less
+/// than or equal 126 (`~`) are preserved. All other characters are unsafe
+/// to use in an HTTP header and therefore replaced by `_`.
+/// I'm not 100% sure which characters are actually safe to use in HTTP
+/// header fields due to confusing answers on StackOverflow and an
+/// uncomprehensive RFC.
+/// https://stackoverflow.com/questions/47687379/what-characters-are-allowed-in-http-header-values
+String _sanitizeHttpHeaderValue(String httpHeaderValue) => httpHeaderValue
+    .replaceAll('ä', 'ae')
+    .replaceAll('ö', 'oe')
+    .replaceAll('ü', 'ue')
+    .replaceAll('Ä', 'ae')
+    .replaceAll('Ö', 'oe')
+    .replaceAll('Ü', 'ue')
+    .replaceAll('ß', 'ss')
+    .codeUnits
+    .map((asciiCode) => (asciiCode >= 32 && asciiCode <= 126)
+        ? String.fromCharCode(asciiCode)
+        : '_')
+    .join();
+
 /// Creates a file `_metadata.json` in the given [UploadDirectory].
 ///
 /// The idea is that during each upload one additional file named
@@ -524,11 +601,20 @@ String _sanitizeFilePathForS3(String filePath) {
 /// as JSON. This information could later on be used by people
 /// who want to analyze the uploaded log data (e.g. for filtering
 /// for specific log data).
+///
+/// The value of [numberOfFiles] should contain the number of files
+/// which are about to be uploaded. This number is included in the
+/// JSON file `_metadata.json` as additional metadata.
 Future<FileSystemEntity> _createMetadataJsonFileFromUploadProfile(
-    UploadProfile uploadProfile, Directory uploadDirectory) async {
+  UploadProfile uploadProfile,
+  Directory uploadDirectory,
+  int numberOfFiles,
+) async {
   final jsonFile = File(
     path.join(uploadDirectory.path, '_metadata.json'),
   );
-  await jsonFile.writeAsString(uploadProfile.toJsonString());
+  await jsonFile.writeAsString(
+    uploadProfile.toJsonString(numberOfFiles),
+  );
   return jsonFile;
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:log_storage_client/models/upload_profile.dart';
 import 'package:log_storage_client/services/upload_profile_service.dart';
 import 'package:log_storage_client/utils/constants.dart' as constants;
-import 'package:log_storage_client/utils/app_settings.dart' as AppSettings;
+import 'package:log_storage_client/utils/i_app_settings.dart';
 import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/widgets/emotion_design_button.dart';
 
@@ -28,6 +28,7 @@ class SelectUploadProfileDialog extends StatefulWidget {
 }
 
 class _SelectUploadProfileDialogState extends State<SelectUploadProfileDialog> {
+  IAppSettings _appSettings = locator<IAppSettings>();
   List<UploadProfile> _uploadProfiles = [];
   UploadProfile _activeUploadProfile;
   Function _onUploadButtonPressed;
@@ -35,7 +36,7 @@ class _SelectUploadProfileDialogState extends State<SelectUploadProfileDialog> {
   @override
   void initState() {
     super.initState();
-    AppSettings.getUploadProfiles().then((uploadProfiles) {
+    this._appSettings.getUploadProfiles().then((uploadProfiles) {
       setState(() {
         this._uploadProfiles = uploadProfiles;
         if (this._uploadProfiles != null && this._uploadProfiles.isNotEmpty) {
@@ -54,28 +55,30 @@ class _SelectUploadProfileDialogState extends State<SelectUploadProfileDialog> {
       title: Text('Upload Profile Selection'),
       actionsPadding: EdgeInsets.only(right: 20, bottom: 20),
       actions: [
-        EmotionDesignButton(
-          verticalPadding: 17,
-          child: Row(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(right: 5),
-                child: Icon(
-                  Icons.upload_file,
-                  color: Theme.of(context).accentColor,
+        IntrinsicWidth(
+          child: EmotionDesignButton(
+            verticalPadding: 12,
+            child: Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(right: 5),
+                  child: Icon(
+                    Icons.upload_file,
+                    color: Theme.of(context).accentColor,
+                  ),
                 ),
-              ),
-              Text(
-                'Upload',
-                style: TextStyle(
-                  color: Theme.of(context).accentColor,
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
+                Text(
+                  'Upload',
+                  style: TextStyle(
+                    color: Theme.of(context).accentColor,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
+            onPressed: this._onUploadButtonPressed,
           ),
-          onPressed: this._onUploadButtonPressed,
         ),
         EmotionDesignButton(
           color: Theme.of(context).canvasColor,
@@ -147,7 +150,9 @@ class _SelectUploadProfileDialogState extends State<SelectUploadProfileDialog> {
                       }
                     });
                   });
-                  await AppSettings.setUploadProfiles(this._uploadProfiles);
+                  await this
+                      ._appSettings
+                      .setUploadProfiles(this._uploadProfiles);
                   locator<UploadProfileService>()
                       .getUploadProfileChangeSink()
                       .add(null);

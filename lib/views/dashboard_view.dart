@@ -1,9 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:log_storage_client/models/storage_connection_credentials.dart';
 import 'package:log_storage_client/models/upload_profile.dart';
-import 'package:log_storage_client/utils/app_settings.dart' as appSettings;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:log_storage_client/utils/i_app_settings.dart';
+import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/utils/storage_manager.dart';
 import 'package:log_storage_client/utils/utils.dart';
 import 'package:log_storage_client/widgets/dashboard/active_upload_profile_panel.dart';
@@ -23,6 +24,7 @@ class DashboardView extends StatefulWidget {
 }
 
 class _DashboardViewState extends State<DashboardView> {
+  IAppSettings _appSettings = locator<IAppSettings>();
   String _bucket;
   List<Bucket> _buckets;
   String _endpoint;
@@ -37,11 +39,11 @@ class _DashboardViewState extends State<DashboardView> {
   initState() {
     super.initState();
 
-    appSettings.getStorageBucket().then((String bucket) {
+    this._appSettings.getStorageBucket().then((String bucket) {
       this._bucket = bucket == null || bucket.isEmpty ? '-' : bucket;
     });
 
-    appSettings.getStorageConnectionCredentials().then((credentials) {
+    this._appSettings.getStorageConnectionCredentials().then((credentials) {
       if (mounted) {
         setState(() {
           this._storageConnectionCredentials = credentials;
@@ -68,7 +70,7 @@ class _DashboardViewState extends State<DashboardView> {
       );
     });
 
-    appSettings.getUploadProfiles().then((List<UploadProfile> profiles) {
+    this._appSettings.getUploadProfiles().then((List<UploadProfile> profiles) {
       if (mounted) {
         setState(() {
           if (profiles != null && profiles.isNotEmpty) {
@@ -79,7 +81,7 @@ class _DashboardViewState extends State<DashboardView> {
       }
     });
 
-    appSettings.getLogFileDirectoryPath().then((logFileDirectoryPath) {
+    this._appSettings.getLogFileDirectoryPath().then((logFileDirectoryPath) {
       this._logFileDirectoryPath = logFileDirectoryPath;
     });
   }

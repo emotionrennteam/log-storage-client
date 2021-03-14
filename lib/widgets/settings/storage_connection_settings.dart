@@ -1,6 +1,7 @@
 import 'package:log_storage_client/models/storage_connection_credentials.dart';
-import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/constants.dart';
+import 'package:log_storage_client/utils/i_app_settings.dart';
+import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/utils/storage_manager.dart';
 import 'package:log_storage_client/utils/utils.dart';
 import 'package:log_storage_client/widgets/emotion_design_button.dart';
@@ -29,11 +30,7 @@ class StorageConnectionSettings extends StatefulWidget {
 }
 
 class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
-  final _accessKeyFocusNode = FocusNode();
-  final _bucketFocusNode = FocusNode();
-  final _portFocusNode = FocusNode();
-  final _regionFocusNode = FocusNode();
-  final _secretKeyFocusNode = FocusNode();
+  IAppSettings _appSettings = locator<IAppSettings>();
   bool _tlsEnabled = false;
   bool _isTlsTooltipVisible = false;
   bool _connectionTestInProgress = false;
@@ -44,48 +41,38 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
     this._readSettings();
   }
 
-  @override
-  void dispose() {
-    this._accessKeyFocusNode.dispose();
-    this._bucketFocusNode.dispose();
-    this._portFocusNode.dispose();
-    this._regionFocusNode.dispose();
-    this._secretKeyFocusNode.dispose();
-    super.dispose();
-  }
-
   void _readSettings() async {
-    getStorageAccessKey().then(
+    this._appSettings.getStorageAccessKey().then(
       (value) => setState(() {
         widget.accessKeyController.text = value;
       }),
     );
-    getStorageBucket().then(
+    this._appSettings.getStorageBucket().then(
       (value) => setState(() {
         widget.bucketController.text = value;
       }),
     );
-    getStorageEndpoint().then(
+    this._appSettings.getStorageEndpoint().then(
       (value) => setState(() {
         widget.endpointController.text = value;
       }),
     );
-    getStoragePort().then(
+    this._appSettings.getStoragePort().then(
       (value) => setState(() {
         if (value != null) widget.portController.text = value.toString();
       }),
     );
-    getStorageRegion().then(
+    this._appSettings.getStorageRegion().then(
       (value) => setState(() {
         widget.regionController.text = value;
       }),
     );
-    getStorageSecretKey().then(
+    this._appSettings.getStorageSecretKey().then(
       (value) => setState(() {
         widget.secretKeyController.text = value;
       }),
     );
-    getStorageTlsEnabled().then(
+    this._appSettings.getStorageTlsEnabled().then(
       (value) => setState(() {
         if (value != null) {
           this._tlsEnabled = value;
@@ -119,7 +106,6 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           'Endpoint',
           's3.amazonaws.com',
           widget.endpointController,
-          this._portFocusNode,
           'The hostname or IP address of the storage\nsystem (without port and scheme). For\nconnecting to S3 from Amazon Web\nServices please use "s3.amazonaws.com".',
         ),
         Divider(color: Colors.transparent),
@@ -127,7 +113,6 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           'Port',
           '443',
           widget.portController,
-          this._accessKeyFocusNode,
           'The TCP/IP port number for the storage system.\nTypically port 80 for HTTP and 443 for HTTPS.',
           isValueNumerical: true,
         ),
@@ -136,7 +121,6 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           'Region',
           'eu-central-1',
           widget.regionController,
-          this._regionFocusNode,
           'The name of the location where the bucket\nis stored e.g. "eu-central-1". This property is\nrequired so that the storage system can locate\nwhere your data is stored at. The default value\nis "us-east-1".',
         ),
         Divider(color: Colors.transparent),
@@ -144,7 +128,6 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           'Bucket',
           'logs',
           widget.bucketController,
-          null,
           'The name of the bucket. A bucket is the\nuppermost storage unit in S3 storage systems\n(root). Buckets can store files and directories.',
         ),
         Divider(color: Colors.transparent),
@@ -152,7 +135,6 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           'Access Key',
           'eyW/+8ZtsgT81Cb0e8OVxzJAQP5lY7Dcamnze+JnWEDT ...',
           widget.accessKeyController,
-          this._secretKeyFocusNode,
           'The access key is like  a user-id that\nuniquely identifies your account.',
           isObscured: true,
         ),
@@ -161,7 +143,6 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
           'Secret Key',
           '0tZn+7QQCxphpHwTm6/dC3LpP5JGIbYl6PK8Sy79R+P2 ...',
           widget.secretKeyController,
-          this._bucketFocusNode,
           'The secret key is the password to your\naccount.',
           isObscured: true,
         ),
@@ -201,7 +182,7 @@ class _StorageConnectionSettingsState extends State<StorageConnectionSettings> {
         Align(
           alignment: Alignment.centerLeft,
           child: EmotionDesignButton(
-            verticalPadding: 17,
+            verticalPadding: 12,
             child: Wrap(
               spacing: 10,
               verticalDirection: VerticalDirection.down,

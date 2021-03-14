@@ -31,9 +31,9 @@ class ProgressService {
     return this._progressValueController.sink;
   }
 
-  endProgressStream() {
+  Future<void> endProgressStream() async {
     this._progressValueController.sink.add(1.0);
-    Future.delayed(Duration(seconds: 5), () {
+    await Future.delayed(Duration(seconds: 5), () {
       this._isInProgressController.sink.add(false);
       this._lastestValueOfIsInProgress = false;
     });
@@ -51,13 +51,13 @@ class ProgressService {
 
   /// Getter to retrieve the latest info whether a file transfer
   /// is currently in progress.
-  /// 
+  ///
   /// This getter function somehow represents a duplicate because
   /// it emits the latest value of [_isInProgressController].
   /// Nevertheless, this getter is required because when listening
   /// to a stream, one cannot read the latest value and therefore
   /// new listeners cannot reliably determine whether a file transfer
-  /// is in progress. 
+  /// is in progress.
   bool isInProgress() => this._lastestValueOfIsInProgress;
 
   /// Stream that emits events with the name of the currently active process (e.g. 'Download' or 'Upload').

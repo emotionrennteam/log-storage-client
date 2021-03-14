@@ -1,13 +1,12 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:log_storage_client/models/file_transfer_exception.dart';
 import 'package:log_storage_client/models/upload_profile.dart';
 import 'package:log_storage_client/services/auto_upload_service.dart';
 import 'package:log_storage_client/services/upload_profile_service.dart';
-import 'package:log_storage_client/utils/app_settings.dart' as appSettings;
 import 'package:log_storage_client/utils/constants.dart';
+import 'package:log_storage_client/utils/i_app_settings.dart';
 import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/services/navigation_service.dart';
 import 'package:log_storage_client/utils/constants.dart' as constants;
@@ -53,11 +52,12 @@ class AppDrawer extends StatefulWidget {
 }
 
 class _AppDrawerState extends State<AppDrawer> {
+  IAppSettings _appSettings = locator<IAppSettings>();
   String _activeRouteName = DashboardRoute;
   double _progressValue = 0.0;
   bool _isInProgress = false;
   String _processName;
-  List<FileTransferException> _errors = new List();
+  List<FileTransferException> _errors = [];
   Function _dialogSetState;
   List<UploadProfile> _uploadProfiles = [];
   UploadProfile _activeUploadProfile;
@@ -71,7 +71,7 @@ class _AppDrawerState extends State<AppDrawer> {
 
     this._loadUploadProfiles();
 
-    appSettings.getAutoUploadEnabled().then(this._enableDisableAutoUpload);
+    this._appSettings.getAutoUploadEnabled().then(this._enableDisableAutoUpload);
     locator<AutoUploadService>()
         .getAutoUploadChangeStream()
         .listen(this._enableDisableAutoUpload);
@@ -116,7 +116,7 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   void _loadUploadProfiles() {
-    appSettings.getUploadProfiles().then((profiles) {
+    this._appSettings.getUploadProfiles().then((profiles) {
       if (mounted) {
         setState(() {
           if (profiles != null && profiles.isNotEmpty) {
@@ -138,7 +138,7 @@ class _AppDrawerState extends State<AppDrawer> {
       return;
     }
 
-    appSettings.getLogFileDirectoryPath().then((logFileDirectoryPath) {
+    this._appSettings.getLogFileDirectoryPath().then((logFileDirectoryPath) {
       if (logFileDirectoryPath != null && logFileDirectoryPath.isNotEmpty) {
         if (mounted) {
           setState(() {
@@ -155,7 +155,7 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   List<Widget> _buildAppDrawerItems(BuildContext context) {
-    final appDrawerItems = List<Widget>();
+    final List<Widget> appDrawerItems = [];
     widget.appDrawerItems.asMap().forEach((index, element) {
       appDrawerItems.add(
         Padding(
@@ -242,7 +242,7 @@ class _AppDrawerState extends State<AppDrawer> {
           this._dialogSetState = setState;
           return FileTransferErrorDialog(
             this._errors,
-            () => this._errors = List(),
+            () => this._errors = [],
           );
         });
       },
@@ -422,7 +422,7 @@ class _AppDrawerState extends State<AppDrawer> {
                     }
                   });
                 });
-                await appSettings.setUploadProfiles(this._uploadProfiles);
+                await this._appSettings.setUploadProfiles(this._uploadProfiles);
                 locator<UploadProfileService>()
                     .getUploadProfileChangeSink()
                     .add(null);

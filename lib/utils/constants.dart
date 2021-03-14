@@ -11,6 +11,10 @@ const Color DARK_RED = Color.fromRGBO(217, 4, 41, 1);
 /// Name of the file which triggers an auto upload of all log files.
 const String AUTO_UPLOAD_TRIGGER_FILE = '_UPLOAD';
 
+/// Name of the file which contains suggestions / entries
+/// for auto completion of [UploadProfile]s.
+const String UPLOAD_PROFILE_SUGGESTIONS_FILE = 'DO_NOT_DELETE_uploadProfileSuggestions.json';
+
 const double BORDER_RADIUS_SMALL = 7.0;
 const double BORDER_RADIUS_MEDIUM = 10.0;
 const double BORDER_RADIUS_LARGE = 28.0;

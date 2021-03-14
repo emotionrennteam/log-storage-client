@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:log_storage_client/models/storage_object.dart';
-import 'package:log_storage_client/utils/app_settings.dart';
 import 'package:log_storage_client/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:log_storage_client/utils/i_app_settings.dart';
+import 'package:log_storage_client/utils/locator.dart';
 import 'package:log_storage_client/utils/storage_manager.dart'
     as storageManager;
 import 'package:path/path.dart' as path;
@@ -18,10 +19,11 @@ import 'package:path/path.dart' as path;
 /// Unfortunately, Dart's API doesn't support recursive watching on Linux.
 /// That means, auto upload will only work on OS X and Windows.
 class AutoUploadService {
+  IAppSettings _appSettings = locator<IAppSettings>();
   StreamSubscription _fileEventStreamSubscription;
   StreamController<bool> _autoUploadChangeController =
       new StreamController.broadcast();
-  
+
   Stream<bool> getAutoUploadChangeStream() {
     return this._autoUploadChangeController.stream;
   }
@@ -48,12 +50,13 @@ class AutoUploadService {
         recursive: true,
       );
       _fileEventStreamSubscription = eventStream.listen(
-        (event) {
+        (event) async {
           /// Start upload on [FileSystemEvent.modify] of the trigger file.
           if ((path.basename(event.path) == AUTO_UPLOAD_TRIGGER_FILE) &&
               (!event.isDirectory) &&
-              (event.type == FileSystemEvent.modify)) {
-            this._triggerFileUpload(path.dirname(event.path));
+              (event.type == FileSystemEvent.create ||
+                  event.type == FileSystemEvent.modify)) {
+            await this._triggerFileUpload(path.dirname(event.path));
           }
         },
       );
@@ -63,14 +66,15 @@ class AutoUploadService {
   }
 
   // Disables auto upload which effectively turns of the file-system watcher.
-  void disableAutoUpload() {
+  Future<void> disableAutoUpload() async {
     this._autoUploadChangeController.sink.add(false);
-    this._fileEventStreamSubscription?.cancel();
+    await this._fileEventStreamSubscription?.cancel();
   }
 
-  void _triggerFileUpload(String directoryName) async {
-    final uploadProfile = await getEnabledUploadProfile();
-    final credentials = await getStorageConnectionCredentials();
+  Future<void> _triggerFileUpload(String directoryName) async {
+    final uploadProfile = await this._appSettings.getEnabledUploadProfile();
+    final credentials =
+        await this._appSettings.getStorageConnectionCredentials();
     final storageObjects = [
       StorageObject(
         directoryName,
@@ -78,7 +82,7 @@ class AutoUploadService {
       ),
     ];
 
-    storageManager.uploadObjectsToRemoteStorage(
+    await storageManager.uploadObjectsToRemoteStorage(
       credentials,
       storageObjects,
       Directory(directoryName),

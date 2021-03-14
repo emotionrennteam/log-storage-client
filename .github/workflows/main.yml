@@ -29,6 +29,9 @@ jobs:
           flutter-version: 2.1.0-10.0.pre
           channel: dev
      
+      - name: Enable support for Linux desktop
+        run: flutter config --enable-linux-desktop
+     
       - name: Flutter build Linux
         run: flutter build linux
 
